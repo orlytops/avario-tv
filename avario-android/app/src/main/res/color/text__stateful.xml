@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected On -->
+    <item
+        android:state_selected="true"
+        android:state_activated="true"
+        android:color="@color/blue"/>
+
+    <!-- Selected Off -->
+    <item
+        android:state_selected="true"
+        android:state_activated="false"
+        android:color="?android:attr/textColor"/>
+
+    <!-- Deselected On -->
+    <item
+        android:state_selected="false"
+        android:state_activated="true"
+        android:color="@color/blue"/>
+
+
+    <!-- Deselected Off -->
+    <item android:color="?android:attr/textColor"/>
+</selector>

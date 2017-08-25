@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:clickable="true"
+    android:id="@+id/room">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="46dp"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/media"
+        android:gravity="left|center_vertical"
+        android:textColor="@color/roomselector__item__text" />
+
+    <ImageView
+        android:id="@id/media"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginRight="22dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:duplicateParentState="false"
+        android:padding="7dp"
+        android:scaleType="fitXY" /> <!-- android:src="@drawable/ic__roomselect__indicator" -->
+</RelativeLayout>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!-- App Globals -->
+    <attr name="selectionColor" format="color|reference"/>
+    <attr name="topbarBG" format="color|reference"/>
+    <attr name="botbarBG" format="color|reference"/>
+    <attr name="roomselectHandleBG" format="color|reference"/>
+    <attr name="roomselectBodyBG" format="color|reference"/>
+    <attr name="roomselectDividerColor" format="color|reference"/>
+
+    <!-- Widget Specific -->
+    <declare-styleable name="ElementsBar">
+        <attr name="pageSize" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="RoomSelector">
+        <attr name="handleHeight" format="dimension"/>
+        <attr name="handleBG" format="color|reference"/>
+        <attr name="bodyBG" format="color|reference"/>
+        <attr name="widgetWidth" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="DevicesList">
+        <attr name="headerHeight" format="dimension"/>
+        <attr name="rowHeight" format="dimension"/>
+        <attr name="contentMargin" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="MediaList"/>
+    <declare-styleable name="DialButtonBar"/>
+</resources>

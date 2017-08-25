@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+  <RelativeLayout
+      android:id="@+id/root"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/triangle"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/bg__nowplaying__triangle"
+        android:elevation="30dp"
+        android:rotation="90"/>
+
+    <RelativeLayout
+        android:id="@+id/body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/triangle"
+        android:background="@drawable/bg__nowplaying"
+        android:elevation="30dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp">
+
+      <ImageView
+          android:id="@+id/thumbnail"
+          android:layout_width="110dp"
+          android:layout_height="110dp"
+          android:layout_alignParentLeft="true"
+          android:layout_centerVertical="true"
+          android:background="@color/black__60"/>
+
+      <RelativeLayout
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_alignParentRight="true"
+          android:layout_centerVertical="true"
+          android:layout_marginLeft="15dp"
+          android:layout_toRightOf="@id/thumbnail">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/seek"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/artist"
+            android:layout_marginTop="8dp"
+            android:gravity="left|center_vertical"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artist"
+            android:layout_marginLeft="42dp"
+            android:layout_marginTop="8dp"
+            android:layout_toRightOf="@id/seek"
+            android:gravity="right|center_vertical"
+            android:textSize="16sp"/>
+      </RelativeLayout>
+    </RelativeLayout>
+  </RelativeLayout>
+</RelativeLayout>

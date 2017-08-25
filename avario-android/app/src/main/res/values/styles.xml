@@ -1,0 +1,87 @@
+<resources>
+
+    <style name="ModeButton">
+        <item name="android:layout_width">52dp</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:padding">7dp</item>
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="ModeButton.Head">
+        <item name="android:layout_marginLeft">0dp</item>
+    </style>
+
+    <style name="HomeMediaButton">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginLeft">7dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="HomeMediaButton.Head">
+        <item name="android:layout_marginLeft">0dp</item>
+    </style>
+
+    <style name="DialButton">
+        <item name="android:layout_width">@dimen/dialbutton__width</item>
+        <item name="android:layout_height">@dimen/dialbutton__height</item>
+        <item name="android:layout_marginLeft">0dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:scaleType">fitXY</item>
+    </style>
+
+    <style name="DialButton.Tail">
+        <item name="android:layout_marginLeft">@dimen/dialbutton__margin__left</item>
+    </style>
+
+    <style name="DialAccessory"/>
+
+    <style name="DialAccessory.Holder">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="DialAccessory.Light">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="DialAccessory.Thermo" parent="DialAccessory.Light"></style>
+    <style name="DialAccessory.Volume" parent="DialAccessory.Light"></style>
+
+    <style name="DialAccessory.Switch">
+        <item name="android:layout_width">115dp</item>
+        <item name="android:layout_height">115dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="DialAccessory.Cover">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="DialAccessory.MediaSeek">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">40sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="DialAccessory.MediaDpad">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:padding">36dp</item>
+    </style>
+</resources>

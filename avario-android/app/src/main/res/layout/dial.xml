@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:seekarc="http://schemas.android.com/apk/res-auto">
+
+    <com.triggertrap.seekarc.SeekArc
+        android:id="@+id/arc"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:padding="23dp"
+        seekarc:continuous="false"
+        seekarc:rotation="180"
+        seekarc:startAngle="30"
+        seekarc:sweepAngle="300"
+        seekarc:boundsInner="86dp"
+        seekarc:boundsOuter="36dp"
+        seekarc:arcWidth="12dp"
+        seekarc:progressWidth="14dp"
+        seekarc:thumbOffset="64dp"
+        seekarc:roundEdges="true"/>
+
+    <!-- Switch Dial -->
+    <FrameLayout
+        android:id="@+id/acc__switch__holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/DialAccessory.Holder">
+
+        <ImageButton
+            android:id="@+id/switch__btn"
+            style="@style/DialAccessory.Switch"/>
+    </FrameLayout>
+
+    <!-- Light Dial -->
+    <FrameLayout
+        android:id="@+id/acc__light__holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/DialAccessory.Holder">
+        <TextView
+            android:id="@+id/light__percent"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:text="@string/dial__powerdefault"
+            android:textSize="40sp"
+            android:textStyle="normal"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
+            style="@style/DialAccessory.Light"/>
+
+        <ImageButton
+            android:id="@+id/light__btn"
+            android:layout_width="115dp"
+            android:layout_height="115dp"
+            android:scaleType="fitXY"
+            android:padding="20dp"
+            android:background="@android:color/transparent"
+            style="@style/DialAccessory.Light"/>
+    </FrameLayout>
+
+    <!-- Volume Dial -->
+    <FrameLayout
+        android:id="@+id/acc__volume__holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/DialAccessory.Holder">
+        <TextView
+            android:id="@+id/volume__percent"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:text="@string/dial__powerdefault"
+            android:textSize="40sp"
+            android:textStyle="normal"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
+            style="@style/DialAccessory.Volume"/>
+
+        <ImageButton
+            android:id="@+id/volume__btn"
+            android:layout_width="115dp"
+            android:layout_height="115dp"
+            android:scaleType="fitXY"
+            android:padding="20dp"
+            android:background="@android:color/transparent"
+            style="@style/DialAccessory.Volume"/>
+    </FrameLayout>
+
+    <!-- Thermo Dial -->
+    <FrameLayout
+        android:id="@+id/acc__thermo__holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/DialAccessory.Holder">
+        <TextView
+            android:id="@+id/thermo__percent"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:text="@string/dial__powerdefault"
+            android:textSize="32sp"
+            android:textStyle="normal"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
+            style="@style/DialAccessory.Thermo"/>
+
+        <ImageButton
+            android:id="@+id/thermo__btn"
+            android:layout_width="115dp"
+            android:layout_height="115dp"
+            android:scaleType="fitXY"
+            android:padding="20dp"
+            android:background="@android:color/transparent"
+            style="@style/DialAccessory.Thermo"/>
+    </FrameLayout>
+
+
+    <!-- Cover Dial -->
+    <FrameLayout
+        android:id="@+id/acc__cover__holder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        style="@style/DialAccessory.Holder">
+        <FrameLayout
+            android:id="@+id/cover__controls__holder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:id="@+id/cover__open"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentTop="true"
+                    style="@style/DialAccessory.Cover"/>
+
+                <TextView
+                    android:id="@+id/cover__close"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentBottom="true"
+                    style="@style/DialAccessory.Cover"/>
+            </RelativeLayout>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/cover__percent"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:text="@string/dial__powerdefault"
+            android:textSize="40sp"
+            android:textStyle="normal"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
+            android:visibility="gone"/>
+    </FrameLayout>
+
+    <!-- MediaSeek Dial -->
+    <RelativeLayout
+        android:id="@+id/acc__media__holder"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        style="@style/DialAccessory.Holder">
+
+        <TextView
+            android:id="@+id/mediaseek__current"
+            style="@style/DialAccessory.MediaSeek"/>
+
+        <TextView
+            android:id="@+id/mediaseek__remaining"
+            android:layout_below="@id/mediaseek__current"
+            style="@style/DialAccessory.MediaSeek"/>
+    </RelativeLayout>
+
+    <!-- MediaDpad Dial -->
+    <RelativeLayout
+        android:id="@+id/acc__dpad__holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/DialAccessory.Holder">
+
+        <ImageButton
+            android:id="@+id/dpad__center"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            style="@style/DialAccessory.MediaDpad"/>
+
+        <ImageButton
+            android:id="@+id/dpad__up"
+            android:layout_width="120dp"
+            android:layout_height="60dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="175dp"
+            style="@style/DialAccessory.MediaDpad"/>
+
+        <ImageButton
+            android:id="@+id/dpad__down"
+            android:layout_width="120dp"
+            android:layout_height="60dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="175dp"
+            style="@style/DialAccessory.MediaDpad"/>
+
+        <ImageButton
+            android:id="@+id/dpad__left"
+            android:layout_width="60dp"
+            android:layout_height="120dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="175dp"
+            style="@style/DialAccessory.MediaDpad"/>
+
+        <ImageButton
+            android:id="@+id/dpad__right"
+            android:layout_width="60dp"
+            android:layout_height="120dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="175dp"
+            style="@style/DialAccessory.MediaDpad"/>
+    </RelativeLayout>
+</merge>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    android:id="@+id/fragment_dial"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <com.avariohome.avario.widget.Dial
+        android:id="@+id/dial"
+        android:layout_width="360dp"
+        android:layout_height="360dp"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"/>
+
+    <!--<FrameLayout-->
+        <!--android:id="@+id/dial__holder"-->
+        <!--android:layout_width="360dp"-->
+        <!--android:layout_height="360dp"-->
+        <!--android:layout_marginTop="10dp"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_alignParentTop="true">-->
+
+        <!--<com.triggertrap.seekarc.SeekArc-->
+            <!--android:id="@+id/dial"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:padding="23dp"-->
+            <!--seekarc:continuous="false"-->
+            <!--seekarc:rotation="180"-->
+            <!--seekarc:startAngle="30"-->
+            <!--seekarc:sweepAngle="300"-->
+            <!--seekarc:boundsInner="86dp"-->
+            <!--seekarc:boundsOuter="36dp"-->
+            <!--seekarc:arcWidth="12dp"-->
+            <!--seekarc:progressWidth="14dp"-->
+            <!--seekarc:thumbOffset="64dp"-->
+            <!--seekarc:roundEdges="true"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/dial__power_percentage"-->
+            <!--android:layout_width="100dp"-->
+            <!--android:layout_height="100dp"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:text="@string/dial__powerdefault"-->
+            <!--android:textSize="40sp"-->
+            <!--android:textStyle="normal"-->
+            <!--android:fontFamily="sans-serif-light"-->
+            <!--android:gravity="center"-->
+            <!--android:visibility="invisible"/>-->
+
+        <!--<ImageButton-->
+            <!--android:id="@+id/dial__power"-->
+            <!--android:layout_width="115dp"-->
+            <!--android:layout_height="115dp"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:scaleType="fitXY"-->
+            <!--android:padding="20dp"-->
+            <!--android:background="@android:color/transparent"/>-->
+
+    <!--</FrameLayout>-->
+
+    <FrameLayout
+        android:layout_below="@id/dial"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true">
+
+        <com.avariohome.avario.widget.DialButtonBar
+            android:id="@+id/dialbuttons"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_gravity="center"/>
+
+    </FrameLayout>
+</RelativeLayout>

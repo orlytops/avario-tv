@@ -1,0 +1,54 @@
+<resources>
+    <string name="app__name">Avario</string>
+    <string name="app__empty"></string>
+
+    <string name="app__url__mqtt">tcp://192.168.57.1:1883</string>
+    <string name="app__url__mqtt_topic">avario</string>
+    <string name="app__url__assetroot">/local/assets</string>
+    <string name="app__url__bootstrap">/local/bootstrap.json</string>
+    <string name="app__path__bootstrap">bootstrap.json</string>
+    <string name="app__path__notif">notifications.json</string>
+
+    <string name="mode__climate">Climate</string>
+    <string name="mode__energy">Energy</string>
+    <string name="mode__cctv">CCTV</string>
+
+    <string name="deviceslist__selected">%1$d Selected</string>
+    <string name="medialist__unknown__title">Unknown Media</string>
+    <string name="medialist__unknown__artist">Unknown Artist</string>
+    <string name="medialist__unknown__album">Unknown Album</string>
+    <string name="medialist__unknown__timer">--:--</string>
+    <string name="sourcelist__unknown">Unknown Media Source</string>
+
+    <string name="dial__powervalue">%1$d%2$s</string>
+    <string name="dial__powerdefault">0%%</string>
+    <string name="dial__coveropen">OPEN</string>
+    <string name="dial__coverclose">CLOSE</string>
+    <string name="dial__coverstop">STOP</string>
+
+    <string name="setting__host">Host Domain / IP</string>
+    <string name="setting__host__hint">0.0.0.0</string>
+    <string name="setting__port">Host Port</string>
+    <string name="setting__port__hint">80</string>
+    <string name="setting__ssl">SSL</string>
+    <string name="setting__username">Username</string>
+    <string name="setting__password">Password</string>
+    <string name="setting__title">Settings</string>
+    <string name="setting__refresh">Refresh Caches</string>
+    <string name="setting__save">Save</string>
+    <string name="setting__discard">Discard</string>
+    <string name="setting__working">Working...%1$s</string>
+    <string name="setting__toast__cleared">Cache cleared</string>
+    <string name="setting__toast__empty">Please set all the settings correctly</string>
+
+    <string name="notif__close">Close</string>
+
+    <string name="message__mqtt__connecting">Connecting MQTT...</string>
+    <string name="message__state__fetching">Refreshing states...</string>
+
+    <string name="error__generic">[0x00000] Unexpected Error Occurred</string>
+    <string name="error__0x00100">[0x00100] Bootstrap JSON could not be fetched from the server</string>
+    <string name="error__0x00110">[0x00110] Invalid username / password combination when fetching bootstrap JSON</string>
+    <string name="error__0x00120">[0x00120] Bootstrap JSON could not be parsed</string>
+    <string name="error__0x00200">[0x00200] Asset "%s" could not be fetched</string>
+</resources>

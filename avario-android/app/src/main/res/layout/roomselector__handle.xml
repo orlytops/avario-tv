@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="?attr/colorPrimary"
+    android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+    android:clickable="true">
+
+    <ImageView
+        android:id="@+id/location"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginLeft="4dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:padding="7dp"
+        android:scaleType="fitXY"/> <!-- android:src="@drawable/ic__locator__default" -->
+
+    <ImageView
+        android:id="@+id/indicator"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginRight="20dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:padding="7dp"
+        android:scaleType="fitXY"/> <!-- android:src="@drawable/ic__more" -->
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/location"
+        android:layout_toLeftOf="@id/indicator"
+        android:layout_marginRight="10dp"/>
+</RelativeLayout>
