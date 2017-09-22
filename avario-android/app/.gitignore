@@ -1,1 +1,4 @@
-/build
+/build/android-profile
+/build/generated
+/build/intermediates
+/build/outputs/logs
