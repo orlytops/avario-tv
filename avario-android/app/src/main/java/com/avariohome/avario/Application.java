@@ -16,7 +16,7 @@ import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.core.WorkerThread;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.mqtt.MqttManager;
-import com.avariohome.avario.util.Log;
+import com.avariohome.avario.service.KioskService;
 import com.avariohome.avario.util.RefStringUtil;
 
 import org.json.JSONException;
@@ -28,7 +28,7 @@ import java.util.Iterator;
 /**
  * <p>This class extends the Application class
  * to manage global data for the app.</p>
- *
+ * <p>
  * Created by aeroheart-c6  on 20/12/2016.
  */
 public class Application extends android.app.Application {
@@ -50,8 +50,7 @@ public class Application extends android.app.Application {
             Application.worker.start();
 
             Application.workHandler = Application.worker.getHandler();
-        }
-        catch (IllegalThreadStateException exception) {
+        } catch (IllegalThreadStateException exception) {
             // worker thread already started
         }
 
@@ -79,12 +78,13 @@ public class Application extends android.app.Application {
         Config.getInstance(this);
 
         NotificationArray
-            .getInstance()
-            .setContext(this);
+                .getInstance()
+                .setContext(this);
 
         BluetoothScanner
-            .getInstance()
-            .setContext(this);
+                .getInstance()
+                .setContext(this);
+        startService(new Intent(this, KioskService.class));
     }
 
 
@@ -119,13 +119,13 @@ public class Application extends android.app.Application {
                     try {
                         JSONObject mediaJSON = mediaRootJSON.getJSONObject(key);
                         String state = mediaJSON
-                            .getJSONObject("new_state")
-                            .getString("state");
+                                .getJSONObject("new_state")
+                                .getString("state");
 
                         if (state.equals(Constants.ENTITY_MEDIA_STATE_PLAYING))
                             mediaJSON.put(
-                                "media_position_live",
-                                mediaJSON.getDouble("media_position_live") + 1
+                                    "media_position_live",
+                                    mediaJSON.getDouble("media_position_live") + 1
                             );
 
 //                        StringBuilder builder = new StringBuilder()
@@ -139,15 +139,15 @@ public class Application extends android.app.Application {
 //                            .append(mediaJSON.optDouble("media_position_live", -1.0));
 //
 //                        Log.d(Constants.LOGTAG_EMERGENCY, builder.toString());
+                    } catch (JSONException exception) {
                     }
-                    catch (JSONException exception) {}
                 }
+            } catch (AvarioException exception) {
             }
-            catch (AvarioException exception) {}
 
             LocalBroadcastManager
-                .getInstance(this.context)
-                .sendBroadcast(this.intent);
+                    .getInstance(this.context)
+                    .sendBroadcast(this.intent);
 
             this.tick();
         }

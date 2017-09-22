@@ -46,6 +46,9 @@
     <string name="message__mqtt__connecting">Connecting MQTT...</string>
     <string name="message__state__fetching">Refreshing states...</string>
 
+    <string name="not_lock_whitelisted">This app has not been given Device Owner
+        privileges to manage this device and start lock task mode</string>
+
     <string name="error__generic">[0x00000] Unexpected Error Occurred</string>
     <string name="error__0x00100">[0x00100] Bootstrap JSON could not be fetched from the server</string>
     <string name="error__0x00110">[0x00110] Invalid username / password combination when fetching bootstrap JSON</string>

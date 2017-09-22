@@ -1,165 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<android.support.v4.widget.DrawerLayout
-    android:id="@+id/drawer"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:presetsbar="http://schemas.android.com/apk/res-auto"
     xmlns:roomselect="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="false"
     tools:context=".activity.MainActivity">
 
-  <!-- Main Content -->
-  <RelativeLayout
-      android:id="@+id/content"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_above="@+id/elements"
-        android:layout_below="@+id/toolbar"
-        android:baselineAligned="false"
-        android:orientation="horizontal"
-        android:weightSum="2">
-
-      <FrameLayout
-          android:id="@+id/controls__holder"
-          android:layout_width="0dp"
-          android:layout_height="match_parent"
-          android:layout_weight="1"/>
-
-      <FrameLayout
-          android:layout_width="0dp"
-          android:layout_height="match_parent"
-          android:layout_weight="1">
-
-        <fragment
-            android:id="@+id/dial"
-            android:name="com.avariohome.avario.fragment.DialFragment"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"/>
-      </FrameLayout>
-
-    </LinearLayout>
-
-    <com.avariohome.avario.widget.ElementsBar
-        android:id="@id/elements"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="?attr/botbarBG"
-        presetsbar:pageSize="11"/>
-
+    <!-- Main Content -->
     <RelativeLayout
-        android:id="@+id/toolbar"
-        android:layout_width="0dp"
-        android:layout_height="?attr/actionBarSize"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="275dp"
-        android:background="?attr/topbarBG">
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-      <ImageButton
-          android:id="@+id/devices"
-          android:layout_width="36dp"
-          android:layout_height="36dp"
-          android:layout_centerVertical="true"
-          android:layout_marginLeft="5dp"
-          android:background="@android:color/transparent"
-          android:padding="7dp"
-          android:scaleType="fitXY"/> <!-- android:src="@drawable/ic__dropdown" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_above="@+id/elements"
+            android:layout_below="@+id/toolbar"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:weightSum="2">
 
-      <ImageButton
-          android:id="@+id/notif"
-          android:layout_width="36dp"
-          android:layout_height="36dp"
-          android:layout_centerVertical="true"
-          android:layout_toRightOf="@id/devices"
-          android:background="@android:color/transparent"
-          android:padding="7dp"
-          android:scaleType="fitXY"/>
+            <FrameLayout
+                android:id="@+id/controls__holder"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
 
-      <!-- Media Buttons -->
-      <ImageButton
-          android:id="@+id/prev"
-          style="@style/HomeMediaButton"
-          android:layout_marginLeft="100dp"
-          android:layout_toRightOf="@id/devices"/>
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
 
-      <ImageButton
-          android:id="@+id/play"
-          style="@style/HomeMediaButton"
-          android:layout_toRightOf="@id/prev"/>
+                <fragment
+                    android:id="@+id/dial"
+                    android:name="com.avariohome.avario.fragment.DialFragment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center" />
+            </FrameLayout>
 
-      <ImageButton
-          android:id="@+id/next"
-          style="@style/HomeMediaButton"
-          android:layout_toRightOf="@id/play"/>
+        </LinearLayout>
 
-      <ImageButton
-          android:id="@+id/volume"
-          style="@style/HomeMediaButton"
-          android:layout_toRightOf="@id/next"/>
+        <com.avariohome.avario.widget.ElementsBar
+            android:id="@id/elements"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="?attr/botbarBG"
+            presetsbar:pageSize="11" />
 
-      <!-- Mode Buttons -->
-      <ImageButton
-          android:id="@+id/temperature"
-          style="@style/ModeButton.Head"
-          android:layout_toLeftOf="@+id/bolt"/>
+        <RelativeLayout
+            android:id="@+id/toolbar"
+            android:layout_width="0dp"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="275dp"
+            android:background="?attr/topbarBG">
 
-      <ImageButton
-          android:id="@id/bolt"
-          style="@style/ModeButton"
-          android:layout_toLeftOf="@+id/cctv"/>
+            <ImageButton
+                android:id="@+id/devices"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:background="@android:color/transparent"
+                android:padding="7dp"
+                android:scaleType="fitXY" /> <!-- android:src="@drawable/ic__dropdown" -->
 
-      <ImageButton
-          android:id="@id/cctv"
-          style="@style/ModeButton"
-          android:layout_toLeftOf="@+id/home"/>
+            <ImageButton
+                android:id="@+id/notif"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/devices"
+                android:background="@android:color/transparent"
+                android:padding="7dp"
+                android:scaleType="fitXY" />
 
-      <ImageButton
-          android:id="@id/home"
-          style="@style/ModeButton"
-          android:layout_alignParentRight="true"
-          android:layout_marginRight="20dp"/>
+            <!-- Media Buttons -->
+            <ImageButton
+                android:id="@+id/prev"
+                style="@style/HomeMediaButton"
+                android:layout_marginLeft="100dp"
+                android:layout_toRightOf="@id/devices" />
+
+            <ImageButton
+                android:id="@+id/play"
+                style="@style/HomeMediaButton"
+                android:layout_toRightOf="@id/prev" />
+
+            <ImageButton
+                android:id="@+id/next"
+                style="@style/HomeMediaButton"
+                android:layout_toRightOf="@id/play" />
+
+            <ImageButton
+                android:id="@+id/volume"
+                style="@style/HomeMediaButton"
+                android:layout_toRightOf="@id/next" />
+
+            <!-- Mode Buttons -->
+            <ImageButton
+                android:id="@+id/temperature"
+                style="@style/ModeButton.Head"
+                android:layout_toLeftOf="@+id/bolt" />
+
+            <ImageButton
+                android:id="@id/bolt"
+                style="@style/ModeButton"
+                android:layout_toLeftOf="@+id/cctv" />
+
+            <ImageButton
+                android:id="@id/cctv"
+                style="@style/ModeButton"
+                android:layout_toLeftOf="@+id/home" />
+
+            <ImageButton
+                android:id="@id/home"
+                style="@style/ModeButton"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp" />
+        </RelativeLayout>
+
+        <com.avariohome.avario.widget.RoomSelector
+            android:id="@+id/selector"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            roomselect:bodyBG="?attr/roomselectBodyBG"
+            roomselect:handleBG="?attr/roomselectHandleBG"
+            roomselect:handleHeight="?attr/actionBarSize"
+            roomselect:widgetWidth="275dp" />
+
+        <WebView
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/toolbar"
+            android:visibility="gone" />
     </RelativeLayout>
 
-    <com.avariohome.avario.widget.RoomSelector
-        android:id="@+id/selector"
-        android:layout_width="match_parent"
+    <!-- Navigation Drawer -->
+    <com.avariohome.avario.widget.MediaSourcesList
+        android:id="@+id/sources"
+        android:layout_width="275dp"
         android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        roomselect:bodyBG="?attr/roomselectBodyBG"
-        roomselect:handleBG="?attr/roomselectHandleBG"
-        roomselect:handleHeight="?attr/actionBarSize"
-        roomselect:widgetWidth="275dp"/>
-
-    <WebView
-        android:id="@+id/webview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar"
-        android:visibility="gone"/>
-  </RelativeLayout>
-
-  <!-- Navigation Drawer -->
-  <com.avariohome.avario.widget.MediaSourcesList
-      android:id="@+id/sources"
-      android:layout_width="275dp"
-      android:layout_height="match_parent"
-      android:layout_gravity="left"
-      android:background="#FF333333"
-      android:paddingBottom="?attr/actionBarSize"
-      android:paddingLeft="25dp"
-      android:paddingRight="25dp"
-      android:paddingTop="?attr/actionBarSize"/>
+        android:layout_gravity="left"
+        android:background="#FF333333"
+        android:paddingBottom="?attr/actionBarSize"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:paddingTop="?attr/actionBarSize" />
 
 </android.support.v4.widget.DrawerLayout>
 
