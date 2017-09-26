@@ -34,7 +34,7 @@
             android:stateNotNeeded="true"
         -->
         <activity
-            android:name=".activity.KioskActivity"
+            android:name=".activity.BootActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppTheme.NoActivityAnim">
 
@@ -52,23 +52,23 @@
             </intent-filter>
             -->
         </activity>
-        <activity
-            android:name=".activity.BootActivity"
-            android:enabled="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <!-- <activity
+             android:name=".activity.BootActivity"
+             android:enabled="false">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+                 <category android:name="android.intent.category.HOME" />
+                 <category android:name="android.intent.category.DEFAULT" />
+             </intent-filter>
+         </activity>
 
 
-        <receiver android:name=".receiver.BootReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+         <receiver android:name=".receiver.BootReceiver">
+             <intent-filter>
+                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+             </intent-filter>
+         </receiver>-->
 
         <receiver
             android:name=".service.DeviceAdminReceiver"

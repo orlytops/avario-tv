@@ -19,7 +19,7 @@
         <item name="android:layout_height">48dp</item>
         <item name="android:layout_centerVertical">true</item>
         <item name="android:layout_marginLeft">7dp</item>
-        <item name="android:padding">12dp</item>
+        <item name="android:padding">10dp</item>
         <item name="android:scaleType">fitXY</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
@@ -40,7 +40,7 @@
         <item name="android:layout_marginLeft">@dimen/dialbutton__margin__left</item>
     </style>
 
-    <style name="DialAccessory"/>
+    <style name="DialAccessory" />
 
     <style name="DialAccessory.Holder">
         <item name="android:layout_gravity">center</item>
@@ -53,6 +53,7 @@
     </style>
 
     <style name="DialAccessory.Thermo" parent="DialAccessory.Light"></style>
+
     <style name="DialAccessory.Volume" parent="DialAccessory.Light"></style>
 
     <style name="DialAccessory.Switch">
