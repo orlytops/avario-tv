@@ -74,6 +74,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -177,8 +179,7 @@ public class MainActivity extends BaseActivity {
             this.loadFromStateArray();
             this.showBusyDialog(null);
             this.fetchCurrentStates();
-        }
-        else if (!this.settingsOpened) {
+        } else if (!this.settingsOpened) {
             this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
         }
         if (BluetoothScanner.getInstance().isEnabled())
@@ -243,8 +244,7 @@ public class MainActivity extends BaseActivity {
 
         try {
             topics = states.getFCMTopics();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             return;
         }
 
@@ -256,35 +256,35 @@ public class MainActivity extends BaseActivity {
 
             for (int index = 0, length = topics.length(); index < length; index++)
                 fcm.subscribeToTopic(topics.getString(index));
+        } catch (JSONException exception) {
         }
-        catch (JSONException exception) {}
     }
 
 
     private void initViews() {
-        this.drawer = (DrawerLayout)this.findViewById(R.id.drawer);
-        this.contentRL = (RelativeLayout)this.findViewById(R.id.content);
-        this.controlsFL = (FrameLayout)this.findViewById(R.id.controls__holder);
-        this.roomSelector = (RoomSelector)this.findViewById(R.id.selector);
-        this.elementsBar = (ElementsBar)this.findViewById(R.id.elements);
-        this.sourcesList = (MediaSourcesList)this.findViewById(R.id.sources);
+        this.drawer = (DrawerLayout) this.findViewById(R.id.drawer);
+        this.contentRL = (RelativeLayout) this.findViewById(R.id.content);
+        this.controlsFL = (FrameLayout) this.findViewById(R.id.controls__holder);
+        this.roomSelector = (RoomSelector) this.findViewById(R.id.selector);
+        this.elementsBar = (ElementsBar) this.findViewById(R.id.elements);
+        this.sourcesList = (MediaSourcesList) this.findViewById(R.id.sources);
 
-        this.devicesIB = (ImageButton)this.findViewById(R.id.devices);
+        this.devicesIB = (ImageButton) this.findViewById(R.id.devices);
 
-        this.homeIB = (ImageButton)this.findViewById(R.id.home);
-        this.boltIB = (ImageButton)this.findViewById(R.id.bolt);
-        this.cctvIB = (ImageButton)this.findViewById(R.id.cctv);
-        this.tempIB = (ImageButton)this.findViewById(R.id.temperature);
-        this.contentWV = (WebView)this.findViewById(R.id.webview);
+        this.homeIB = (ImageButton) this.findViewById(R.id.home);
+        this.boltIB = (ImageButton) this.findViewById(R.id.bolt);
+        this.cctvIB = (ImageButton) this.findViewById(R.id.cctv);
+        this.tempIB = (ImageButton) this.findViewById(R.id.temperature);
+        this.contentWV = (WebView) this.findViewById(R.id.webview);
 
-        this.playIB = (ImageButton)this.findViewById(R.id.play);
-        this.nextIB = (ImageButton)this.findViewById(R.id.next);
-        this.prevIB = (ImageButton)this.findViewById(R.id.prev);
-        this.volumeIB = (ImageButton)this.findViewById(R.id.volume);
+        this.playIB = (ImageButton) this.findViewById(R.id.play);
+        this.nextIB = (ImageButton) this.findViewById(R.id.next);
+        this.prevIB = (ImageButton) this.findViewById(R.id.prev);
+        this.volumeIB = (ImageButton) this.findViewById(R.id.volume);
 
         this.notifIB = (ImageButton) this.findViewById(R.id.notif);
 
-        this.dialFragment = (DialFragment)this
+        this.dialFragment = (DialFragment) this
             .getSupportFragmentManager()
             .findFragmentById(R.id.dial);
     }
@@ -295,7 +295,7 @@ public class MainActivity extends BaseActivity {
         FrameLayout.LayoutParams params;
 
         params = new FrameLayout.LayoutParams(
-            (int)(275.00 * metrics.density + this.getResources().getDimensionPixelSize(R.dimen.deviceslist__inset)),
+            (int) (275.00 * metrics.density + this.getResources().getDimensionPixelSize(R.dimen.deviceslist__inset)),
             FrameLayout.LayoutParams.MATCH_PARENT
         );
         params.gravity = Gravity.LEFT | Gravity.TOP;
@@ -307,7 +307,7 @@ public class MainActivity extends BaseActivity {
         this.controlsFL.addView(this.devicesList);
 
         params = new FrameLayout.LayoutParams(
-            (int)(375.00 * metrics.density),
+            (int) (375.00 * metrics.density),
             FrameLayout.LayoutParams.MATCH_PARENT
         );
         params.gravity = Gravity.LEFT | Gravity.TOP;
@@ -355,7 +355,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void checkNotifications() {
-        List<Notification> notifications  = NotificationArray.getInstance().getNotifications();
+        List<Notification> notifications = NotificationArray.getInstance().getNotifications();
 
         notifIB.setVisibility(
             (notifications != null && !notifications.isEmpty())
@@ -366,8 +366,7 @@ public class MainActivity extends BaseActivity {
     private void loadFromStateArray() {
         try {
             this.roomSelector.setup();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
                 .getErrorDialog(this, exception)
                 .show();
@@ -375,8 +374,8 @@ public class MainActivity extends BaseActivity {
     }
 
     private void loadAssets() {
-        int[][] resourceIds = new int[][] {
-            new int[] {
+        int[][] resourceIds = new int[][]{
+            new int[]{
                 R.id.home,
                 R.id.cctv,
                 R.id.bolt,
@@ -390,7 +389,7 @@ public class MainActivity extends BaseActivity {
                 R.id.next,
                 R.id.volume,
             },
-            new int[] {
+            new int[]{
                 R.array.ic__mode__home,
                 R.array.ic__mode__cctv,
                 R.array.ic__mode__bolt,
@@ -410,7 +409,7 @@ public class MainActivity extends BaseActivity {
             AssetUtil.toDrawable(
                 this,
                 resourceIds[1][index],
-                new AssetUtil.ImageViewCallback((ImageButton)this.findViewById(resourceIds[0][index]))
+                new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index]))
             );
         }
     }
@@ -443,22 +442,21 @@ public class MainActivity extends BaseActivity {
     /**
      * Forces the specified view to show inside the `controlsFL` container. Method is currently set
      * to limit from either the:
-     *      * devicesList
-     *      * mediaList
+     * * devicesList
+     * * mediaList
      * Provide other views and it does nothing
      *
      * @param view
      */
     private void toggleLeftView(View view) {
-        if ((view != this.devicesList && view != this.mediaList)  ||
+        if ((view != this.devicesList && view != this.mediaList) ||
             (view.getVisibility() == View.VISIBLE))
             return;
 
         if (view.getId() == this.devicesList.getId()) {
             this.devicesList.setVisibility(View.VISIBLE);
             this.mediaList.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             this.devicesList.setVisibility(View.GONE);
             this.mediaList.setVisibility(View.VISIBLE);
         }
@@ -466,11 +464,11 @@ public class MainActivity extends BaseActivity {
 
     private void registerEvents() {
         UIListener uiListener = new UIListener();
-        WidgetListener widgetListener =  new WidgetListener();
+        WidgetListener widgetListener = new WidgetListener();
 
         this.homeIB.setOnTouchListener(uiListener);
 
-        for (ImageButton button : new ImageButton[] {
+        for (ImageButton button : new ImageButton[]{
             this.devicesIB,
             this.homeIB,
             this.boltIB,
@@ -482,7 +480,7 @@ public class MainActivity extends BaseActivity {
             this.volumeIB
         })
             button.setOnClickListener(uiListener);
-        
+
         this.notifIB.setOnClickListener(uiListener);
 
         this.roomSelector.setSelectionListener(widgetListener);
@@ -509,7 +507,7 @@ public class MainActivity extends BaseActivity {
         this.contentWV.getSettings().setJavaScriptEnabled(true);
         this.contentWV.setWebViewClient(new WebViewClient() {
             @Override
-            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error){
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 handler.proceed();
             }
         });
@@ -562,8 +560,7 @@ public class MainActivity extends BaseActivity {
 
             this.updateForRoom(climate);
             this.toggleLeftView(this.devicesList);
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
                 .getErrorToast(this, exception)
                 .show();
@@ -617,9 +614,8 @@ public class MainActivity extends BaseActivity {
             this.updateElements(state, room.data.getJSONArray("elements"));
             this.updateDevices(state, room.data.getJSONArray("list_devices"));
             this.updateDefaultsForEntity(room);
-        }
-        catch (JSONException exception) {
-            String[] msgArgs = new String[] {
+        } catch (JSONException exception) {
+            String[] msgArgs = new String[]{
                 String.format("%s.elements and/or %s.list_devices", room.id, room.id)
             };
 
@@ -634,9 +630,8 @@ public class MainActivity extends BaseActivity {
             if (temp == null || temp.length() <= 0)
                 throw new JSONException("background is not valid");
 
-            backgroundUrls = new String[] { temp };
-        }
-        catch (JSONException exception) {
+            backgroundUrls = new String[]{temp};
+        } catch (JSONException exception) {
             backgroundUrls = this.getResources().getStringArray(R.array.bg__app__light);
         }
 
@@ -649,7 +644,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Updates the dial depending on the currently selected room. This should only be called when:
-     *      - a room is selected
+     * - a room is selected
      *
      * @param entity a RoomSelector.Room instance to base the dial devices on. When null is passed,
      *               the currently selected room will be automatically retrieved
@@ -663,13 +658,12 @@ public class MainActivity extends BaseActivity {
 
         try {
             devicesJSON = entity.data.getJSONArray("dial_devices");
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             PlatformUtil
                 .getErrorToast(this, new AvarioException(
                     Constants.ERROR_STATE_MISSINGKEY,
                     exception,
-                    new Object[] { entity.id + ".dial_devices" }
+                    new Object[]{entity.id + ".dial_devices"}
                 ))
                 .show();
 
@@ -680,17 +674,16 @@ public class MainActivity extends BaseActivity {
         if (entityIds.size() > 0) {
             this.dialFragment.setEnabled(true);
             this.dialFragment.setEntities(entityIds);
-        }
-        else
+        } else
             this.dialFragment.setEnabled(false);
     }
 
     /**
      * "re-adapts" the dial based on the selections from the provided widget. Currently the widgets
      * being supported are:
-     *      * DevicesList
-     *      * MediaList
-     *
+     * * DevicesList
+     * * MediaList
+     * <p>
      * The method does nothing when it is passed with an unsupported widget
      */
     private void updateDialFromSelections(View view) {
@@ -740,11 +733,9 @@ public class MainActivity extends BaseActivity {
                 entity.selected = false;
 
                 loop++;
-            }
-            catch (NullPointerException exception) {
+            } catch (NullPointerException exception) {
                 loop++;
-            }
-            catch (AvarioException exception) {
+            } catch (AvarioException exception) {
                 misses++;
 
                 PlatformUtil
@@ -764,7 +755,7 @@ public class MainActivity extends BaseActivity {
         adapter.notifyItemRangeRemoved(end, diff);
 
         // additions
-        for (int index = oldSize  + misses; index < newSize; index++) {
+        for (int index = oldSize + misses; index < newSize; index++) {
             try {
                 JSONObject entityJSON = state.getEntity(elementsJSON.optString(index));
                 Entity element;
@@ -810,11 +801,9 @@ public class MainActivity extends BaseActivity {
                 entity.selected = false;
 
                 loop++;
-            }
-            catch (NullPointerException exception) {
+            } catch (NullPointerException exception) {
                 loop++;
-            }
-            catch (AvarioException exception) {
+            } catch (AvarioException exception) {
                 misses++;
 
                 PlatformUtil
@@ -925,8 +914,8 @@ public class MainActivity extends BaseActivity {
 
         try {
             this.progressPD.dismiss();
+        } catch (IllegalArgumentException ignored) {
         }
-        catch (IllegalArgumentException ignored) {}
     }
 
     // TODO remove obsolete code
@@ -938,8 +927,7 @@ public class MainActivity extends BaseActivity {
             APIClient
                 .getInstance()
                 .getCurrentState(this.stateListener);
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
                 .getErrorToast(this, exception)
                 .show();
@@ -957,7 +945,7 @@ public class MainActivity extends BaseActivity {
      ***********************************************************************************************
      */
     private class UIListener implements View.OnClickListener,
-                                        View.OnTouchListener {
+        View.OnTouchListener {
         @Override
         public void onClick(View view) {
             MainActivity self = MainActivity.this;
@@ -1014,7 +1002,7 @@ public class MainActivity extends BaseActivity {
             self.unloadWebView();
 
             self.activeModeIB.setActivated(false);
-            self.activeModeIB = (ImageButton)view;
+            self.activeModeIB = (ImageButton) view;
             self.activeModeIB.setActivated(true);
 
             self.roomSelector.setEnabled(view.getId() == R.id.home);
@@ -1088,10 +1076,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private class WidgetListener implements RoomSelector.SelectionListener,
-                                            ElementsBar.Listener,
-                                            DevicesList.Listener,
-                                            MediaList.Listener,
-                                            MediaSourcesList.Listener {
+        ElementsBar.Listener,
+        DevicesList.Listener,
+        MediaList.Listener,
+        MediaSourcesList.Listener {
 
         // region Room Selector
         @Override
@@ -1127,8 +1115,7 @@ public class MainActivity extends BaseActivity {
 
             try {
                 devicesJSON = entity.data.getJSONArray("dial_devices");
-            }
-            catch (JSONException exception) {
+            } catch (JSONException exception) {
                 PlatformUtil
                     .getErrorToast(self, new AvarioException(
                         Constants.ERROR_STATE_MISSINGKEY,
@@ -1179,7 +1166,7 @@ public class MainActivity extends BaseActivity {
         public void onMediaListUpdated() {
             MainActivity self = MainActivity.this;
 
-            if (self.mediaList.getVisibility() ==  View.VISIBLE)
+            if (self.mediaList.getVisibility() == View.VISIBLE)
                 self.updateDialFromSelections(self.mediaList);
         }
 
@@ -1194,14 +1181,25 @@ public class MainActivity extends BaseActivity {
         public void onMediaSourceSelected(String name, String appId) {
             MainActivity self = MainActivity.this;
 
+            String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
+
+            Pattern p = Pattern.compile(URL_REGEX);
+            Matcher m = p.matcher(appId);
+
             Intent intent = self
                 .getPackageManager()
                 .getLaunchIntentForPackage(appId);
 
             if (intent != null)
                 self.startActivity(intent);
-            else {
-                String[] exceptionArgs = new String[] { name };
+            else if (m.find()) {
+                /*Intent intentWebview = new Intent(self, WebViewActivity.class);
+                intentWebview.putExtra("URL", appId);
+                self.startActivity(intentWebview);*/
+                loadWebView(appId);
+
+            } else {
+                String[] exceptionArgs = new String[]{name};
 
                 PlatformUtil
                     .getErrorToast(self, new AvarioException(
@@ -1265,7 +1263,8 @@ public class MainActivity extends BaseActivity {
 
     private class MqttConnectionListener implements MqttConnection.Listener {
         @Override
-        public void onConnection(MqttConnection connection, boolean reconnection) {}
+        public void onConnection(MqttConnection connection, boolean reconnection) {
+        }
 
         @Override
         public void onConnectionFailed(MqttConnection connection, AvarioException exception) {
@@ -1282,8 +1281,7 @@ public class MainActivity extends BaseActivity {
                 message = StateArray
                     .getInstance()
                     .getErrorMessage(exception.getCode());
-            }
-            catch (NullPointerException nullE) {
+            } catch (NullPointerException nullE) {
                 message = null;
             }
 
@@ -1303,8 +1301,7 @@ public class MainActivity extends BaseActivity {
                 message = StateArray
                     .getInstance()
                     .getErrorMessage(exception.getCode());
-            }
-            catch (NullPointerException e) {
+            } catch (NullPointerException e) {
                 message = null;
             }
 
@@ -1327,7 +1324,8 @@ public class MainActivity extends BaseActivity {
         }
 
         @Override
-        public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous, MqttConnection.Status current) {}
+        public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous, MqttConnection.Status current) {
+        }
     }
 
     private class CurrentStateListener extends APIRequestListener<JSONArray> {
@@ -1342,7 +1340,8 @@ public class MainActivity extends BaseActivity {
         }
 
         @Override
-        public void onDone(JSONArray response, VolleyError error) {}
+        public void onDone(JSONArray response, VolleyError error) {
+        }
 
         @Override
         public void onResponse(final JSONArray response) {
@@ -1356,8 +1355,7 @@ public class MainActivity extends BaseActivity {
                         StateArray.getInstance()
                             .updateFromHTTP(response)
                             .broadcastChanges(null, StateArray.FROM_HTTP);
-                    }
-                    catch (AvarioException exception) {
+                    } catch (AvarioException exception) {
                         CurrentStateListener.this.reportError(exception);
                     }
 
@@ -1396,8 +1394,7 @@ public class MainActivity extends BaseActivity {
                     if (code != Constants.ERROR_CURRENTSTATE_NETWORK && self.retries >= self.retriesMax) {
                         self.retries = 0;
                         self.reportError(new AvarioException(code, error));
-                    }
-                    else if (code != Constants.ERROR_CURRENTSTATE_NETWORK)
+                    } else if (code != Constants.ERROR_CURRENTSTATE_NETWORK)
                         self.reportError(new AvarioException(code, error));
 
                     self.retries++;
@@ -1413,8 +1410,7 @@ public class MainActivity extends BaseActivity {
                 message = StateArray
                     .getInstance()
                     .getErrorMessage(exception.getCode());
-            }
-            catch (NullPointerException nullEx) {
+            } catch (NullPointerException nullEx) {
                 message = null;
             }
 
@@ -1453,7 +1449,7 @@ public class MainActivity extends BaseActivity {
             if (self.settingsOpened)
                 return;
 
-            if(!self.isNotifListVisible())
+            if (!self.isNotifListVisible())
                 self.showNotifDialog(notification);
         }
     }
@@ -1466,16 +1462,18 @@ public class MainActivity extends BaseActivity {
             if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                 switch (state) {
-                case BluetoothAdapter.STATE_OFF:
-                    BluetoothScanner.getInstance().scanLeDevice(false);
-                    break;
-                case BluetoothAdapter.STATE_ON:
-                    BluetoothScanner.getInstance().scanLeDevice(true);
-                    break;
+                    case BluetoothAdapter.STATE_OFF:
+                        BluetoothScanner.getInstance().scanLeDevice(false);
+                        break;
+                    case BluetoothAdapter.STATE_ON:
+                        BluetoothScanner.getInstance().scanLeDevice(true);
+                        break;
                 }
             }
         }
-    };
+    }
+
+    ;
 
     /*
      ***********************************************************************************************
@@ -1506,12 +1504,11 @@ public class MainActivity extends BaseActivity {
                             .toString()
                     );
                     specJSON.put("timeout", EntityUtil.getNagleDelay(this.media.data));
-                }
-                catch (JSONException exception) {
+                } catch (JSONException exception) {
                     throw new AvarioException(
                         Constants.ERROR_STATE_MISSINGKEY,
                         exception,
-                        new Object[] {
+                        new Object[]{
                             String.format("%s.controls.%s",
                                 this.media.id,
                                 this.directive
@@ -1524,10 +1521,9 @@ public class MainActivity extends BaseActivity {
                     .getInstance()
                     .executeRequest(specJSON, this.media.id, this.media.id, new MediaAPIsListener(
                         this.media.id,
-                        new String[] { this.media.id }
+                        new String[]{this.media.id}
                     ));
-            }
-            catch (final AvarioException exception) {
+            } catch (final AvarioException exception) {
                 Application.mainHandler.post(new Runnable() {
                     @Override
                     public void run() {

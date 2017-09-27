@@ -120,13 +120,13 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
         catch (JSONException exception) {
             holder.titleTV.setText("");
 
-            PlatformUtil.logError(new AvarioException(
+            /*PlatformUtil.logError(new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
                 new Object[] {
                     String.format("%s.new_state.attributes.media_title", entityJSON.optString("entity_id"))
                 })
-            );
+            );*/
         }
 
         // Artist
@@ -141,13 +141,13 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
         catch (JSONException exception) {
             holder.artistTV.setText("");
 
-            PlatformUtil.logError(new AvarioException(
+            /*PlatformUtil.logError(new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
                 new Object[] {
                     String.format("%s.new_state.attributes.media_artist", entityJSON.optString("entity_id"))
                 })
-            );
+            );*/
         }
 
         this.bindSeek(holder, entity);
@@ -180,13 +180,13 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
         catch (JSONException exception) {
             holder.durationTV.setText(R.string.medialist__unknown__timer);
 
-            PlatformUtil.logError(new AvarioException(
+            /*PlatformUtil.logError(new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
                 new Object[] {
                     String.format("%s.new_state.attributes.media_duration", entityJSON.optString("entity_id"))
                 })
-            );
+            );*/
         }
     }
 
