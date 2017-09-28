@@ -21,4 +21,7 @@
     <dimen name="roomselect__inset__divider">24dp</dimen>
 
     <dimen name="dialog__notifbutton__height">48dp</dimen>
+
+    <dimen name="home_button_size">60dp</dimen>
+    <dimen name="mode_button_size">60dp</dimen>
 </resources>

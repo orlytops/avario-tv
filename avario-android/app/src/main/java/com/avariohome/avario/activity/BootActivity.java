@@ -77,7 +77,7 @@ public class BootActivity extends BaseActivity {
                 Context.DEVICE_POLICY_SERVICE);
         mPackageManager = getPackageManager();
         if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
-            setDefaultCosuPolicies(true);
+//            setDefaultCosuPolicies(true);
         } else {
             Toast.makeText(getApplicationContext(),
                     "Not Device owner", Toast.LENGTH_SHORT)
@@ -94,7 +94,7 @@ public class BootActivity extends BaseActivity {
                     Context.ACTIVITY_SERVICE);
             if (am.getLockTaskModeState() ==
                     ActivityManager.LOCK_TASK_MODE_NONE) {
-                startLockTask();
+//                startLockTask();
             }
         }
     }
