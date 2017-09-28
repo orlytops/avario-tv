@@ -3,10 +3,8 @@ package com.avariohome.avario.core;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
-import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.avariohome.avario.Application;
@@ -57,9 +55,8 @@ public class StateArray {
      * app.
      *
      * @param context the application context
-     *
      * @return instance of the StateArray singleton or null if the filesystem cache does not exist
-     *         yet
+     * yet
      */
     public static StateArray getInstance(Context context) {
         if (StateArray.instance == null)
@@ -127,17 +124,15 @@ public class StateArray {
                 return this;
 
             try {
-                if(!payload.getJSONObject("event_data").getString("tablet_id")
+                if (!payload.getJSONObject("event_data").getString("tablet_id")
                     .equals(PlatformUtil.getTabletId()))
                     return this;
-            } catch (JSONException exception){
+            } catch (JSONException exception) {
                 return this;
             }
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             return this;
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             return this;
         }
 
@@ -172,7 +167,7 @@ public class StateArray {
         Log.i(TAG, "Unsetting state data");
 
         // entities & media
-        String[] properties = new String[] {
+        String[] properties = new String[]{
             "entities",
             "media",
             "dial_buttons",
@@ -184,15 +179,15 @@ public class StateArray {
 
             try {
                 entitiesJSON = this.data.getJSONObject(property);
-            }
-            catch (JSONException exception) {
+            } catch (JSONException exception) {
                 continue;
             }
 
             entities = entitiesJSON.keys();
 
             while (entities.hasNext()) {
-                String entityId = entities.next();;
+                String entityId = entities.next();
+                ;
                 JSONObject entityJSON;
 
                 try {
@@ -203,8 +198,8 @@ public class StateArray {
 
                     if (entityJSON.has("old_state"))
                         entityJSON.put("old_state", new JSONObject());
+                } catch (JSONException exception) {
                 }
-                catch (JSONException exception) {}
             }
         }
 
@@ -230,12 +225,11 @@ public class StateArray {
             return this.data
                 .getJSONObject("entities")
                 .getJSONObject(entityId);
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] {
+                new Object[]{
                     String.format("entities.%s", entityId)
                 }
             );
@@ -248,12 +242,11 @@ public class StateArray {
 
         try {
             return this.data.getJSONObject("entities");
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "entities" }
+                new Object[]{"entities"}
             );
         }
     }
@@ -266,12 +259,11 @@ public class StateArray {
             return this.data
                 .getJSONObject("media")
                 .getJSONObject(entityId);
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "media." + entityId }
+                new Object[]{"media." + entityId}
             );
         }
     }
@@ -282,12 +274,11 @@ public class StateArray {
 
         try {
             return this.data.getJSONObject("media");
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "media" }
+                new Object[]{"media"}
             );
         }
     }
@@ -300,12 +291,11 @@ public class StateArray {
             return this.data
                 .getJSONObject("media.sources")
                 .getString(name);
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "media.sources." + name }
+                new Object[]{"media.sources." + name}
             );
         }
     }
@@ -318,12 +308,11 @@ public class StateArray {
             return this.data
                 .getJSONObject("rooms")
                 .getJSONObject(entityId);
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] {
+                new Object[]{
                     String.format("rooms.%s", entityId)
                 }
             );
@@ -335,18 +324,17 @@ public class StateArray {
             return null;
 
         JSONArray outputJSON = new JSONArray(),
-                  orderJSON;
+            orderJSON;
         JSONObject roomsJSON;
 
         try {
             orderJSON = this.data.getJSONArray("roomorder");
             roomsJSON = this.data.getJSONObject("rooms");
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[]{ "rooms and roomorder" }
+                new Object[]{"rooms and roomorder"}
             );
         }
 
@@ -355,12 +343,11 @@ public class StateArray {
 
             try {
                 outputJSON.put(roomsJSON.getJSONObject(roomId));
-            }
-            catch (JSONException exception) {
+            } catch (JSONException exception) {
                 throw new AvarioException(
                     Constants.ERROR_STATE_MISSINGKEY,
                     exception,
-                    new Object[] { "rooms" +  roomId }
+                    new Object[]{"rooms" + roomId}
                 );
             }
         }
@@ -374,12 +361,11 @@ public class StateArray {
 
         try {
             return this.data.getJSONObject("climate");
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "climate" }
+                new Object[]{"climate"}
             );
         }
     }
@@ -392,12 +378,11 @@ public class StateArray {
             return this.data
                 .getJSONObject("dials")
                 .getJSONObject(dialId);
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { String.format("dials.%s", dialId) }
+                new Object[]{String.format("dials.%s", dialId)}
             );
         }
     }
@@ -410,12 +395,11 @@ public class StateArray {
             return this.data
                 .getJSONObject("dial_buttons")
                 .getJSONObject(dialbuttonId);
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { String.format("dial_buttons.%s", dialbuttonId) }
+                new Object[]{String.format("dial_buttons.%s", dialbuttonId)}
             );
         }
     }
@@ -427,12 +411,11 @@ public class StateArray {
         try {
             return this.data
                 .getJSONObject("states");
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "states" }
+                new Object[]{"states"}
             );
         }
     }
@@ -445,12 +428,11 @@ public class StateArray {
             return this.data
                 .getJSONObject("states")
                 .getJSONObject(stateId);
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { String.format("states.%s", stateId) }
+                new Object[]{String.format("states.%s", stateId)}
             );
         }
     }
@@ -462,8 +444,8 @@ public class StateArray {
             return this.data
                 .getJSONObject("strings")
                 .getString(errorCode);
+        } catch (JSONException | NullPointerException exception) {
         }
-        catch (JSONException | NullPointerException exception) {}
 
         // Should there be an exception, continue execution
         try {
@@ -474,8 +456,7 @@ public class StateArray {
                 "string",
                 this.context.getPackageName()
             ));
-        }
-        catch (NoSuchFieldException exception) {
+        } catch (NoSuchFieldException exception) {
             message = this.context.getString(R.string.error__generic);
         }
 
@@ -488,12 +469,11 @@ public class StateArray {
                 .getJSONObject("settings")
                 .getJSONObject("delays")
                 .getInt("settings");
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.delays.settings" }
+                new Object[]{"settings.delays.settings"}
             );
         }
     }
@@ -504,12 +484,11 @@ public class StateArray {
                 .getJSONObject("settings")
                 .getJSONObject("delays")
                 .getInt("api_error");
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.delays.api_error" }
+                new Object[]{"settings.delays.api_error"}
             );
         }
     }
@@ -520,12 +499,11 @@ public class StateArray {
                 .getJSONObject("settings")
                 .getJSONObject("delays")
                 .getInt("nagle");
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.delays.nagle" }
+                new Object[]{"settings.delays.nagle"}
             );
         }
     }
@@ -536,12 +514,11 @@ public class StateArray {
                 .getJSONObject("settings")
                 .getJSONObject("delays")
                 .getInt("nagle_media");
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.delays.nagle_media" }
+                new Object[]{"settings.delays.nagle_media"}
             );
         }
     }
@@ -552,12 +529,11 @@ public class StateArray {
                 .getJSONObject("settings")
                 .getJSONObject("delays")
                 .getInt("inactivity");
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.delays.inactivity"}
+                new Object[]{"settings.delays.inactivity"}
             );
         }
     }
@@ -568,12 +544,11 @@ public class StateArray {
                 .getJSONObject("settings")
                 .getJSONObject("delays")
                 .getInt("post_ble");
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.delays.post_ble"}
+                new Object[]{"settings.delays.post_ble"}
             );
         }
     }
@@ -593,12 +568,11 @@ public class StateArray {
                 .getJSONObject("http")
                 .getJSONObject(configId)
                 .getString("username");
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] {
+                new Object[]{
                     String.format("settings.http.%s.username", configId)
                 }
             );
@@ -615,12 +589,11 @@ public class StateArray {
                 .getJSONObject("http")
                 .getJSONObject(configId)
                 .getString("password");
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] {
+                new Object[]{
                     String.format("settings.http.%s.password", configId)
                 }
             );
@@ -649,12 +622,11 @@ public class StateArray {
                 confJSON.getString("host"),
                 confJSON.getString("port")
             );
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] {
+                new Object[]{
                     String.format("settings.http.%s.(host|port|ssl)", configId)
                 }
             );
@@ -670,12 +642,11 @@ public class StateArray {
                     .getJSONObject("states")
                     .toString()
             );
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.api.states" }
+                new Object[]{"settings.api.states"}
             );
         }
     }
@@ -693,12 +664,11 @@ public class StateArray {
             );
 
             return specJSON;
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.api.bluetooth" }
+                new Object[]{"settings.api.bluetooth"}
             );
         }
     }
@@ -712,12 +682,11 @@ public class StateArray {
                     .getJSONObject("fcm")
                     .toString()
             );
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.api.fcm" }
+                new Object[]{"settings.api.fcm"}
             );
         }
     }
@@ -728,12 +697,11 @@ public class StateArray {
                 .getJSONObject("settings")
                 .getJSONObject("fcm")
                 .getJSONArray("topics");
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.fcm.topics" }
+                new Object[]{"settings.fcm.topics"}
             );
         }
     }
@@ -748,12 +716,25 @@ public class StateArray {
             return this.data
                 .getJSONObject("settings")
                 .getJSONObject("mqtt");
-        }
-        catch (NullPointerException | JSONException exception) {
+        } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                 Constants.ERROR_STATE_MISSINGKEY,
                 exception,
-                new Object[] { "settings.mqtt" }
+                new Object[]{"settings.mqtt"}
+            );
+        }
+    }
+
+    public JSONObject getSettingsSecurityTab() throws AvarioException {
+        try {
+            return this.data
+                .getJSONObject("settings")
+                .getJSONObject("securityTab");
+        } catch (NullPointerException | JSONException exception) {
+            throw new AvarioException(
+                Constants.ERROR_STATE_MISSINGKEY,
+                exception,
+                new Object[]{"settings.securityTab"}
             );
         }
     }
@@ -798,8 +779,8 @@ public class StateArray {
 
             try {
                 this.updateState(key, eventJSON.getJSONObject(key));
+            } catch (AvarioException | JSONException ignored) {
             }
-            catch (AvarioException | JSONException ignored) {}
         }
 
         try {
@@ -811,8 +792,7 @@ public class StateArray {
             APITimers.invalidate(entityId);
 
             return entityId;
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             return null;
         }
     }
@@ -820,20 +800,20 @@ public class StateArray {
     public StateArray updateFromHTTP(JSONArray httpJSON) throws AvarioException {
         for (int index = 0, length = httpJSON.length(); index < length; index++) {
             JSONObject updateJSON = httpJSON.optJSONObject(index),
-                       entityJSON = null;
+                entityJSON = null;
 
             // try with usual entity
             try {
                 entityJSON = this.getEntity(updateJSON.optString("entity_id"));
+            } catch (AvarioException ignored) {
             }
-            catch (AvarioException ignored) {}
 
             // try with media entity
             if (entityJSON == null)
                 try {
                     entityJSON = this.getMediaEntity(updateJSON.optString("entity_id"));
+                } catch (AvarioException ignored) {
                 }
-                catch (AvarioException ignored) {}
 
             // properly populate the old_state
             if (entityJSON != null)
@@ -848,13 +828,13 @@ public class StateArray {
                         newstateJSON.put("entity_id", entityJSON.getString("entity_id"));
                         this.updateState("old_state", newstateJSON);
                     }
+                } catch (JSONException ignored) {
                 }
-                catch (JSONException ignored) {}
 
             try {
                 this.updateState("new_state", updateJSON);
+            } catch (AvarioException | JSONException ignored) {
             }
-            catch (AvarioException | JSONException ignored) {}
         }
 
         this.dirty = true;
@@ -863,20 +843,18 @@ public class StateArray {
     }
 
     private void updateState(String property, JSONObject updateJSON) throws AvarioException,
-                                                                            JSONException {
+        JSONException {
         JSONObject entityJSON;
         boolean mediaEntity;
 
         try {
             entityJSON = this.getEntity(updateJSON.getString("entity_id"));
             mediaEntity = false;
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             try {
                 entityJSON = this.getMediaEntity(updateJSON.getString("entity_id"));
                 mediaEntity = true;
-            }
-            catch (AvarioException exception2) {
+            } catch (AvarioException exception2) {
                 throw exception;
             }
         }
@@ -905,8 +883,7 @@ public class StateArray {
                         entityJSON.remove("media_position_live");
                         break;
                 }
-            }
-            catch (JSONException exception) {
+            } catch (JSONException exception) {
                 entityJSON.remove("media_position_live");
             }
         }
@@ -925,8 +902,7 @@ public class StateArray {
 
         try {
             file.delete();
-        }
-        catch (SecurityException exception) {
+        } catch (SecurityException exception) {
             Log.d(TAG, "Error occurred", exception);
         }
     }
@@ -945,8 +921,7 @@ public class StateArray {
             writer.close();
 
             Log.d(TAG, "Saved to: " + file.getAbsolutePath());
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             throw new AvarioException(Constants.ERROR_STATE_FORBIDDEN, exception);
         }
 
@@ -974,16 +949,14 @@ public class StateArray {
                 builder.append(line);
 
             stream.close();
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             Log.d(TAG, "Unexpected error occurred", exception);
             // only happens when reading is done after closing the stream. Not happening, I assume.
         }
 
         try {
             this.setData(new JSONObject(builder.toString()));
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             this.setData(null);
             throw new AvarioException(Constants.ERROR_BOOTSTRAP_INVALID, exception);
         }
@@ -996,7 +969,7 @@ public class StateArray {
             return null;
 
         File file = new File(this.context.getExternalFilesDir(null), this.context.getString(R.string.app__path__bootstrap)),
-             dirs = file.getParentFile();
+            dirs = file.getParentFile();
 
         if (!dirs.exists())
             dirs.mkdirs();

@@ -12,10 +12,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
@@ -87,6 +89,7 @@ public class MainActivity extends BaseActivity {
     public static final String TAG = "Avario/MainActivity";
 
     private static final int REQUEST_ENABLE_BT = 1;
+    private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
 
     private RelativeLayout contentRL;
     private FrameLayout controlsFL;
@@ -160,6 +163,7 @@ public class MainActivity extends BaseActivity {
 
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(this.bluetoothReceiver, filter);
+
     }
 
     @Override
@@ -585,6 +589,15 @@ public class MainActivity extends BaseActivity {
      * @todo use CCTV IP for the url
      */
     private void activateModeCCTV() {
+        StateArray states = StateArray.getInstance();
+        String url = "";
+        try {
+            url = states.getSettingsSecurityTab().getString("url");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (AvarioException e) {
+            e.printStackTrace();
+        }
 
         this.elementsBar
             .getAdapter()
@@ -600,7 +613,7 @@ public class MainActivity extends BaseActivity {
         this.prevIB.setEnabled(false);
         this.volumeIB.setEnabled(false);
         this.roomSelector.setTitle(this.getString(R.string.mode__cctv));
-        this.loadWebView("https://aws.amazon.com/");
+        this.loadWebView(url);
     }
 
     private void updateForRoom(RoomEntity room) {
@@ -1190,9 +1203,15 @@ public class MainActivity extends BaseActivity {
                 .getPackageManager()
                 .getLaunchIntentForPackage(appId);
 
-            if (intent != null)
-                self.startActivity(intent);
-            else if (m.find()) {
+            if (intent != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(self)) {
+                    Intent intentPackage = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName()));
+                    startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
+                } else {
+                    self.startActivity(intent);
+                }
+            } else if (m.find()) {
                 /*Intent intentWebview = new Intent(self, WebViewActivity.class);
                 intentWebview.putExtra("URL", appId);
                 self.startActivity(intentWebview);*/
