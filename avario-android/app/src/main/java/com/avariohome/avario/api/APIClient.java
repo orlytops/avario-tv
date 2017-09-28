@@ -44,280 +44,314 @@ import javax.net.ssl.SSLSession;
  * Created by aeroheart-c6 on 10/01/2017.
  */
 public class APIClient {
-  public static final String TAG = "Avario/APIClient";
+    public static final String TAG = "Avario/APIClient";
 
-  private static APIClient instance = null;
+    private static APIClient instance = null;
 
-  public static APIClient getInstance() {
-    return APIClient.instance;
-  }
+    public static APIClient getInstance() {
+        return APIClient.instance;
+    }
 
-  /**
-   * Retrieves the singleton instance of this class. It is important to pass the application
-   * context here because this object will be alive throughout the duration of the app.
-   *
-   * @param context the application context
-   * @return instance of the APIClient singleton
-   */
-  public static APIClient getInstance(Context context) {
-    if (APIClient.instance == null) { APIClient.instance = new APIClient(context); }
-
-    return APIClient.instance;
-  }
-
-  public static boolean isValidRequestSpec(JSONObject specJSON) {
-    return specJSON.has("url") && specJSON.has("method");
-  }
-
-  public static HostnameVerifier getDevHostnameVerifier() {
-    if (BuildConfig.DEBUG) {
-      return new HostnameVerifier() {
-        @Override
-        public boolean verify(String hostname, SSLSession session) {
-          return true;
+    /**
+     * Retrieves the singleton instance of this class. It is important to pass the application
+     * context here because this object will be alive throughout the duration of the app.
+     *
+     * @param context the application context
+     * @return instance of the APIClient singleton
+     */
+    public static APIClient getInstance(Context context) {
+        if (APIClient.instance == null) {
+            APIClient.instance = new APIClient(context);
         }
-      };
+
+        return APIClient.instance;
     }
 
-    return null;
-  }
+    public static boolean isValidRequestSpec(JSONObject specJSON) {
+        return specJSON.has("url") && specJSON.has("method");
+    }
 
-
-  private RequestQueue queue;
-
-  private APIClient(Context context) {
-    HostnameVerifier verifier = APIClient.getDevHostnameVerifier();
-
-    if (verifier == null) { this.queue = Volley.newRequestQueue(context); } else {
-      this.queue = Volley.newRequestQueue(context, new HurlStack() {
-        @Override
-        protected HttpURLConnection createConnection(URL url) throws IOException {
-          HttpURLConnection connection = super.createConnection(url);
-
-          if (connection instanceof HttpsURLConnection) {
-            HttpsURLConnection httpsConn;
-
-            httpsConn = (HttpsURLConnection) connection;
-            httpsConn.setHostnameVerifier(APIClient.getDevHostnameVerifier());
-          }
-
-          return connection;
+    public static HostnameVerifier getDevHostnameVerifier() {
+        if (BuildConfig.DEBUG) {
+            return new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            };
         }
-      });
-    }
-  }
 
-  /**
-   * Sends the request over to Volley's request queue for execution
-   *
-   * @param request
-   */
-  public void sendRequest(Request request) {
-    if (request == null) { return; }
-
-    Log.i(TAG, String.format("Executing Request: %s %s",
-        request.getMethod() == Request.Method.POST ? "POST" :
-            request.getMethod() == Request.Method.GET ? "GET" :
-                request.getMethod() == Request.Method.PUT ? "PUT" : "DELETE",
-        request.getUrl()
-            + " " + request.getBodyContentType()));
-
-    try {
-      Log.i(TAG, "Request Payload: " + new String(request.getBody()));
-      Log.i(TAG, "Request Payload Type: " + request.getBodyContentType());
-    } catch (AuthFailureError | NullPointerException exception) {}
-
-    this.queue.add(request);
-
-    return;
-  }
-
-  /**
-   * Runs a single request. For now, this is only being used by the dial
-   */
-  public void executeRequest(JSONObject specJSON, String entityId, String lockId,
-      APIRequestListener<String> listener) throws AvarioException {
-    Request request;
-
-    if (APITimers.isLocked(lockId)) { return; }
-
-    try {
-      request = new StringAPIRequest(
-          APIRequest.RequestSpec.fromJSONSpec(specJSON),
-          listener
-      );
-    } catch (JSONException exception) {
-      throw new AvarioException(
-          Constants.ERROR_STATE_API_OBJECTS,
-          exception,
-          new Object[]{entityId, 0}
-      );
+        return null;
     }
 
-    APITimers.lock(lockId);
 
-    this.sendRequest(request);
-  }
+    private RequestQueue queue;
 
-  /**
-   * Runs the requests in sequence. For following the instructions in the StateArray when an
-   * entity demands to have multiple requests executed when interacted upon.
-   *
-   * Each item of the requestSpec JSONArray must be a JSONObject containing the following
-   * properties:
-   * URL - String
-   * method - String
-   * Payload - String
-   *
-   * @param requestsSpec JSONArray of JSONObjects similar to the bootstrap JSON. Contents are
-   *                     described in the method description
-   * @param listener     listener when all the requests are done
-   */
-  public void sequenceRequests(JSONArray requestsSpec, String entityId, String lockId,
-      APIMultiListener<String> listener) throws AvarioException {
-    if (APITimers.isLocked(lockId)) { return; }
+    private APIClient(Context context) {
+        HostnameVerifier verifier = APIClient.getDevHostnameVerifier();
 
-    if (listener == null) { listener = new APIMultiListener<>(entityId, new String[]{entityId}); }
+        if (verifier == null) {
+            this.queue = Volley.newRequestQueue(context);
+        } else {
+            this.queue = Volley.newRequestQueue(context, new HurlStack() {
+                @Override
+                protected HttpURLConnection createConnection(URL url) throws IOException {
+                    HttpURLConnection connection = super.createConnection(url);
 
-    for (int index = 0, limit = requestsSpec.length(); index < limit; index++) {
-      try {
-        listener.add(new StringAPIRequest(
-            APIRequest.RequestSpec.fromJSONSpec(requestsSpec.getJSONObject(index)),
-            listener
-        ));
-      } catch (JSONException exception) {
-        throw new AvarioException(
-            Constants.ERROR_STATE_API_OBJECTS,
-            exception,
-            new Object[]{entityId, index}
-        );
-      }
+                    if (connection instanceof HttpsURLConnection) {
+                        HttpsURLConnection httpsConn;
+
+                        httpsConn = (HttpsURLConnection) connection;
+                        httpsConn.setHostnameVerifier(APIClient.getDevHostnameVerifier());
+                    }
+
+                    return connection;
+                }
+            });
+        }
     }
 
-    try {
-      APITimers.lock(lockId);
-      this.sendRequest(listener.pop());
-    } catch (NoSuchElementException exception) {
-      APITimers.unlock(lockId);
-    }
-  }
+    /**
+     * Sends the request over to Volley's request queue for execution
+     *
+     * @param request
+     */
+    public void sendRequest(Request request) {
+        if (request == null) {
+            return;
+        }
 
-  public void getBootstrapJSON(BootstrapListener listener) {
-    final Config config = Config.getInstance();
-    JsonObjectRequest request;
+        Log.i(TAG, String.format("Executing Request: %s %s",
+                request.getMethod() == Request.Method.POST ? "POST" :
+                        request.getMethod() == Request.Method.GET ? "GET" :
+                                request.getMethod() == Request.Method.PUT ? "PUT" : "DELETE",
+                request.getUrl()
+                        + " " + request.getBodyContentType()));
 
-    request = new JsonObjectRequest(
-        Request.Method.GET,
-        config.getBootstrapURL(),
-        null,
-        listener,
-        listener
-    ) {
-      @Override
-      public Map<String, String> getHeaders() throws AuthFailureError {
-        Map<String, String> headers = new HashMap<>();
+        try {
+            Log.i(TAG, "Request Payload: " + new String(request.getBody()));
+            Log.i(TAG, "Request Payload Type: " + request.getBodyContentType());
+        } catch (AuthFailureError | NullPointerException exception) {
+        }
 
-        headers.put("Authorization", String.format("Basic %s", Base64.encode(String.format(
-            "%s:%s",
-            config.getUsername(),
-            config.getPassword()
-        ))));
+        this.queue.add(request);
 
-        return headers;
-      }
-    };
-    request.setShouldCache(false);
-    request.setRetryPolicy(new DefaultRetryPolicy(5000, 2, 1.5f));
-
-    this.sendRequest(request);
-  }
-
-  public void getCurrentState(APIRequestListener<JSONArray> listener) throws AvarioException {
-    StateArray states = StateArray.getInstance();
-    JSONArrayAPIRequest request;
-
-    try {
-      request = new JSONArrayAPIRequest(
-          APIRequest.RequestSpec.fromJSONSpec(states.getCurrentStateRequest()),
-          listener
-      );
-      request.setShouldCache(false);
-      request.setRetryPolicy(new DefaultRetryPolicy(5000, 2, 1.5f));
-    } catch (JSONException exception) {
-      throw new AvarioException(
-          Constants.ERROR_STATE_API_OBJECTS,
-          exception
-      );
+        return;
     }
 
-    this.sendRequest(request);
-  }
+    /**
+     * Runs a single request. For now, this is only being used by the dial
+     */
+    public void executeRequest(JSONObject specJSON, String entityId, String lockId,
+                               APIRequestListener<String> listener) throws AvarioException {
+        Request request;
 
-  public void postFCMToken(String token) {
-    token = token != null
-        ? token
-        : FirebaseInstanceId.getInstance().getToken();
+        if (APITimers.isLocked(lockId)) {
+            return;
+        }
 
-    if (token == null) { return; }
+        try {
+            request = new StringAPIRequest(
+                    APIRequest.RequestSpec.fromJSONSpec(specJSON),
+                    listener
+            );
+        } catch (JSONException exception) {
+            throw new AvarioException(
+                    Constants.ERROR_STATE_API_OBJECTS,
+                    exception,
+                    new Object[]{entityId, 0}
+            );
+        }
 
-    // get request spec
+        APITimers.lock(lockId);
 
-    JSONObject requestJSON;
-
-    try {
-      requestJSON = StateArray
-          .getInstance()
-          .getFCMRequest();
-    } catch (AvarioException ignored) {
-      // TODO notify application of error. But err...how?
-      return;
+        this.sendRequest(request);
     }
 
-    // replace refs
-    Map<String, String> mapping;
+    /**
+     * Runs the requests in sequence. For following the instructions in the StateArray when an
+     * entity demands to have multiple requests executed when interacted upon.
+     * <p>
+     * Each item of the requestSpec JSONArray must be a JSONObject containing the following
+     * properties:
+     * URL - String
+     * method - String
+     * Payload - String
+     *
+     * @param requestsSpec JSONArray of JSONObjects similar to the bootstrap JSON. Contents are
+     *                     described in the method description
+     * @param listener     listener when all the requests are done
+     */
+    public void sequenceRequests(JSONArray requestsSpec, String entityId, String lockId,
+                                 APIMultiListener<String> listener) throws AvarioException {
+        if (APITimers.isLocked(lockId)) {
+            return;
+        }
 
-    mapping = new HashMap<>();
-    mapping.put("token", token);
-    mapping.put("id", PlatformUtil.getTabletId());
+        if (listener == null) {
+            listener = new APIMultiListener<>(entityId, new String[]{entityId});
+        }
 
-    try {
-      requestJSON.put("payload", RefStringUtil.replaceMarkers(
-          RefStringUtil.extractMarkers(requestJSON.getString("payload"), null),
-          mapping
-      ));
-    } catch (JSONException exception) {
-      return;
+        for (int index = 0, limit = requestsSpec.length(); index < limit; index++) {
+            try {
+                listener.add(new StringAPIRequest(
+                        APIRequest.RequestSpec.fromJSONSpec(requestsSpec.getJSONObject(index)),
+                        listener
+                ));
+            } catch (JSONException exception) {
+                throw new AvarioException(
+                        Constants.ERROR_STATE_API_OBJECTS,
+                        exception,
+                        new Object[]{entityId, index}
+                );
+            }
+        }
+
+        try {
+            APITimers.lock(lockId);
+            this.sendRequest(listener.pop());
+        } catch (NoSuchElementException exception) {
+            APITimers.unlock(lockId);
+        }
     }
 
-    // send the request
-    try {
-      APIClient.getInstance().executeRequest(
-          requestJSON,
-          FCMInstanceService.TIMER_ID,
-          FCMInstanceService.TIMER_ID,
-          new FCMAPIListener()
-      );
-    } catch (AvarioException ignored) {}
-  }
+    public void getBootstrapJSON(BootstrapListener listener) {
+        final Config config = Config.getInstance();
+        JsonObjectRequest request;
 
-  /*
-   ***********************************************************************************************
-   * Inner Classes - Listeners
-   ***********************************************************************************************
-   */
-  private class FCMAPIListener extends APIRequestListener<String> {
-    public FCMAPIListener() {
-      super(
-          FCMInstanceService.TIMER_ID,
-          new String[]{FCMInstanceService.TIMER_ID}
-      );
+        request = new JsonObjectRequest(
+                Request.Method.GET,
+                config.getBootstrapURL(),
+                null,
+                listener,
+                listener
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+
+                headers.put("Authorization", String.format("Basic %s", Base64.encode(String.format(
+                        "%s:%s",
+                        config.getUsername(),
+                        config.getPassword()
+                ))));
+
+                return headers;
+            }
+        };
+        request.setShouldCache(false);
+        request.setRetryPolicy(new DefaultRetryPolicy(5000, 2, 1.5f));
+
+        this.sendRequest(request);
     }
 
-    protected void forceTimerExpire() {}
+    public void getCurrentState(APIRequestListener<JSONArray> listener) throws AvarioException {
+        StateArray states = StateArray.getInstance();
+        JSONArrayAPIRequest request;
+        final Config config = Config.getInstance();
 
-    protected void startTimer() {}
-  }
+        try {
+            request = new JSONArrayAPIRequest(
+                    APIRequest.RequestSpec.fromJSONSpec(states.getCurrentStateRequest()),
+                    listener
+            ) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headers = new HashMap<>();
 
-  public static abstract class BootstrapListener implements Response.Listener<JSONObject>,
-      Response.ErrorListener {}
+                    headers.put("Authorization", String.format("Basic %s", Base64.encode(String.format(
+                            "%s:%s",
+                            config.getUsername(),
+                            config.getPassword()
+                    ))));
+
+                    return headers;
+                }
+            };
+            ;
+            request.setShouldCache(false);
+            request.setRetryPolicy(new DefaultRetryPolicy(5000, 2, 1.5f));
+        } catch (JSONException exception) {
+            throw new AvarioException(
+                    Constants.ERROR_STATE_API_OBJECTS,
+                    exception
+            );
+        }
+
+        this.sendRequest(request);
+    }
+
+    public void postFCMToken(String token) {
+        token = token != null
+                ? token
+                : FirebaseInstanceId.getInstance().getToken();
+
+        if (token == null) {
+            return;
+        }
+
+        // get request spec
+
+        JSONObject requestJSON;
+
+        try {
+            requestJSON = StateArray
+                    .getInstance()
+                    .getFCMRequest();
+        } catch (AvarioException ignored) {
+            // TODO notify application of error. But err...how?
+            return;
+        }
+
+        // replace refs
+        Map<String, String> mapping;
+
+        mapping = new HashMap<>();
+        mapping.put("token", token);
+        mapping.put("id", PlatformUtil.getTabletId());
+
+        try {
+            requestJSON.put("payload", RefStringUtil.replaceMarkers(
+                    RefStringUtil.extractMarkers(requestJSON.getString("payload"), null),
+                    mapping
+            ));
+        } catch (JSONException exception) {
+            return;
+        }
+
+        // send the request
+        try {
+            APIClient.getInstance().executeRequest(
+                    requestJSON,
+                    FCMInstanceService.TIMER_ID,
+                    FCMInstanceService.TIMER_ID,
+                    new FCMAPIListener()
+            );
+        } catch (AvarioException ignored) {
+        }
+    }
+
+    /*
+     ***********************************************************************************************
+     * Inner Classes - Listeners
+     ***********************************************************************************************
+     */
+    private class FCMAPIListener extends APIRequestListener<String> {
+        public FCMAPIListener() {
+            super(
+                    FCMInstanceService.TIMER_ID,
+                    new String[]{FCMInstanceService.TIMER_ID}
+            );
+        }
+
+        protected void forceTimerExpire() {
+        }
+
+        protected void startTimer() {
+        }
+    }
+
+    public static abstract class BootstrapListener implements Response.Listener<JSONObject>,
+            Response.ErrorListener {
+    }
 }
