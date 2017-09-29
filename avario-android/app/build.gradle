@@ -71,6 +71,7 @@ dependencies {
     compile "com.squareup.picasso:picasso:${versions['picasso']}"
     compile "org.mozilla:rhino:${versions['rhino']}"
     compile "com.neovisionaries:nv-bluetooth:${versions['nv-bluetooth']}"
+    compile "com.google.code.gson:gson:2.8.1"
 
 
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
