@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
 
 /**
  * TODO invalidate cache in Picasso using Picasso.with().invalidate(). Iterate through R.arrays
- *
+ * <p>
  * Created by aeroheart-c6 on 17/01/2017.
  */
 
@@ -95,13 +95,13 @@ public class SettingsDialogFragment extends DialogFragment {
         AlertDialog dialog;
 
         builder = new AlertDialog.Builder(this.getActivity())
-            .setTitle(R.string.setting__title)
-            .setView(this.setupViews(LayoutInflater.from(this.getActivity()), null));
+                .setTitle(R.string.setting__title)
+                .setView(this.setupViews(LayoutInflater.from(this.getActivity()), null));
 
         builder
-            .setPositiveButton(R.string.setting__save, null)
-            .setNegativeButton(R.string.setting__discard, null)
-            .setNeutralButton(R.string.setting__refresh, null);
+                .setPositiveButton(R.string.setting__save, null)
+                .setNegativeButton(R.string.setting__discard, null)
+                .setNeutralButton(R.string.setting__refresh, null);
 
         dialog = builder.create();
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -166,18 +166,18 @@ public class SettingsDialogFragment extends DialogFragment {
         snapshot.password = this.config.getPassword();
 
         Log.d(TAG, String.format(
-            "Initial: %s\n" +
-            "Secure: %s\n" +
-            "Host: %s\n" +
-            "Port: %s\n" +
-            "Username: %s\n" +
-            "Password: %s",
-            String.valueOf(snapshot.initial),
-            String.valueOf(snapshot.secure),
-            snapshot.host,
-            snapshot.port,
-            snapshot.username,
-            snapshot.password
+                "Initial: %s\n" +
+                        "Secure: %s\n" +
+                        "Host: %s\n" +
+                        "Port: %s\n" +
+                        "Username: %s\n" +
+                        "Password: %s",
+                String.valueOf(snapshot.initial),
+                String.valueOf(snapshot.secure),
+                snapshot.host,
+                snapshot.port,
+                snapshot.username,
+                snapshot.password
         ));
 
         this.snapshot = snapshot;
@@ -235,16 +235,15 @@ public class SettingsDialogFragment extends DialogFragment {
         this.deleteBootstrapCache();
 
         Toast
-            .makeText(this.getActivity(), R.string.setting__toast__cleared, Toast.LENGTH_SHORT)
-            .show();
+                .makeText(this.getActivity(), R.string.setting__toast__cleared, Toast.LENGTH_SHORT)
+                .show();
 
         this.config.setResourcesFetched(false);
 
         if (this.config.isSet()) {
             this.toggleWorking(true);
             this.loadBootstrap();
-        }
-        else
+        } else
             this.setEnabled(true);
     }
 
@@ -259,8 +258,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 deleteAssetCache(new File(dir, child));
 
             dir.delete();
-        }
-        else if (dir != null && dir.isFile())
+        } else if (dir != null && dir.isFile())
             dir.delete();
     }
 
@@ -279,8 +277,8 @@ public class SettingsDialogFragment extends DialogFragment {
             this.dismiss();
         else
             Toast
-                .makeText(this.getActivity(), R.string.setting__toast__empty, Toast.LENGTH_SHORT)
-                .show();
+                    .makeText(this.getActivity(), R.string.setting__toast__empty, Toast.LENGTH_SHORT)
+                    .show();
     }
 
     private void saveChanges() {
@@ -289,16 +287,16 @@ public class SettingsDialogFragment extends DialogFragment {
         MqttManager manager = MqttManager.getInstance();
 
         String host = this.hostET.getText().toString(),
-               port = this.portET.getText().toString(),
-               username = this.usernameET.getText().toString(),
-               password = this.passwordET.getText().toString();
+                port = this.portET.getText().toString(),
+                username = this.usernameET.getText().toString(),
+                password = this.passwordET.getText().toString();
         boolean secure = this.secureCB.isChecked();
 
         if (host.isEmpty() || port.isEmpty() ||
-            username.isEmpty() ||
-            password.isEmpty()) {
+                username.isEmpty() ||
+                password.isEmpty()) {
             Toast.makeText(this.getActivity(), R.string.setting__toast__empty, Toast.LENGTH_SHORT)
-                 .show();
+                    .show();
 
             this.toggleWorking(false);
             this.setEnabled(true);
@@ -308,12 +306,12 @@ public class SettingsDialogFragment extends DialogFragment {
         host = host.replaceAll("^.+?://", "");
 
         if (!this.config.isResourcesFetched()
-            || !manager.isConnected()
-            || !host.equals(this.config.getHttpHost())
-            || !port.equals(this.config.getHttpPort())
-            || !username.equals(this.config.getUsername())
-            || !password.equals(this.config.getPassword())
-            || secure != this.config.isHttpSSL()) {
+                || !manager.isConnected()
+                || !host.equals(this.config.getHttpHost())
+                || !port.equals(this.config.getHttpPort())
+                || !username.equals(this.config.getUsername())
+                || !password.equals(this.config.getPassword())
+                || secure != this.config.isHttpSSL()) {
 
             this.config.setHttpHost(host);
             this.config.setHttpPort(port);
@@ -325,11 +323,9 @@ public class SettingsDialogFragment extends DialogFragment {
                 this.config.setResourcesFetched(false);
                 this.toggleWorking(true);
                 this.loadBootstrap();
-            }
-            else
+            } else
                 this.deleteCaches();
-        }
-        else {
+        } else {
             this.toggleWorking(false);
             this.setEnabled(true);
             this.dismiss();
@@ -341,8 +337,8 @@ public class SettingsDialogFragment extends DialogFragment {
         this.workingTV.setText(this.getString(R.string.setting__working, "(Bootstrap)"));
 
         APIClient
-            .getInstance(this.getActivity().getApplicationContext())
-            .getBootstrapJSON(new BootstrapListener());
+                .getInstance(this.getActivity().getApplicationContext())
+                .getBootstrapJSON(new BootstrapListener());
     }
 
     private void loadAssets() {
@@ -378,14 +374,14 @@ public class SettingsDialogFragment extends DialogFragment {
 
     private void sendFCMToken() {
         APIClient
-            .getInstance()
-            .postFCMToken(null);
+                .getInstance()
+                .postFCMToken(null);
     }
 
     /**
      * Handles calling the listener to notify that it wants to connect to the MQTT server and handle
      * any errors within this fragment.
-     *
+     * <p>
      * This method REQUIRES that the listener is not null. Or else it will be stuck </3
      */
     private void connectMQTT() {
@@ -398,19 +394,17 @@ public class SettingsDialogFragment extends DialogFragment {
                 throw new AvarioException(Constants.ERROR_APP_SETTINGS, null);
 
             this.listener.attemptMQTT(this.mqttListener);
-        }
-        catch (JSONException | MqttException exception) {
+        } catch (JSONException | MqttException exception) {
             int errorCode = exception instanceof MqttException
-                            ? Constants.ERROR_MQTT_CONNECTION
-                            : Constants.ERROR_MQTT_CONFIGURATION;
+                    ? Constants.ERROR_MQTT_CONNECTION
+                    : Constants.ERROR_MQTT_CONFIGURATION;
 
             this.applySnapshot();
 
             this.toggleWorking(false);
             this.toggleError(true, new AvarioException(errorCode, exception));
             this.setEnabled(true);
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             this.toggleError(true, exception);
         }
     }
@@ -421,8 +415,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
         try {
             topics = states.getFCMTopics();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             return;
         }
 
@@ -434,8 +427,8 @@ public class SettingsDialogFragment extends DialogFragment {
 
             for (int index = 0, length = topics.length(); index < length; index++)
                 fcm.unsubscribeFromTopic(topics.getString(index));
+        } catch (JSONException exception) {
         }
-        catch (JSONException exception) {}
     }
 
 
@@ -453,7 +446,7 @@ public class SettingsDialogFragment extends DialogFragment {
         public void onShow(DialogInterface dialog) {
             SettingsDialogFragment self = SettingsDialogFragment.this;
             ClickListener listener = new ClickListener();
-            AlertDialog alert = (AlertDialog)dialog;
+            AlertDialog alert = (AlertDialog) dialog;
             Button button;
 
             button = alert.getButton(AlertDialog.BUTTON_POSITIVE);
@@ -498,8 +491,8 @@ public class SettingsDialogFragment extends DialogFragment {
             Log.i(TAG, "Bootstrap received!");
 
             StateArray
-                .getInstance()
-                .setData(response);
+                    .getInstance()
+                    .setData(response);
 
             self.sendFCMToken();
             self.loadAssets();
@@ -509,11 +502,11 @@ public class SettingsDialogFragment extends DialogFragment {
         public void onErrorResponse(VolleyError error) {
             SettingsDialogFragment self = SettingsDialogFragment.this;
             AvarioException exception = new AvarioException(
-                error instanceof AuthFailureError ? Constants.ERROR_BOOTSTRAP_AUTHENTICATION :
-                error instanceof ParseError ? Constants.ERROR_BOOTSTRAP_INVALID :
-                                              Constants.ERROR_BOOTSTRAP_UNREACHABLE,
+                    error instanceof AuthFailureError ? Constants.ERROR_BOOTSTRAP_AUTHENTICATION :
+                            error instanceof ParseError ? Constants.ERROR_BOOTSTRAP_INVALID :
+                                    Constants.ERROR_BOOTSTRAP_UNREACHABLE,
 
-                error
+                    error
             );
 
             self.applySnapshot();
@@ -544,8 +537,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
                 self.toggleWorking(false);
                 self.setEnabled(true);
-            }
-            catch (NullPointerException exception) {
+            } catch (NullPointerException exception) {
                 Log.d(TAG, "Cancelling the task....", exception);
             }
         }
@@ -568,7 +560,8 @@ public class SettingsDialogFragment extends DialogFragment {
 
     private class MqttConnectionListener implements MqttConnection.Listener {
         @Override
-        public void onConnection(MqttConnection connection, boolean reconnection) {}
+        public void onConnection(MqttConnection connection, boolean reconnection) {
+        }
 
         @Override
         public void onConnectionFailed(MqttConnection connection, AvarioException exception) {
@@ -577,8 +570,8 @@ public class SettingsDialogFragment extends DialogFragment {
             if (connection.getRetryCount() < connection.getRetryMax())
                 // max retries still not reached
                 self.workingTV.setText(self.getString(
-                    R.string.setting__working,
-                    "(MQTT Attempt #" + (connection.getRetryCount() + 1) + ")"
+                        R.string.setting__working,
+                        "(MQTT Attempt #" + (connection.getRetryCount() + 1) + ")"
                 ));
             else {
                 // max retries reached
@@ -606,8 +599,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
             try {
                 states.save();
-            }
-            catch (AvarioException exception) {
+            } catch (AvarioException exception) {
                 self.toggleError(true, exception);
             }
 
@@ -624,10 +616,12 @@ public class SettingsDialogFragment extends DialogFragment {
         }
 
         @Override
-        public void onSubscriptionError(MqttConnection connection, AvarioException exception) {}
+        public void onSubscriptionError(MqttConnection connection, AvarioException exception) {
+        }
 
         @Override
-        public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous, MqttConnection.Status current) {}
+        public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous, MqttConnection.Status current) {
+        }
     }
 
     private class Snapshot {
@@ -648,8 +642,10 @@ public class SettingsDialogFragment extends DialogFragment {
      */
     public interface Listener {
         void attemptMQTT(MqttConnection.Listener listener) throws JSONException,
-                                                                  MqttException;
+                MqttException;
+
         void onSettingsChange();
+
         void onDialogDetached();
     }
 }

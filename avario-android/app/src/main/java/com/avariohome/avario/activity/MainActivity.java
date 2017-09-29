@@ -1,22 +1,31 @@
+
 package com.avariohome.avario.activity;
 
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.app.admin.DevicePolicyManager;
+import android.app.admin.SystemUpdatePolicy;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.UserManager;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
@@ -27,11 +36,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.webkit.SslErrorHandler;
+import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
@@ -54,6 +65,8 @@ import com.avariohome.avario.fragment.NotifListDialogFragment;
 import com.avariohome.avario.fragment.NotificationDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
+import com.avariohome.avario.service.DeviceAdminReceiver;
+import com.avariohome.avario.service.FloatingViewService;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
@@ -76,8 +89,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import rx.Observable;
+import rx.Observer;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 /**
@@ -128,6 +145,11 @@ public class MainActivity extends BaseActivity {
 
     private BroadcastReceiver bluetoothReceiver;
 
+    private ComponentName mAdminComponentName;
+    private DevicePolicyManager mDevicePolicyManager;
+    private PackageManager mPackageManager;
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -166,6 +188,7 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onResume() {
         super.onResume();
@@ -177,17 +200,74 @@ public class MainActivity extends BaseActivity {
 
         if (manager.isConnected()) {
             manager
-                .getConnection()
-                .setListener(this.mqttListener);
+                    .getConnection()
+                    .setListener(this.mqttListener);
 
-            this.loadFromStateArray();
+            loadFromStateArray();
+            fetchCurrentStates();
+
             this.showBusyDialog(null);
-            this.fetchCurrentStates();
         } else if (!this.settingsOpened) {
             this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
         }
-        if (BluetoothScanner.getInstance().isEnabled())
-            BluetoothScanner.getInstance().scanLeDevice(true);
+
+        Observable.create(new Observable.OnSubscribe<Object>() {
+            @Override
+            public void call(Subscriber<? super Object> subscriber) {
+                if (BluetoothScanner.getInstance().isEnabled())
+                    BluetoothScanner.getInstance().scanLeDevice(true);
+                mAdminComponentName = DeviceAdminReceiver.getComponentName(MainActivity.this);
+                mDevicePolicyManager = (DevicePolicyManager) getSystemService(
+                        Context.DEVICE_POLICY_SERVICE);
+                mPackageManager = getPackageManager();
+                if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
+                    setDefaultCosuPolicies(true);
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "Not Device owner", Toast.LENGTH_SHORT)
+                            .show();
+                }
+
+                subscriber.onNext(new Object());
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Object>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+                        if (mDevicePolicyManager.isLockTaskPermitted(MainActivity.this.getPackageName())) {
+                            final ActivityManager am = (ActivityManager) getSystemService(
+                                    Context.ACTIVITY_SERVICE);
+                            Handler handler = new Handler(Looper.getMainLooper());
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        if (am.getLockTaskModeState() ==
+                                                ActivityManager.LOCK_TASK_MODE_NONE) {
+                                            startLockTask();
+                                        }
+                                    } catch (Exception exception) {
+                                    }
+                                }
+                            }, 500);
+                        }
+                    }
+                });
+
+        stopService(new Intent(getApplicationContext(), FloatingViewService.class));
+
     }
 
     @Override
@@ -229,6 +309,20 @@ public class MainActivity extends BaseActivity {
             BluetoothScanner.getInstance().scanLeDevice(true);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    protected void onStart() {
+        super.onStart();
+        /*if (mDevicePolicyManager.isLockTaskPermitted(this.getPackageName())) {
+            ActivityManager am = (ActivityManager) getSystemService(
+                    Context.ACTIVITY_SERVICE);
+            if (am.getLockTaskModeState() ==
+                    ActivityManager.LOCK_TASK_MODE_NONE) {
+                startLockTask();
+            }
+        }*/
+    }
+
     private void initFCM() {
 //        this.startService(
 //            new Intent(this, FCMIntentService.class)
@@ -236,8 +330,8 @@ public class MainActivity extends BaseActivity {
 //        );
 
         LocalBroadcastManager
-            .getInstance(this)
-            .registerReceiver(new NotificationReceiver(), new IntentFilter(Constants.BROADCAST_NOTIF));
+                .getInstance(this)
+                .registerReceiver(new NotificationReceiver(), new IntentFilter(Constants.BROADCAST_NOTIF));
 
         this.initFCMTopics();
     }
@@ -289,8 +383,8 @@ public class MainActivity extends BaseActivity {
         this.notifIB = (ImageButton) this.findViewById(R.id.notif);
 
         this.dialFragment = (DialFragment) this
-            .getSupportFragmentManager()
-            .findFragmentById(R.id.dial);
+                .getSupportFragmentManager()
+                .findFragmentById(R.id.dial);
     }
 
     @SuppressLint("RtlHardcoded")
@@ -299,8 +393,8 @@ public class MainActivity extends BaseActivity {
         FrameLayout.LayoutParams params;
 
         params = new FrameLayout.LayoutParams(
-            (int) (275.00 * metrics.density + this.getResources().getDimensionPixelSize(R.dimen.deviceslist__inset)),
-            FrameLayout.LayoutParams.MATCH_PARENT
+                (int) (275.00 * metrics.density + this.getResources().getDimensionPixelSize(R.dimen.deviceslist__inset)),
+                FrameLayout.LayoutParams.MATCH_PARENT
         );
         params.gravity = Gravity.LEFT | Gravity.TOP;
 
@@ -311,15 +405,15 @@ public class MainActivity extends BaseActivity {
         this.controlsFL.addView(this.devicesList);
 
         params = new FrameLayout.LayoutParams(
-            (int) (375.00 * metrics.density),
-            FrameLayout.LayoutParams.MATCH_PARENT
+                (int) (375.00 * metrics.density),
+                FrameLayout.LayoutParams.MATCH_PARENT
         );
         params.gravity = Gravity.LEFT | Gravity.TOP;
         params.setMargins(
-            0,
-            0,
-            0,
-            0
+                0,
+                0,
+                0,
+                0
         );
 
         this.mediaList = new MediaList(this);
@@ -349,7 +443,7 @@ public class MainActivity extends BaseActivity {
         NotifListDialogFragment notifListFragment;
 
         notifListFragment = (NotifListDialogFragment)
-            manager.findFragmentByTag("notif-list-dialog");
+                manager.findFragmentByTag("notif-list-dialog");
 
         if (notifListFragment != null) {
             notifListFragment.refresh();
@@ -362,8 +456,8 @@ public class MainActivity extends BaseActivity {
         List<Notification> notifications = NotificationArray.getInstance().getNotifications();
 
         notifIB.setVisibility(
-            (notifications != null && !notifications.isEmpty())
-                ? View.VISIBLE : View.GONE
+                (notifications != null && !notifications.isEmpty())
+                        ? View.VISIBLE : View.GONE
         );
     }
 
@@ -372,48 +466,48 @@ public class MainActivity extends BaseActivity {
             this.roomSelector.setup();
         } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorDialog(this, exception)
-                .show();
+                    .getErrorDialog(this, exception)
+                    .show();
         }
     }
 
     private void loadAssets() {
         int[][] resourceIds = new int[][]{
-            new int[]{
-                R.id.home,
-                R.id.cctv,
-                R.id.bolt,
-                R.id.temperature,
+                new int[]{
+                        R.id.home,
+                        R.id.cctv,
+                        R.id.bolt,
+                        R.id.temperature,
 
-                R.id.devices,
-                R.id.notif,
+                        R.id.devices,
+                        R.id.notif,
 
-                R.id.prev,
-                R.id.play,
-                R.id.next,
-                R.id.volume,
-            },
-            new int[]{
-                R.array.ic__mode__home,
-                R.array.ic__mode__cctv,
-                R.array.ic__mode__bolt,
-                R.array.ic__mode__temp,
+                        R.id.prev,
+                        R.id.play,
+                        R.id.next,
+                        R.id.volume,
+                },
+                new int[]{
+                        R.array.ic__mode__home,
+                        R.array.ic__mode__cctv,
+                        R.array.ic__mode__bolt,
+                        R.array.ic__mode__temp,
 
-                R.array.ic__topbar__dropdown,
-                R.array.ic__topbar__notiff,
+                        R.array.ic__topbar__dropdown,
+                        R.array.ic__topbar__notiff,
 
-                R.array.ic__topbar__prev,
-                R.array.ic__topbar__play,
-                R.array.ic__topbar__next,
-                R.array.ic__topbar__volume,
-            },
+                        R.array.ic__topbar__prev,
+                        R.array.ic__topbar__play,
+                        R.array.ic__topbar__next,
+                        R.array.ic__topbar__volume,
+                },
         };
 
         for (int index = 0; index < resourceIds[0].length; index++) {
             AssetUtil.toDrawable(
-                this,
-                resourceIds[1][index],
-                new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index]))
+                    this,
+                    resourceIds[1][index],
+                    new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index]))
             );
         }
     }
@@ -423,8 +517,8 @@ public class MainActivity extends BaseActivity {
 
         this.handler.removeCallbacks(this.inactiveRunnable);
         this.handler.postDelayed(
-            this.inactiveRunnable,
-            config.getInactivityDelay()
+                this.inactiveRunnable,
+                config.getInactivityDelay()
         );
     }
 
@@ -454,7 +548,7 @@ public class MainActivity extends BaseActivity {
      */
     private void toggleLeftView(View view) {
         if ((view != this.devicesList && view != this.mediaList) ||
-            (view.getVisibility() == View.VISIBLE))
+                (view.getVisibility() == View.VISIBLE))
             return;
 
         if (view.getId() == this.devicesList.getId()) {
@@ -473,15 +567,15 @@ public class MainActivity extends BaseActivity {
         this.homeIB.setOnTouchListener(uiListener);
 
         for (ImageButton button : new ImageButton[]{
-            this.devicesIB,
-            this.homeIB,
-            this.boltIB,
-            this.cctvIB,
-            this.tempIB,
-            this.playIB,
-            this.nextIB,
-            this.prevIB,
-            this.volumeIB
+                this.devicesIB,
+                this.homeIB,
+                this.boltIB,
+                this.cctvIB,
+                this.tempIB,
+                this.playIB,
+                this.nextIB,
+                this.prevIB,
+                this.volumeIB
         })
             button.setOnClickListener(uiListener);
 
@@ -523,8 +617,8 @@ public class MainActivity extends BaseActivity {
         int size = adapter.size();
 
         this.elementsBar
-            .getAdapter()
-            .setMode(ElementAdapter.MODE_HOME);
+                .getAdapter()
+                .setMode(ElementAdapter.MODE_HOME);
 
         adapter.setMode(DeviceAdapter.MODE_HOME);
         adapter.clear();
@@ -542,8 +636,8 @@ public class MainActivity extends BaseActivity {
         int size = adapter.size();
 
         this.elementsBar
-            .getAdapter()
-            .setMode(ElementAdapter.MODE_CLIMATE);
+                .getAdapter()
+                .setMode(ElementAdapter.MODE_CLIMATE);
 
         adapter.setMode(DeviceAdapter.MODE_CLIMATE);
         adapter.clear();
@@ -566,19 +660,19 @@ public class MainActivity extends BaseActivity {
             this.toggleLeftView(this.devicesList);
         } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this, exception)
-                .show();
+                    .getErrorToast(this, exception)
+                    .show();
         }
     }
 
     private void activateModeEnergy() {
         this.elementsBar
-            .getAdapter()
-            .setMode(ElementAdapter.MODE_HOME);
+                .getAdapter()
+                .setMode(ElementAdapter.MODE_HOME);
 
         this.devicesList
-            .getAdapter()
-            .setMode(DeviceAdapter.MODE_HOME);
+                .getAdapter()
+                .setMode(DeviceAdapter.MODE_HOME);
 
         this.devicesIB.setEnabled(false);
         this.roomSelector.setTitle(this.getString(R.string.mode__energy));
@@ -600,12 +694,12 @@ public class MainActivity extends BaseActivity {
         }
 
         this.elementsBar
-            .getAdapter()
-            .setMode(ElementAdapter.MODE_HOME);
+                .getAdapter()
+                .setMode(ElementAdapter.MODE_HOME);
 
         this.devicesList
-            .getAdapter()
-            .setMode(DeviceAdapter.MODE_HOME);
+                .getAdapter()
+                .setMode(DeviceAdapter.MODE_HOME);
 
         this.devicesIB.setEnabled(false);
         this.playIB.setEnabled(false);
@@ -629,12 +723,12 @@ public class MainActivity extends BaseActivity {
             this.updateDefaultsForEntity(room);
         } catch (JSONException exception) {
             String[] msgArgs = new String[]{
-                String.format("%s.elements and/or %s.list_devices", room.id, room.id)
+                    String.format("%s.elements and/or %s.list_devices", room.id, room.id)
             };
 
             PlatformUtil
-                .getErrorToast(this, new AvarioException(Constants.ERROR_STATE_MISSINGKEY, exception, msgArgs))
-                .show();
+                    .getErrorToast(this, new AvarioException(Constants.ERROR_STATE_MISSINGKEY, exception, msgArgs))
+                    .show();
         }
 
         try {
@@ -649,9 +743,9 @@ public class MainActivity extends BaseActivity {
         }
 
         AssetUtil.toDrawable(
-            this,
-            AssetUtil.toAbsoluteURLs(this, backgroundUrls),
-            new AppBGCallback(this.contentRL)
+                this,
+                AssetUtil.toAbsoluteURLs(this, backgroundUrls),
+                new AppBGCallback(this.contentRL)
         );
     }
 
@@ -673,12 +767,12 @@ public class MainActivity extends BaseActivity {
             devicesJSON = entity.data.getJSONArray("dial_devices");
         } catch (JSONException exception) {
             PlatformUtil
-                .getErrorToast(this, new AvarioException(
-                    Constants.ERROR_STATE_MISSINGKEY,
-                    exception,
-                    new Object[]{entity.id + ".dial_devices"}
-                ))
-                .show();
+                    .getErrorToast(this, new AvarioException(
+                            Constants.ERROR_STATE_MISSINGKEY,
+                            exception,
+                            new Object[]{entity.id + ".dial_devices"}
+                    ))
+                    .show();
 
             return;
         }
@@ -726,10 +820,10 @@ public class MainActivity extends BaseActivity {
     private void updateElements(StateArray state, JSONArray elementsJSON) {
         ElementAdapter adapter = this.elementsBar.getAdapter();
         int newSize = elementsJSON.length(),
-            oldSize = adapter.size(),
-            diff = oldSize - newSize,
-            end,
-            misses;
+                oldSize = adapter.size(),
+                diff = oldSize - newSize,
+                end,
+                misses;
 
         // changes
         end = Math.min(newSize, oldSize);
@@ -752,8 +846,8 @@ public class MainActivity extends BaseActivity {
                 misses++;
 
                 PlatformUtil
-                    .getErrorToast(this, exception)
-                    .show();
+                        .getErrorToast(this, exception)
+                        .show();
             }
         }
 
@@ -783,8 +877,8 @@ public class MainActivity extends BaseActivity {
                 newSize--;
 
                 PlatformUtil
-                    .getErrorToast(this, exception)
-                    .show();
+                        .getErrorToast(this, exception)
+                        .show();
             }
         }
 
@@ -794,10 +888,10 @@ public class MainActivity extends BaseActivity {
     private void updateDevices(StateArray state, JSONArray controlsJSON) {
         DeviceAdapter adapter = this.devicesList.getAdapter();
         int newSize = controlsJSON.length(),
-            oldSize = adapter.size(),
-            diff = oldSize - newSize,
-            end,
-            misses;
+                oldSize = adapter.size(),
+                diff = oldSize - newSize,
+                end,
+                misses;
 
         // changes
         end = Math.min(newSize, oldSize);
@@ -820,8 +914,8 @@ public class MainActivity extends BaseActivity {
                 misses++;
 
                 PlatformUtil
-                    .getErrorToast(this, exception)
-                    .show();
+                        .getErrorToast(this, exception)
+                        .show();
             }
         }
 
@@ -849,8 +943,8 @@ public class MainActivity extends BaseActivity {
                 adapter.append(entity);
             } catch (AvarioException exception) {
                 PlatformUtil
-                    .getErrorToast(this, exception)
-                    .show();
+                        .getErrorToast(this, exception)
+                        .show();
             }
         }
 
@@ -860,9 +954,9 @@ public class MainActivity extends BaseActivity {
     private void showSettingsDialog() {
         // stop listening to the MQTT object when opening the settings dialog
         MqttManager
-            .getInstance()
-            .getConnection()
-            .setListener(null);
+                .getInstance()
+                .getConnection()
+                .setListener(null);
 
         this.showSettingsDialog(this.confListener);
     }
@@ -886,7 +980,7 @@ public class MainActivity extends BaseActivity {
         bundle.putParcelable("notification", notification);
 
         notificationFragment = (NotificationDialogFragment) manager.findFragmentByTag(
-            fragmentTag);
+                fragmentTag);
 
         if (notificationFragment == null) {
             FragmentTransaction transaction = manager.beginTransaction();
@@ -938,12 +1032,12 @@ public class MainActivity extends BaseActivity {
 
         try {
             APIClient
-                .getInstance()
-                .getCurrentState(this.stateListener);
+                    .getInstance()
+                    .getCurrentState(this.stateListener);
         } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this, exception)
-                .show();
+                    .getErrorToast(this, exception)
+                    .show();
         }
     }
 
@@ -958,7 +1052,7 @@ public class MainActivity extends BaseActivity {
      ***********************************************************************************************
      */
     private class UIListener implements View.OnClickListener,
-        View.OnTouchListener {
+            View.OnTouchListener {
         @Override
         public void onClick(View view) {
             MainActivity self = MainActivity.this;
@@ -998,8 +1092,8 @@ public class MainActivity extends BaseActivity {
 
             if (action == MotionEvent.ACTION_DOWN)
                 self.handler.postDelayed(
-                    self.settingsRunnable,
-                    Config.getInstance().getSettingsHoldDelay()
+                        self.settingsRunnable,
+                        Config.getInstance().getSettingsHoldDelay()
                 );
 
             else if (action == MotionEvent.ACTION_UP)
@@ -1042,8 +1136,8 @@ public class MainActivity extends BaseActivity {
         private void handleMediaClicks(View view) {
             MainActivity self = MainActivity.this;
             Entity media = self.mediaList
-                .getAdapter()
-                .getSelected();
+                    .getAdapter()
+                    .getSelected();
 
             if (media == null)
                 return;
@@ -1069,17 +1163,17 @@ public class MainActivity extends BaseActivity {
             }
 
             NagleTimers.reset(
-                media.id,
-                new MediaNagleRunnable(media, directive),
-                EntityUtil.getMediaNagleDelay(media.data)
+                    media.id,
+                    new MediaNagleRunnable(media, directive),
+                    EntityUtil.getMediaNagleDelay(media.data)
             );
         }
 
         private void handleVolumeClicks(View view) {
             MainActivity self = MainActivity.this;
             Entity media = self.mediaList
-                .getAdapter()
-                .getSelected();
+                    .getAdapter()
+                    .getSelected();
 
             if (media == null)
                 return;
@@ -1089,10 +1183,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private class WidgetListener implements RoomSelector.SelectionListener,
-        ElementsBar.Listener,
-        DevicesList.Listener,
-        MediaList.Listener,
-        MediaSourcesList.Listener {
+            ElementsBar.Listener,
+            DevicesList.Listener,
+            MediaList.Listener,
+            MediaSourcesList.Listener {
 
         // region Room Selector
         @Override
@@ -1112,8 +1206,8 @@ public class MainActivity extends BaseActivity {
             MediaSourcesList sourcesList = MainActivity.this.sourcesList;
 
             List<RoomEntity> rooms = MainActivity.this.roomSelector
-                .getAdapter()
-                .getMediaSelections();
+                    .getAdapter()
+                    .getMediaSelections();
 
             mediaList.setup(rooms);
             sourcesList.setup(rooms);
@@ -1130,11 +1224,11 @@ public class MainActivity extends BaseActivity {
                 devicesJSON = entity.data.getJSONArray("dial_devices");
             } catch (JSONException exception) {
                 PlatformUtil
-                    .getErrorToast(self, new AvarioException(
-                        Constants.ERROR_STATE_MISSINGKEY,
-                        exception
-                    ))
-                    .show();
+                        .getErrorToast(self, new AvarioException(
+                                Constants.ERROR_STATE_MISSINGKEY,
+                                exception
+                        ))
+                        .show();
 
                 return;
             }
@@ -1162,7 +1256,7 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onSelectionsCleared(DevicesList source) {
             MainActivity.this.dialFragment
-                .setEnabled(false);
+                    .setEnabled(false);
         }
 
         @Override
@@ -1190,43 +1284,46 @@ public class MainActivity extends BaseActivity {
         // endregion
 
         // region MediaSourcesList
+        @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onMediaSourceSelected(String name, String appId) {
             MainActivity self = MainActivity.this;
-
-            String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
-
-            Pattern p = Pattern.compile(URL_REGEX);
-            Matcher m = p.matcher(appId);
-
             Intent intent = self
-                .getPackageManager()
-                .getLaunchIntentForPackage(appId);
+                    .getPackageManager()
+                    .getLaunchIntentForPackage(appId);
 
             if (intent != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(self)) {
                     Intent intentPackage = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + getPackageName()));
-                    startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
+                            Uri.parse("package:" + getPackageName()));
+                    startActivityForResult(intentPackage, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
                 } else {
+
+                    ActivityManager am = (ActivityManager) getSystemService(
+                            Context.ACTIVITY_SERVICE);
+
+                    if (am.getLockTaskModeState() ==
+                            ActivityManager.LOCK_TASK_MODE_LOCKED) {
+                        stopLockTask();
+                    }
+
+                    setDefaultCosuPolicies(false);
+                    startService(new Intent(getApplicationContext(), FloatingViewService.class));
                     self.startActivity(intent);
                 }
-            } else if (m.find()) {
-                /*Intent intentWebview = new Intent(self, WebViewActivity.class);
-                intentWebview.putExtra("URL", appId);
-                self.startActivity(intentWebview);*/
+            } else if (URLUtil.isValidUrl(appId)) {
                 loadWebView(appId);
 
             } else {
                 String[] exceptionArgs = new String[]{name};
 
                 PlatformUtil
-                    .getErrorToast(self, new AvarioException(
-                        Constants.ERROR_APP_NOT_INSTALLED,
-                        null,
-                        exceptionArgs
-                    ))
-                    .show();
+                        .getErrorToast(self, new AvarioException(
+                                Constants.ERROR_APP_NOT_INSTALLED,
+                                null,
+                                exceptionArgs
+                        ))
+                        .show();
             }
         }
         // endregion
@@ -1255,15 +1352,15 @@ public class MainActivity extends BaseActivity {
 
             if (manager.isConnected())
                 manager
-                    .getConnection()
-                    .setListener(self.mqttListener);
+                        .getConnection()
+                        .setListener(self.mqttListener);
             else
                 self.connectMQTT(self.getString(R.string.message__mqtt__connecting));
         }
     }
 
     private class NotificationListener implements NotificationDialogFragment.Listener,
-        NotifListDialogFragment.Listener {
+            NotifListDialogFragment.Listener {
 
         @Override
         public void onDialogDetached() {
@@ -1298,8 +1395,8 @@ public class MainActivity extends BaseActivity {
             // express to user the error
             try {
                 message = StateArray
-                    .getInstance()
-                    .getErrorMessage(exception.getCode());
+                        .getInstance()
+                        .getErrorMessage(exception.getCode());
             } catch (NullPointerException nullE) {
                 message = null;
             }
@@ -1318,8 +1415,8 @@ public class MainActivity extends BaseActivity {
 
             try {
                 message = StateArray
-                    .getInstance()
-                    .getErrorMessage(exception.getCode());
+                        .getInstance()
+                        .getErrorMessage(exception.getCode());
             } catch (NullPointerException e) {
                 message = null;
             }
@@ -1338,8 +1435,8 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onSubscriptionError(MqttConnection connection, AvarioException exception) {
             PlatformUtil
-                .getErrorToast(MainActivity.this, exception)
-                .show();
+                    .getErrorToast(MainActivity.this, exception)
+                    .show();
         }
 
         @Override
@@ -1372,8 +1469,8 @@ public class MainActivity extends BaseActivity {
                 public void run() {
                     try {
                         StateArray.getInstance()
-                            .updateFromHTTP(response)
-                            .broadcastChanges(null, StateArray.FROM_HTTP);
+                                .updateFromHTTP(response)
+                                .broadcastChanges(null, StateArray.FROM_HTTP);
                     } catch (AvarioException exception) {
                         CurrentStateListener.this.reportError(exception);
                     }
@@ -1427,8 +1524,8 @@ public class MainActivity extends BaseActivity {
 
             try {
                 message = StateArray
-                    .getInstance()
-                    .getErrorMessage(exception.getCode());
+                        .getInstance()
+                        .getErrorMessage(exception.getCode());
             } catch (NullPointerException nullEx) {
                 message = null;
             }
@@ -1517,38 +1614,38 @@ public class MainActivity extends BaseActivity {
             try {
                 try {
                     specJSON = new JSONObject(
-                        this.media.data
-                            .getJSONObject("controls")
-                            .getJSONObject(this.directive)
-                            .toString()
+                            this.media.data
+                                    .getJSONObject("controls")
+                                    .getJSONObject(this.directive)
+                                    .toString()
                     );
                     specJSON.put("timeout", EntityUtil.getNagleDelay(this.media.data));
                 } catch (JSONException exception) {
                     throw new AvarioException(
-                        Constants.ERROR_STATE_MISSINGKEY,
-                        exception,
-                        new Object[]{
-                            String.format("%s.controls.%s",
-                                this.media.id,
-                                this.directive
-                            )
-                        }
+                            Constants.ERROR_STATE_MISSINGKEY,
+                            exception,
+                            new Object[]{
+                                    String.format("%s.controls.%s",
+                                            this.media.id,
+                                            this.directive
+                                    )
+                            }
                     );
                 }
 
                 APIClient
-                    .getInstance()
-                    .executeRequest(specJSON, this.media.id, this.media.id, new MediaAPIsListener(
-                        this.media.id,
-                        new String[]{this.media.id}
-                    ));
+                        .getInstance()
+                        .executeRequest(specJSON, this.media.id, this.media.id, new MediaAPIsListener(
+                                this.media.id,
+                                new String[]{this.media.id}
+                        ));
             } catch (final AvarioException exception) {
                 Application.mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         PlatformUtil
-                            .getErrorToast(MainActivity.this, exception)
-                            .show();
+                                .getErrorToast(MainActivity.this, exception)
+                                .show();
                     }
                 });
             }
@@ -1568,4 +1665,85 @@ public class MainActivity extends BaseActivity {
         }
     }
     // endregion timers
+
+     /*
+    *****************************************************************************************************************
+    * FOR THE KIOSK MODE
+    * ***************************************************************************************************************
+    * */
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void setDefaultCosuPolicies(boolean active) {
+        // set user restrictions
+        setUserRestriction(UserManager.DISALLOW_SAFE_BOOT, active);
+        setUserRestriction(UserManager.DISALLOW_FACTORY_RESET, active);
+        setUserRestriction(UserManager.DISALLOW_ADD_USER, active);
+        setUserRestriction(UserManager.DISALLOW_MOUNT_PHYSICAL_MEDIA, active);
+        setUserRestriction(UserManager.DISALLOW_ADJUST_VOLUME, active);
+
+        // disable keyguard and status bar
+        mDevicePolicyManager.setKeyguardDisabled(mAdminComponentName, active);
+        mDevicePolicyManager.setStatusBarDisabled(mAdminComponentName, active);
+
+        // enable STAY_ON_WHILE_PLUGGED_IN
+        //enableStayOnWhilePluggedIn(active);
+
+        // set system update policy
+        if (active) {
+            mDevicePolicyManager.setSystemUpdatePolicy(mAdminComponentName,
+                    SystemUpdatePolicy.createWindowedInstallPolicy(60, 120));
+        } else {
+            mDevicePolicyManager.setSystemUpdatePolicy(mAdminComponentName,
+                    null);
+        }
+
+        // set this Activity as a lock task package
+
+        mDevicePolicyManager.setLockTaskPackages(mAdminComponentName,
+                active ? new String[]{getPackageName()} : new String[]{});
+
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MAIN);
+        intentFilter.addCategory(Intent.CATEGORY_HOME);
+        intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+
+        if (active) {
+            // set Cosu activity as home intent receiver so that it is started
+            // on reboot
+            mDevicePolicyManager.addPersistentPreferredActivity(
+                    mAdminComponentName, intentFilter, new ComponentName(
+                            getPackageName(), BootActivity.class.getName()));
+        } else {
+            mDevicePolicyManager.clearPackagePersistentPreferredActivities(
+                    mAdminComponentName, getPackageName());
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void setUserRestriction(String restriction, boolean disallow) {
+        if (disallow) {
+            mDevicePolicyManager.addUserRestriction(mAdminComponentName,
+                    restriction);
+        } else {
+            mDevicePolicyManager.clearUserRestriction(mAdminComponentName,
+                    restriction);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void enableStayOnWhilePluggedIn(boolean enabled) {
+        if (enabled) {
+            mDevicePolicyManager.setGlobalSetting(
+                    mAdminComponentName,
+                    Settings.Global.STAY_ON_WHILE_PLUGGED_IN,
+                    Integer.toString(BatteryManager.BATTERY_PLUGGED_AC
+                            | BatteryManager.BATTERY_PLUGGED_USB
+                            | BatteryManager.BATTERY_PLUGGED_WIRELESS));
+        } else {
+            mDevicePolicyManager.setGlobalSetting(
+                    mAdminComponentName,
+                    Settings.Global.STAY_ON_WHILE_PLUGGED_IN,
+                    "0"
+            );
+        }
+    }
 }

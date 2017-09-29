@@ -6,12 +6,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.widget.Toast;
 
 import com.avariohome.avario.R;
 import com.avariohome.avario.service.DeviceAdminReceiver;
+import com.avariohome.avario.service.FloatingViewService;
 
 /**
  * Created by orly on 9/22/17.
@@ -25,6 +28,7 @@ public class KioskActivity extends Activity {
     private DevicePolicyManager mDevicePolicyManager;
     private ComponentName mAdminComponentName;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +37,8 @@ public class KioskActivity extends Activity {
 
         mAdminComponentName = DeviceAdminReceiver.getComponentName(this);
         mPackageManager = this.getPackageManager();
-
+        //call this to uninstall application
+        //mDevicePolicyManager.clearDeviceOwnerApp("com.avariohome.avario");
         if (mDevicePolicyManager.isDeviceOwnerApp(
                 getApplicationContext().getPackageName())) {
             Intent lockIntent = new Intent(getApplicationContext(),
@@ -46,6 +51,9 @@ public class KioskActivity extends Activity {
                     PackageManager.DONT_KILL_APP);
             startActivity(lockIntent);
             finish();
+            stopService(new Intent(getApplicationContext(), FloatingViewService.class));
+
+            //mDevicePolicyManager.clearDeviceOwnerApp("com.avariohome.avario");
         } else {
             Toast.makeText(getApplicationContext(),
                     R.string.not_lock_whitelisted, Toast.LENGTH_SHORT)
