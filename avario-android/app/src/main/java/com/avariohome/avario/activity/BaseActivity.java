@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.avariohome.avario.Application;
 import com.avariohome.avario.Constants;
@@ -118,6 +119,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                 Connectivity connectivity = StateArray.getInstance().getConnectivityDetails();
                 Connectivity.Credentials cred = Connectivity.isMacPresent(this) ?
                         connectivity.lan : connectivity.wan;
+                if(Connectivity.isMacPresent(this)){
+                    Toast.makeText(BaseActivity.this, "Connecting to LAN.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(BaseActivity.this, "Connecting to WAN.", Toast.LENGTH_SHORT).show();
+                }
                 MqttManager.updateConnection(connection, mqttJSON, cred);
                 connection.reset();
             }
