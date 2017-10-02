@@ -55,6 +55,9 @@ public class KioskActivity extends Activity {
 
             //mDevicePolicyManager.clearDeviceOwnerApp("com.avariohome.avario");
         } else {
+            Intent intent = new Intent(getApplicationContext(),
+                    BootActivity.class);
+            startActivity(intent);
             Toast.makeText(getApplicationContext(),
                     R.string.not_lock_whitelisted, Toast.LENGTH_SHORT)
                     .show();

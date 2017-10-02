@@ -221,7 +221,7 @@ public class MainActivity extends BaseActivity {
                         Context.DEVICE_POLICY_SERVICE);
                 mPackageManager = getPackageManager();
                 if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
-                    setDefaultCosuPolicies(true);
+                    //setDefaultCosuPolicies(true);
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Not Device owner", Toast.LENGTH_SHORT)
@@ -256,7 +256,7 @@ public class MainActivity extends BaseActivity {
                                     try {
                                         if (am.getLockTaskModeState() ==
                                                 ActivityManager.LOCK_TASK_MODE_NONE) {
-                                            startLockTask();
+                                            //startLockTask();
                                         }
                                     } catch (Exception exception) {
                                     }
@@ -666,6 +666,17 @@ public class MainActivity extends BaseActivity {
     }
 
     private void activateModeEnergy() {
+
+        StateArray states = StateArray.getInstance();
+        String url = "";
+        try {
+            url = states.getSettingsPowerTab().getString("url");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (AvarioException e) {
+            e.printStackTrace();
+        }
+
         this.elementsBar
                 .getAdapter()
                 .setMode(ElementAdapter.MODE_HOME);
@@ -676,7 +687,8 @@ public class MainActivity extends BaseActivity {
 
         this.devicesIB.setEnabled(false);
         this.roomSelector.setTitle(this.getString(R.string.mode__energy));
-        this.unloadWebView();
+        //this.unloadWebView();
+        this.loadWebView(url);
     }
 
     /**
