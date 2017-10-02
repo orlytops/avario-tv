@@ -124,6 +124,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(BaseActivity.this, "Connecting to WAN.", Toast.LENGTH_SHORT).show();
                 }
+
                 MqttManager.updateConnection(connection, mqttJSON, cred);
                 connection.reset();
             }
