@@ -149,6 +149,9 @@ public class MainActivity extends BaseActivity {
     private DevicePolicyManager mDevicePolicyManager;
     private PackageManager mPackageManager;
 
+    private boolean isInActive = false;
+    private boolean isMediaAvailable = false;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -565,6 +568,7 @@ public class MainActivity extends BaseActivity {
         WidgetListener widgetListener = new WidgetListener();
 
         this.homeIB.setOnTouchListener(uiListener);
+        this.contentRL.setOnClickListener(uiListener);
 
         for (ImageButton button : new ImageButton[]{
                 this.devicesIB,
@@ -810,12 +814,15 @@ public class MainActivity extends BaseActivity {
             return;
 
         // media list
+        isMediaAvailable = false;
         if (view == this.mediaList) {
             MediaAdapter adapter = this.mediaList.getAdapter();
             Entity media = adapter.getSelected();
 
-            if (media != null)
+            if (media != null) {
+                isMediaAvailable = true;
                 this.dialFragment.setMediaEntity(media.id);
+            }
         }
         // devices list
         else {
@@ -1094,6 +1101,10 @@ public class MainActivity extends BaseActivity {
 
                 case R.id.notif:
                     self.showNotifListDialog();
+                    break;
+                case R.id.content:
+                    handleInactive(self);
+                    break;
             }
         }
 
@@ -1191,6 +1202,13 @@ public class MainActivity extends BaseActivity {
                 return;
 
             self.dialFragment.setVolumeEntity(media.id);
+        }
+    }
+
+    private void handleInactive(MainActivity self) {
+        if (isInActive) {
+            self.homeIB.performClick();
+            isInActive = false;
         }
     }
 
@@ -1669,11 +1687,32 @@ public class MainActivity extends BaseActivity {
         public void run() {
             MainActivity self = MainActivity.this;
 
-            if (self.activeModeIB != self.homeIB)
+            if (self.activeModeIB != self.homeIB) {
                 self.homeIB.performClick();
+            }
 
             self.toggleLeftView(self.mediaList);
             self.updateDialFromSelections(self.mediaList);
+
+            if (isMediaAvailable) {
+                try {
+                    RoomEntity roomSelection = MainActivity.this.roomSelector
+                            .getAdapter().getRoomSelection();
+                    JSONArray devicesJSON = roomSelection.data.getJSONArray("list_devices");
+                    List<String> entityIds = new ArrayList<>();
+
+                    for (int i = 0; i < devicesJSON.length(); i++) {
+                        String device = devicesJSON.getString(i);
+                        if (device.contains("light.")) {
+                            entityIds.add(device);
+                        }
+                    }
+                    dialFragment.setEntities(entityIds);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            isInActive = true;
         }
     }
     // endregion timers
