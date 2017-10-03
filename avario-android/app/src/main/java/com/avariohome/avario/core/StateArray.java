@@ -739,6 +739,20 @@ public class StateArray {
         }
     }
 
+    public JSONObject getSettingsPowerTab() throws AvarioException {
+        try {
+            return this.data
+                    .getJSONObject("settings")
+                    .getJSONObject("powerTab");
+        } catch (NullPointerException | JSONException exception) {
+            throw new AvarioException(
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{"settings.powerTab"}
+            );
+        }
+    }
+
     /**
      * Updates the internal StateArray from an MQTT response update.
      *
