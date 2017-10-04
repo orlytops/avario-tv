@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -16,115 +15,125 @@
             android:id="@+id/setting__host_ip__label"
             android:layout_width="@dimen/settings__field__width"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_alignBaseline="@+id/setting__host_ip"
-            android:text="@string/setting__host"/>
+            android:layout_alignParentLeft="true"
+            android:text="@string/setting__host" />
 
         <EditText
             android:id="@id/setting__host_ip"
-            android:layout_toRightOf="@id/setting__host_ip__label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/setting__host_ip__label"
             android:hint="@string/setting__host__hint"
-            android:inputType="text"/>
+            android:inputType="text" />
 
 
         <!-- Port / SSL -->
         <TextView
-            android:layout_below="@id/setting__host_ip"
             android:layout_width="@dimen/settings__field__width"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_alignBaseline="@+id/setting__host_port"
-            android:text="@string/setting__port"/>
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/setting__host_ip"
+            android:text="@string/setting__port" />
 
         <EditText
             android:id="@id/setting__host_port"
-            android:layout_below="@id/setting__host_ip"
-            android:layout_toRightOf="@id/setting__host_ip__label"
-            android:layout_toLeftOf="@+id/setting__ssl"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_below="@id/setting__host_ip"
+            android:layout_toLeftOf="@+id/setting__ssl"
+            android:layout_toRightOf="@id/setting__host_ip__label"
+            android:digits="0123456789"
             android:hint="@string/setting__port__hint"
-            android:inputType="number"
-            android:digits="0123456789"/>
+            android:inputType="number" />
 
         <CheckBox
             android:id="@id/setting__ssl"
-            android:layout_below="@id/setting__host_ip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignBaseline="@+id/setting__host_port"
-            android:text="@string/setting__ssl"/>
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/setting__host_ip"
+            android:text="@string/setting__ssl" />
 
         <!-- Username -->
         <TextView
-            android:layout_below="@id/setting__host_port"
             android:layout_width="@dimen/settings__field__width"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_alignBaseline="@+id/setting__username"
-            android:text="@string/setting__username"/>
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/setting__host_port"
+            android:text="@string/setting__username" />
 
         <EditText
             android:id="@id/setting__username"
-            android:layout_below="@id/setting__host_port"
-            android:layout_toRightOf="@id/setting__host_ip__label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/setting__host_port"
+            android:layout_toRightOf="@id/setting__host_ip__label" />
 
 
         <!-- Password -->
         <TextView
-            android:layout_below="@id/setting__username"
             android:layout_width="@dimen/settings__field__width"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_alignBaseline="@+id/setting__password"
-            android:text="@string/setting__password"/>
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/setting__username"
+            android:text="@string/setting__password" />
 
         <EditText
             android:id="@id/setting__password"
-            android:layout_below="@id/setting__username"
-            android:layout_toRightOf="@id/setting__host_ip__label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:inputType="textPassword"/>
+            android:layout_below="@id/setting__username"
+            android:layout_toRightOf="@id/setting__host_ip__label"
+            android:inputType="textPassword" />
+
+        <TextView
+            android:id="@+id/text_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/setting__password"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <!-- Working Message -->
         <LinearLayout
             android:id="@+id/working__holder"
-            android:layout_below="@id/setting__password"
             android:layout_width="wrap_content"
             android:layout_height="24dp"
             android:layout_alignParentRight="true"
+            android:layout_below="@id/setting__password"
             android:orientation="horizontal"
             android:visibility="invisible">
 
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:indeterminate="true"/>
+                android:indeterminate="true" />
 
             <TextView
                 android:id="@+id/working__label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="@string/setting__working"/>
+                android:text="@string/setting__working" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/error"
-            android:layout_below="@id/working__holder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:visibility="gone"
-            android:textColor="@color/red"/>
+            android:layout_below="@id/working__holder"
+            android:textColor="@color/red"
+            android:visibility="gone" />
     </RelativeLayout>
 </ScrollView>

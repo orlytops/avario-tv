@@ -1,6 +1,7 @@
 package com.avariohome.avario.activity;
 
 
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -12,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.view.Window;
+import android.widget.Toast;
 
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
