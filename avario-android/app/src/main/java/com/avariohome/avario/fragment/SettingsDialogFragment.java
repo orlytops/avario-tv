@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -69,6 +71,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private Button refreshB;
     private TextView workingTV;
     private TextView errorTV;
+    private TextView versionText;
 
     private BatchAssetLoaderTask task;
     private MqttConnection.Listener mqttListener;
@@ -142,6 +145,15 @@ public class SettingsDialogFragment extends DialogFragment {
         this.usernameET = (EditText) view.findViewById(R.id.setting__username);
         this.passwordET = (EditText) view.findViewById(R.id.setting__password);
         this.secureCB = (CheckBox) view.findViewById(R.id.setting__ssl);
+        versionText = (TextView) view.findViewById(R.id.text_version);
+
+        try {
+            PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
+            String version = pInfo.versionName;
+            versionText.setText("Version: " + version);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         if (this.config.isSet()) {
             this.hostET.setText(this.config.getHttpHost());
