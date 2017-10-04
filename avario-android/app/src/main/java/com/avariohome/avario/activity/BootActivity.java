@@ -65,13 +65,31 @@ public class BootActivity extends BaseActivity {
         this.settingsListener = new SettingsListener();
 
         // Set Default COSU policy
-
+        mAdminComponentName = DeviceAdminReceiver.getComponentName(this);
+        mDevicePolicyManager = (DevicePolicyManager) getSystemService(
+                Context.DEVICE_POLICY_SERVICE);
+        mPackageManager = getPackageManager();
+        if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
+//            setDefaultCosuPolicies(true);
+        } else {
+            Toast.makeText(getApplicationContext(),
+                    "Not Device owner", Toast.LENGTH_SHORT)
+                    .show();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onStart() {
         super.onStart();
+        if (mDevicePolicyManager.isLockTaskPermitted(this.getPackageName())) {
+            ActivityManager am = (ActivityManager) getSystemService(
+                    Context.ACTIVITY_SERVICE);
+            if (am.getLockTaskModeState() ==
+                    ActivityManager.LOCK_TASK_MODE_NONE) {
+//                startLockTask();
+            }
+        }
     }
 
     @Override
