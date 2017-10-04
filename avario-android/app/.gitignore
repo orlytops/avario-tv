@@ -2,3 +2,5 @@
 /build/generated
 /build/intermediates
 /build/outputs/logs
+/build/tmp
+/build/reports
