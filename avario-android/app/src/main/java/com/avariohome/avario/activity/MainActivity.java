@@ -1337,7 +1337,7 @@ public class MainActivity extends BaseActivity {
                         stopLockTask();
                     }
 
-                    setDefaultCosuPolicies(false);
+//                    setDefaultCosuPolicies(false);
                     startService(new Intent(getApplicationContext(), FloatingViewService.class));
                     self.startActivity(intent);
                 }
