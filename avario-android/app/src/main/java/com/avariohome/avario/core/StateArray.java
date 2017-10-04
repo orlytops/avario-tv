@@ -11,8 +11,10 @@ import com.avariohome.avario.Application;
 import com.avariohome.avario.Constants;
 import com.avariohome.avario.R;
 import com.avariohome.avario.exception.AvarioException;
+import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -168,9 +170,9 @@ public class StateArray {
 
         // entities & media
         String[] properties = new String[]{
-                "entities",
-                "media",
-                "dial_buttons",
+            "entities",
+            "media",
+            "dial_buttons",
         };
 
         for (String property : properties) {
@@ -735,6 +737,28 @@ public class StateArray {
                     Constants.ERROR_STATE_MISSINGKEY,
                     exception,
                     new Object[]{"settings.securityTab"}
+            );
+        }
+    }
+
+    public Connectivity getConnectivityDetails() throws JSONException {
+        String result = this.data
+                .getJSONObject("settings")
+                .getJSONObject("connectivity").toString();
+        return new Gson().fromJson(result, Connectivity.class);
+    }
+
+    public JSONArray getLanMacList() throws AvarioException {
+        try {
+            return this.data
+                    .getJSONObject("settings")
+                    .getJSONObject("connectivity")
+                    .getJSONArray("lanMac");
+        } catch (NullPointerException | JSONException ex) {
+            throw new AvarioException(
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    ex,
+                    new Object[]{"settings.connectivity"}
             );
         }
     }

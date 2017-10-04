@@ -20,6 +20,8 @@ import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
+import com.avariohome.avario.service.DeviceAdminReceiver;
+import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.PlatformUtil;
 
 

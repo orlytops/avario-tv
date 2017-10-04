@@ -4,7 +4,9 @@ package com.avariohome.avario.activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.avariohome.avario.Application;
 import com.avariohome.avario.Constants;
@@ -13,12 +15,13 @@ import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.fragment.SettingsDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
-import com.avariohome.avario.util.Log;
+import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.PlatformUtil;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,8 +41,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         try {
             Application.startWorker(getApplicationContext());
+        } catch (NullPointerException ignored) {
         }
-        catch (NullPointerException ignored) {}
     }
 
     @Override
@@ -59,12 +62,12 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         decorView = this.getWindow().getDecorView();
         decorView.setSystemUiVisibility(
-            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            | View.SYSTEM_UI_FLAG_FULLSCREEN
-            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         );
     }
 
@@ -86,13 +89,12 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         try {
             mqttJSON = StateArray
-                .getInstance()
-                .getMQTTSettings();
-        }
-        catch (AvarioException exception) {
+                    .getInstance()
+                    .getMQTTSettings();
+        } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this, exception)
-                .show();
+                    .getErrorToast(this, exception)
+                    .show();
             return;
         }
 
@@ -100,8 +102,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         if (connection == null) {
             connection = MqttManager.createConnection(
-                this.getApplicationContext(),
-                mqttJSON
+                    this.getApplicationContext(),
+                    mqttJSON
             );
 
             manager.setConnection(connection);
@@ -113,9 +115,17 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (connection.getStatus() == MqttConnection.Status.CONNECTED) {
                 connection.disconnect();
                 return;
-            }
-            else {
-                MqttManager.updateConnection(connection, mqttJSON);
+            } else {
+                Connectivity connectivity = StateArray.getInstance().getConnectivityDetails();
+                Connectivity.Credentials cred = Connectivity.isMacPresent(this) ?
+                        connectivity.lan : connectivity.wan;
+                if(Connectivity.isMacPresent(this)){
+                    Toast.makeText(BaseActivity.this, "Connecting to LAN.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(BaseActivity.this, "Connecting to WAN.", Toast.LENGTH_SHORT).show();
+                }
+
+                MqttManager.updateConnection(connection, mqttJSON, cred);
                 connection.reset();
             }
         }
@@ -126,15 +136,14 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void connectMQTT(MqttConnection.Listener listener, boolean refresh) {
         try {
             this.connectMQTTNaive(listener, refresh);
-        }
-        catch (JSONException | MqttException exception) {
+        } catch (JSONException | MqttException exception) {
             int code = exception instanceof MqttException
-                     ? Constants.ERROR_MQTT_CONNECTION
-                     : Constants.ERROR_MQTT_CONFIGURATION;
+                    ? Constants.ERROR_MQTT_CONNECTION
+                    : Constants.ERROR_MQTT_CONFIGURATION;
 
             PlatformUtil
-                .getErrorToast(this, new AvarioException(code, exception))
-                .show();
+                    .getErrorToast(this, new AvarioException(code, exception))
+                    .show();
         }
     }
 
@@ -147,7 +156,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         availability.makeGooglePlayServicesAvailable(this);
     }
-
 
     abstract class SettingsListener implements SettingsDialogFragment.Listener {
         @Override

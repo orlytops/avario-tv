@@ -97,7 +97,6 @@ public class APIClient {
                 @Override
                 protected HttpURLConnection createConnection(URL url) throws IOException {
                     HttpURLConnection connection = super.createConnection(url);
-
                     if (connection instanceof HttpsURLConnection) {
                         HttpsURLConnection httpsConn;
 
@@ -128,15 +127,14 @@ public class APIClient {
                 request.getUrl()
                         + " " + request.getBodyContentType()));
 
+        Log.i("RequestUrl", request.toString());
         try {
             Log.i(TAG, "Request Payload: " + new String(request.getBody()));
             Log.i(TAG, "Request Payload Type: " + request.getBodyContentType());
-        } catch (AuthFailureError | NullPointerException exception) {
+        } catch (AuthFailureError | NullPointerException ignored) {
         }
-
         this.queue.add(request);
 
-        return;
     }
 
     /**

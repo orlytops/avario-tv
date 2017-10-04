@@ -68,6 +68,7 @@ import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.service.DeviceAdminReceiver;
 import com.avariohome.avario.service.FloatingViewService;
 import com.avariohome.avario.util.AssetUtil;
+import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
@@ -188,7 +189,6 @@ public class MainActivity extends BaseActivity {
 
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(this.bluetoothReceiver, filter);
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
