@@ -117,6 +117,7 @@ public class BootActivity extends BaseActivity {
         }
 
         if (states.hasData()) {
+            Connectivity.identifyConnection(getApplicationContext());
             this.sendFCMToken();
             this.connectMQTT(new MqttConnectionListener(), false);
             this.progressPD.show();

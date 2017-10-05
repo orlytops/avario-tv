@@ -14,6 +14,7 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.AssetLoaderTask;
+import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.PlatformUtil;
 
