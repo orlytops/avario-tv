@@ -116,16 +116,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 connection.disconnect();
                 return;
             } else {
-                Connectivity connectivity = StateArray.getInstance().getConnectivityDetails();
-                Connectivity.Credentials cred = Connectivity.isMacPresent(this) ?
-                        connectivity.lan : connectivity.wan;
-                if(Connectivity.isMacPresent(this)){
-                    Toast.makeText(BaseActivity.this, "Connecting to LAN.", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(BaseActivity.this, "Connecting to WAN.", Toast.LENGTH_SHORT).show();
-                }
-
-                MqttManager.updateConnection(connection, mqttJSON, cred);
+                MqttManager.updateConnection(connection, mqttJSON);
                 connection.reset();
             }
         }

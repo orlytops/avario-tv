@@ -1,32 +1,41 @@
 package com.avariohome.avario.util;
 
+import android.app.AlertDialog;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.content.DialogInterface;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.telephony.TelephonyManager;
-import android.util.*;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
-import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 public class Connectivity {
+    private static volatile Connectivity instance;
     public String[] lanMac;
-    @SerializedName("lan")
-    public Credentials lan;
-    @SerializedName("wan")
-    public Credentials wan;
+    private Boolean isLan = false;
+
+    private Connectivity() {
+
+    }
+
+    public static Connectivity getInstance() {
+        if (instance == null) {
+            synchronized (Connectivity.class) {
+                if (instance == null) {
+                    instance = new Connectivity();
+                }
+            }
+        }
+        return instance;
+    }
 
     public static String getAccessPointMac(Context context) {
         WifiInfo wifiInfo = Connectivity.getWifiInfo(context);
-
         return wifiInfo.getBSSID();
     }
 
@@ -45,7 +54,7 @@ public class Connectivity {
         return wifiMan.getConnectionInfo();
     }
 
-    public static boolean isMacPresent(Context context) {
+    public static boolean identifyConnection(Context context) {
         JSONArray lanMacList;
         boolean result = false;
         try {
@@ -61,17 +70,16 @@ public class Connectivity {
             for (String item : connectivity.lanMac) {
                 Log.v("Connectivity", item);
             }
-        } catch (AvarioException | JSONException e) {
+        } catch (AvarioException | JSONException | NullPointerException e) {
             e.printStackTrace();
         }
+        getInstance().isLan = result;
+        Toast.makeText(context, getInstance().isLan ?
+                "Connected to Lan" : "Connected to Wan", Toast.LENGTH_LONG).show();
         return result;
     }
 
-    public class Credentials {
-        public String host;
-        public String port;
-        public boolean ssl;
-        public String username;
-        public String password;
+    public static boolean isConnectedToLan() {
+        return getInstance().isLan;
     }
 }

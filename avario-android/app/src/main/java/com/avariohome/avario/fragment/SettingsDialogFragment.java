@@ -34,6 +34,7 @@ import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.BlindAssetLoader;
+import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -150,7 +151,7 @@ public class SettingsDialogFragment extends DialogFragment {
         try {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version = pInfo.versionName;
-            versionText.setText("Version: " + version);
+            versionText.setText("Version: avario_v" + version + "b" + pInfo.versionCode);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -505,6 +506,7 @@ public class SettingsDialogFragment extends DialogFragment {
             StateArray
                     .getInstance()
                     .setData(response);
+            Connectivity.identifyConnection(getActivity());
 
             self.sendFCMToken();
             self.loadAssets();

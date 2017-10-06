@@ -104,6 +104,13 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
+        <TextView
+            android:id="@+id/text_connection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/text_version"/>
+
         <!-- Working Message -->
         <LinearLayout
             android:id="@+id/working__holder"

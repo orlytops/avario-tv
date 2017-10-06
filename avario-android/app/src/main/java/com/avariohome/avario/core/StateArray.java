@@ -561,15 +561,25 @@ public class StateArray {
      ***********************************************************************************************
      */
     public String getHTTPUsername(String configId) throws AvarioException {
+        android.util.Log.v("WanLan", "getHTTPUsername");
         if (!this.hasData())
             return null;
-
         try {
-            return this.data
-                    .getJSONObject("settings")
-                    .getJSONObject("http")
-                    .getJSONObject(configId)
-                    .getString("username");
+            return Connectivity.isConnectedToLan() ?
+                    this.data
+                            .getJSONObject("settings")
+                            .getJSONObject("connectivity")
+                            .getJSONObject("lan")
+                            .getJSONObject("http")
+                            .getJSONObject(configId)
+                            .getString("username") :
+                    this.data
+                            .getJSONObject("settings")
+                            .getJSONObject("connectivity")
+                            .getJSONObject("wan")
+                            .getJSONObject("http")
+                            .getJSONObject(configId)
+                            .getString("username");
         } catch (JSONException exception) {
             throw new AvarioException(
                     Constants.ERROR_STATE_MISSINGKEY,
@@ -582,15 +592,26 @@ public class StateArray {
     }
 
     public String getHTTPPassword(String configId) throws AvarioException {
+        android.util.Log.v("WanLan", "getHTTPPassword");
         if (!this.hasData())
             return null;
 
         try {
-            return this.data
-                    .getJSONObject("settings")
-                    .getJSONObject("http")
-                    .getJSONObject(configId)
-                    .getString("password");
+            return Connectivity.isConnectedToLan() ?
+                    this.data
+                            .getJSONObject("settings")
+                            .getJSONObject("connectivity")
+                            .getJSONObject("lan")
+                            .getJSONObject("http")
+                            .getJSONObject(configId)
+                            .getString("password") :
+                    this.data
+                            .getJSONObject("settings")
+                            .getJSONObject("connectivity")
+                            .getJSONObject("wan")
+                            .getJSONObject("http")
+                            .getJSONObject(configId)
+                            .getString("password");
         } catch (JSONException exception) {
             throw new AvarioException(
                     Constants.ERROR_STATE_MISSINGKEY,
@@ -610,14 +631,24 @@ public class StateArray {
      * @throws AvarioException
      */
     public String getHTTPHost(String configId) throws AvarioException {
+        android.util.Log.v("WanLan", "getHTTPHost");
         if (!this.hasData())
             return null;
 
         try {
-            JSONObject confJSON = this.data
-                    .getJSONObject("settings")
-                    .getJSONObject("http")
-                    .getJSONObject(configId);
+            JSONObject confJSON = Connectivity.isConnectedToLan() ?
+                    this.data
+                            .getJSONObject("settings")
+                            .getJSONObject("connectivity")
+                            .getJSONObject("lan")
+                            .getJSONObject("http")
+                            .getJSONObject(configId) :
+                    this.data
+                            .getJSONObject("settings")
+                            .getJSONObject("connectivity")
+                            .getJSONObject("wan")
+                            .getJSONObject("http")
+                            .getJSONObject(configId);
 
             return String.format("http%s://%s:%s",
                     confJSON.getBoolean("ssl") ? "s" : "",
@@ -714,10 +745,18 @@ public class StateArray {
      ***********************************************************************************************
      */
     public JSONObject getMQTTSettings() throws AvarioException {
+        android.util.Log.v("WanLan", "getMQTTSettings");
         try {
-            return this.data
-                    .getJSONObject("settings")
-                    .getJSONObject("mqtt");
+            return Connectivity.isConnectedToLan() ?
+                    this.data.getJSONObject("settings")
+                            .getJSONObject("connectivity")
+                            .getJSONObject("lan")
+                            .getJSONObject("mqtt") :
+                    this.data.getJSONObject("settings")
+                            .getJSONObject("connectivity")
+                            .getJSONObject("wan")
+                            .getJSONObject("mqtt");
+
         } catch (NullPointerException | JSONException exception) {
             throw new AvarioException(
                     Constants.ERROR_STATE_MISSINGKEY,

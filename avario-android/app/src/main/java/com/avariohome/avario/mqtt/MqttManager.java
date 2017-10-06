@@ -44,23 +44,14 @@ public class MqttManager {
         return connection;
     }
 
-    public static void updateConnection(MqttConnection connection, JSONObject mqttJSON,
-                                        Connectivity.Credentials credentials) throws JSONException {
+    public static void updateConnection(MqttConnection connection, JSONObject mqttJSON) throws JSONException {
         String host, port, username, password;
         boolean ssl;
-        if (credentials != null) {
-            host = credentials.host;
-            port = credentials.port;
-            ssl = credentials.ssl;
-            username = credentials.username;
-            password = credentials.password;
-        } else {
-            host = mqttJSON.getString("host");
-            port = mqttJSON.getString("port");
-            ssl = mqttJSON.getBoolean("ssl");
-            username = mqttJSON.getString("username");
-            password = mqttJSON.getString("password");
-        }
+        host = mqttJSON.getString("host");
+        port = mqttJSON.getString("port");
+        ssl = mqttJSON.getBoolean("ssl");
+        username = mqttJSON.getString("username");
+        password = mqttJSON.getString("password");
         connection
                 .setHost(host)
                 .setPort(port)

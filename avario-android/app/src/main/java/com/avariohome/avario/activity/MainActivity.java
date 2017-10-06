@@ -1061,6 +1061,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void connectMQTT(String message) {
+        Connectivity.identifyConnection(getApplicationContext());
         this.showBusyDialog(message);
         super.connectMQTT(this.mqttListener, false);
     }
