@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.Uri;
 import android.net.http.SslError;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -1062,7 +1061,7 @@ public class MainActivity extends BaseActivity {
 
     private void connectMQTT(String message) {
         Connectivity.identifyConnection(getApplicationContext());
-        this.showBusyDialog(message);
+        //this.showBusyDialog(message);
         super.connectMQTT(this.mqttListener, false);
     }
 
@@ -1324,24 +1323,25 @@ public class MainActivity extends BaseActivity {
                     .getLaunchIntentForPackage(appId);
 
             if (intent != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(self)) {
+                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(self)) {
                     Intent intentPackage = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                             Uri.parse("package:" + getPackageName()));
                     startActivityForResult(intentPackage, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
                 } else {
 
-                    ActivityManager am = (ActivityManager) getSystemService(
-                            Context.ACTIVITY_SERVICE);
 
-                    if (am.getLockTaskModeState() ==
-                            ActivityManager.LOCK_TASK_MODE_LOCKED) {
-                        stopLockTask();
-                    }
+                }*/
+                ActivityManager am = (ActivityManager) getSystemService(
+                        Context.ACTIVITY_SERVICE);
+
+         /*       if (am.getLockTaskModeState() ==
+                        ActivityManager.LOCK_TASK_MODE_LOCKED) {
+                    stopLockTask();
+                }
 
 //                    setDefaultCosuPolicies(false);
-                    startService(new Intent(getApplicationContext(), FloatingViewService.class));
-                    self.startActivity(intent);
-                }
+                startService(new Intent(getApplicationContext(), FloatingViewService.class));*/
+                self.startActivity(intent);
             } else if (URLUtil.isValidUrl(appId)) {
                 loadWebView(appId);
 
