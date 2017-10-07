@@ -24,6 +24,7 @@ public class Config {
     private static final String PREFKEY_ASSET_ROOT = "setting__assets";
     private static final String PREFKEY_BOOTSTRAP = "setting__bootstrap";
     private static final String PREFKEY_HOLD_SECONDS = "setting__hold_seconds";
+    private static final String PREFKEY_IS_KIOSK = "is_kiosk";
 
     private static Config instance = null;
 
@@ -40,7 +41,6 @@ public class Config {
      * context here because this object will be alive throughout the duration of the app.
      *
      * @param context the application context
-     *
      * @return instance of the APIClient singleton
      */
     public static Config getInstance(Context context) {
@@ -60,14 +60,14 @@ public class Config {
 
     public boolean isSet() {
         String httpHost = this.getHttpHost(),
-               username = this.getUsername(),
-               password = this.getPassword(),
-               httpPort = this.getHttpPort();
+                username = this.getUsername(),
+                password = this.getPassword(),
+                httpPort = this.getHttpPort();
 
         return (httpHost != null && httpHost.length() > 0)
-            && (httpPort != null && httpPort.length() > 0)
-            && (username != null && username.length() > 0)
-            && (password != null && password.length() > 0);
+                && (httpPort != null && httpPort.length() > 0)
+                && (username != null && username.length() > 0)
+                && (password != null && password.length() > 0);
     }
 
     public boolean isResourcesFetched() {
@@ -76,9 +76,9 @@ public class Config {
 
     public String getHttpDomain() {
         return String.format("http%s://%s:%s",
-            this.isHttpSSL() ? "s" : "",
-            this.getHttpHost(),
-            this.getHttpPort()
+                this.isHttpSSL() ? "s" : "",
+                this.getHttpHost(),
+                this.getHttpPort()
         );
     }
 
@@ -102,17 +102,21 @@ public class Config {
         return this.fetchString(PREFKEY_PASSWORD);
     }
 
+    public boolean isKiosk() {
+        return this.fetchBoolean(PREFKEY_IS_KIOSK);
+    }
+
     public String getAssetRoot() {
         return String.format("%s/x%%.1f", this.fetchString(
-            PREFKEY_ASSET_ROOT,
-            R.string.app__url__assetroot)
+                PREFKEY_ASSET_ROOT,
+                R.string.app__url__assetroot)
         );
     }
 
     public String getBootstrapURL() {
         return String.format("%s%s",
-            this.getHttpDomain(),
-            this.fetchString(PREFKEY_BOOTSTRAP, R.string.app__url__bootstrap)
+                this.getHttpDomain(),
+                this.fetchString(PREFKEY_BOOTSTRAP, R.string.app__url__bootstrap)
         );
     }
 
@@ -121,8 +125,7 @@ public class Config {
 
         try {
             seconds = this.state.getSettingsHoldDelay();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil.logError(exception);
             seconds = this.fetchInteger(PREFKEY_HOLD_SECONDS, R.integer.app__setting__holdmsec);
         }
@@ -135,11 +138,10 @@ public class Config {
 
         try {
             seconds = this.state.getAPIErrorDelay();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             seconds = this.context
-                .getResources()
-                .getInteger(R.integer.timer__apierror);
+                    .getResources()
+                    .getInteger(R.integer.timer__apierror);
         }
 
         return seconds;
@@ -150,11 +152,10 @@ public class Config {
 
         try {
             seconds = this.state.getNagleDelay();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             seconds = this.context
-                .getResources()
-                .getInteger(R.integer.timer__nagle);
+                    .getResources()
+                    .getInteger(R.integer.timer__nagle);
         }
 
         return seconds;
@@ -165,11 +166,10 @@ public class Config {
 
         try {
             seconds = this.state.getNagleMediaDelay();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             seconds = this.context
-                .getResources()
-                .getInteger(R.integer.timer__nagle);
+                    .getResources()
+                    .getInteger(R.integer.timer__nagle);
         }
 
         return seconds;
@@ -180,11 +180,10 @@ public class Config {
 
         try {
             seconds = this.state.getInactivityDelay();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             seconds = this.context
-                .getResources()
-                .getInteger(R.integer.timer__inactivity);
+                    .getResources()
+                    .getInteger(R.integer.timer__inactivity);
         }
 
         return seconds;
@@ -195,11 +194,10 @@ public class Config {
 
         try {
             seconds = this.state.getPostBLEDelay();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             seconds = this.context
-                .getResources()
-                .getInteger(R.integer.timer_post_ble);
+                    .getResources()
+                    .getInteger(R.integer.timer_post_ble);
         }
 
         return seconds;
@@ -230,10 +228,15 @@ public class Config {
         this.prefs.edit().putString(PREFKEY_PASSWORD, password).commit();
     }
 
+    public void setIsKiosk(boolean isKiosk) {
+        this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, isKiosk).commit();
+    }
+
+
     public void clear() {
         this.prefs.edit()
-            .clear()
-            .commit();
+                .clear()
+                .commit();
     }
 
     private boolean fetchBoolean(String key) {

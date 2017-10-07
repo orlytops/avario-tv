@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.view.Window;
-import android.widget.Toast;
 
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
@@ -76,9 +75,6 @@ public class BootActivity extends BaseActivity {
         if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
 //            setDefaultCosuPolicies(true);
         } else {
-            Toast.makeText(getApplicationContext(),
-                    "Not Device owner", Toast.LENGTH_SHORT)
-                    .show();
         }
     }
 

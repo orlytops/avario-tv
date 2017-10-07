@@ -6,16 +6,20 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -66,10 +70,12 @@ public class SettingsDialogFragment extends DialogFragment {
     private EditText usernameET;
     private EditText passwordET;
     private CheckBox secureCB;
+    private CheckBox kioskCheck;
 
     private Button saveB;
     private Button dropB;
     private Button refreshB;
+    private Button enableUninstallButton;
     private TextView workingTV;
     private TextView errorTV;
     private TextView versionText;
@@ -147,11 +153,41 @@ public class SettingsDialogFragment extends DialogFragment {
         this.passwordET = (EditText) view.findViewById(R.id.setting__password);
         this.secureCB = (CheckBox) view.findViewById(R.id.setting__ssl);
         versionText = (TextView) view.findViewById(R.id.text_version);
+        kioskCheck = (CheckBox) view.findViewById(R.id.check_kiosk);
+
+        kioskCheck.setChecked(config.isKiosk());
+
+        kioskCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    try {
+                        Runtime.getRuntime().exec("dpm set-device-owner com.avariohome.avario/.service.DeviceAdminReceiver");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    getActivity().startLockTask();
+                    Config config = Config.getInstance();
+                    config.setIsKiosk(true);
+                } else {
+                    Config config = Config.getInstance();
+                    config.setIsKiosk(false);
+                    getActivity().stopLockTask();
+                    getActivity().getPackageManager().clearPackagePreferredActivities(getActivity().getPackageName());
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_MAIN);
+                    intent.addCategory(Intent.CATEGORY_HOME);
+                    startActivity(intent);
+                }
+            }
+        });
 
         try {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version = pInfo.versionName;
-            versionText.setText("Version: avario_v" + version + "b" + pInfo.versionCode);
+            //versionText.setText("Version: avario_v" + version + "b" + pInfo.versionCode);
+            versionText.setText("Version: avario_v0.1b3.1");
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

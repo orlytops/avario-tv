@@ -53,17 +53,6 @@
             </intent-filter>
             -->
         </activity>
-        <!--<activity
-            android:name=".activity.BootActivity"
-            android:enabled="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>-->
-
 
         <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
@@ -72,6 +61,8 @@
         </receiver>
 
         <receiver
+
+
             android:name=".service.DeviceAdminReceiver"
             android:description="@string/app__name"
             android:label="@string/app__name"
@@ -79,20 +70,27 @@
             <meta-data
                 android:name="android.app.device_admin"
                 android:resource="@xml/device_admin_receiver" />
+
             <intent-filter>
                 <action android:name="android.intent.action.DEVICE_ADMIN_ENABLED" />
                 <action android:name="android.intent.action.PROFILE_PROVISIONING_COMPLETE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
 
         <activity
             android:name=".activity.MainActivity"
-            android:configChanges="keyboardHidden|orientation"
-            android:hardwareAccelerated="true"
-            android:launchMode="singleTask"
-            android:screenOrientation="sensorLandscape"
-            android:stateNotNeeded="true" />
+            android:configChanges="keyboardHidden|orientation">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity>
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
