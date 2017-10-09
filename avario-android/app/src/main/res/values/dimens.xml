@@ -5,7 +5,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     -->
     <dimen name="topbar__height">50dp</dimen>
-
+R
     <dimen name="dialog__padding">30dp</dimen>
     <dimen name="settings__field__width">150dp</dimen>
 
@@ -22,6 +22,6 @@
 
     <dimen name="dialog__notifbutton__height">48dp</dimen>
 
-    <dimen name="home_button_size">60dp</dimen>
-    <dimen name="mode_button_size">60dp</dimen>
+    <dimen name="home_button_size">48dp</dimen>
+    <dimen name="mode_button_size">48dp</dimen>
 </resources>
