@@ -63,6 +63,7 @@ import com.avariohome.avario.fragment.NotifListDialogFragment;
 import com.avariohome.avario.fragment.NotificationDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
+import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.EntityUtil;
@@ -226,14 +227,16 @@ public class MainActivity extends BaseActivity {
         Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(Subscriber<? super Object> subscriber) {
-               /* try {
-                    Runtime.getRuntime().exec("dpm set-device-owner com.avariohome.avario/.service.DeviceAdminReceiver");
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (BluetoothScanner.getInstance().isEnabled())
+                    BluetoothScanner.getInstance().scanLeDevice(true);
+                mAdminComponentName = AvarioReceiver.getComponentName(MainActivity.this);
+                mDevicePolicyManager = (DevicePolicyManager) getSystemService(
+                        Context.DEVICE_POLICY_SERVICE);
+                mPackageManager = getPackageManager();
+                if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
+                    setDefaultCosuPolicies(true);
                 }
-                startLockTask();
-                Config config = Config.getInstance();
-                config.setIsKiosk(true);*/
+
                 subscriber.onNext(new Object());
                 subscriber.onCompleted();
             }
@@ -242,6 +245,7 @@ public class MainActivity extends BaseActivity {
                 .subscribe(new Observer<Object>() {
                     @Override
                     public void onCompleted() {
+
                     }
 
                     @Override
@@ -252,41 +256,23 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onNext(Object o) {
                         if (mDevicePolicyManager.isLockTaskPermitted(MainActivity.this.getPackageName())) {
+                            final ActivityManager am = (ActivityManager) getSystemService(
+                                    Context.ACTIVITY_SERVICE);
                             Handler handler = new Handler(Looper.getMainLooper());
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                   /* try {
-                                        Runtime.getRuntime().exec("dpm set-device-owner com.avariohome.avario/.service.DeviceAdminReceiver");
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
                                     try {
                                         if (am.getLockTaskModeState() ==
                                                 ActivityManager.LOCK_TASK_MODE_NONE) {
-                                            try {
-                                                Runtime.getRuntime().exec("dpm set-device-owner com.avariohome.avario/.service.DeviceAdminReceiver");
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             startLockTask();
                                             Config config = Config.getInstance();
                                             config.setIsKiosk(true);
                                         }
                                     } catch (Exception exception) {
-                                    }*/
-
-                                    /*try {
-                                        Runtime.getRuntime().exec("dpm set-device-owner com.avariohome.avario/.service.DeviceAdminReceiver");
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
                                     }
-                                    startLockTask();
-                                    Config config = Config.getInstance();
-                                    config.setIsKiosk(true);*/
-
                                 }
-                            }, 500);
+                            }, 100);
                         }
                     }
                 });
@@ -1365,16 +1351,10 @@ public class MainActivity extends BaseActivity {
 
 
                 }*/
-                ActivityManager am = (ActivityManager) getSystemService(
+                final ActivityManager am = (ActivityManager) getSystemService(
                         Context.ACTIVITY_SERVICE);
 
-         /*       if (am.getLockTaskModeState() ==
-                        ActivityManager.LOCK_TASK_MODE_LOCKED) {
-                    stopLockTask();
-                }
-
-//                    setDefaultCosuPolicies(false);
-                startService(new Intent(getApplicationContext(), FloatingViewService.class));*/
+                DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Activity.DEVICE_POLICY_SERVICE);
                 if (am.getLockTaskModeState() ==
                         ActivityManager.LOCK_TASK_MODE_LOCKED) {
                     stopLockTask();
@@ -1382,6 +1362,11 @@ public class MainActivity extends BaseActivity {
                     config.setIsKiosk(false);
                 }
                 self.startActivity(intent);
+                if (devicePolicyManager.isDeviceOwnerApp(getPackageName())) {
+                    devicePolicyManager.setLockTaskPackages(mAdminComponentName, new String[]{appId});
+                    Config config = Config.getInstance();
+                    config.setIsKiosk(false);
+                }
             } else if (URLUtil.isValidUrl(appId)) {
                 loadWebView(appId);
                 drawer.closeDrawers();

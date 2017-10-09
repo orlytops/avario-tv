@@ -21,7 +21,7 @@ import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
-import com.avariohome.avario.service.DeviceAdminReceiver;
+import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.PlatformUtil;
 
@@ -68,7 +68,7 @@ public class BootActivity extends BaseActivity {
         this.settingsListener = new SettingsListener();
 
         // Set Default COSU policy
-        mAdminComponentName = DeviceAdminReceiver.getComponentName(this);
+        mAdminComponentName = AvarioReceiver.getComponentName(this);
         mDevicePolicyManager = (DevicePolicyManager) getSystemService(
                 Context.DEVICE_POLICY_SERVICE);
         mPackageManager = getPackageManager();
@@ -185,6 +185,7 @@ public class BootActivity extends BaseActivity {
         public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous, MqttConnection.Status current) {
         }
     }
+
 
 
 }

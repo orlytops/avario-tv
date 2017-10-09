@@ -11,7 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
-import com.avariohome.avario.service.DeviceAdminReceiver;
+import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.service.FloatingViewService;
 
 /**
@@ -33,7 +33,7 @@ public class KioskActivity extends Activity {
         mDevicePolicyManager = (DevicePolicyManager)
                 getSystemService(Context.DEVICE_POLICY_SERVICE);
 
-        mAdminComponentName = DeviceAdminReceiver.getComponentName(this);
+        mAdminComponentName = AvarioReceiver.getComponentName(this);
         mPackageManager = this.getPackageManager();
         //call this to uninstall application
         //mDevicePolicyManager.clearDeviceOwnerApp("com.avariohome.avario");

@@ -1,17 +1,25 @@
 package com.avariohome.avario.fragment;
 
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.admin.DevicePolicyManager;
+import android.app.admin.SystemUpdatePolicy;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.UserManager;
+import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,12 +38,14 @@ import com.android.volley.ParseError;
 import com.android.volley.VolleyError;
 import com.avariohome.avario.Constants;
 import com.avariohome.avario.R;
+import com.avariohome.avario.activity.MainActivity;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
+import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.BlindAssetLoader;
 import com.avariohome.avario.util.Connectivity;
@@ -88,6 +98,11 @@ public class SettingsDialogFragment extends DialogFragment {
     private int positiveId;
     private int negativeId;
     private int neutralId;
+
+
+    private ComponentName mAdminComponentName;
+    private DevicePolicyManager mDevicePolicyManager;
+    private PackageManager mPackageManager;
 
     public SettingsDialogFragment() {
         super();
@@ -157,24 +172,35 @@ public class SettingsDialogFragment extends DialogFragment {
 
         kioskCheck.setChecked(config.isKiosk());
 
+        mAdminComponentName = AvarioReceiver.getComponentName(getActivity());
+        mDevicePolicyManager = (DevicePolicyManager) getActivity().getSystemService(
+                Context.DEVICE_POLICY_SERVICE);
+        mPackageManager = getActivity().getPackageManager();
+
         kioskCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @TargetApi(Build.VERSION_CODES.M)
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    try {
-                        Runtime.getRuntime().exec("dpm set-device-owner com.avariohome.avario/.service.DeviceAdminReceiver");
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())) {
+                        setDefaultCosuPolicies(true);
                     }
+
                     getActivity().startLockTask();
                     Config config = Config.getInstance();
                     config.setIsKiosk(true);
                 } else {
+                    if (mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())) {
+                        setDefaultCosuPolicies(false);
+                    }
                     Config config = Config.getInstance();
                     config.setIsKiosk(false);
                     getActivity().stopLockTask();
                     getActivity().getPackageManager().clearPackagePreferredActivities(getActivity().getPackageName());
+                    if (mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())) {
+                        mDevicePolicyManager.clearDeviceOwnerApp("com.avariohome.avario");
+                    }
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_MAIN);
                     intent.addCategory(Intent.CATEGORY_HOME);
@@ -187,7 +213,7 @@ public class SettingsDialogFragment extends DialogFragment {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version = pInfo.versionName;
             //versionText.setText("Version: avario_v" + version + "b" + pInfo.versionCode);
-            versionText.setText("Version: avario_v0.1b3.1");
+            versionText.setText("Version: avario_orly_v0.1.1");
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -201,6 +227,26 @@ public class SettingsDialogFragment extends DialogFragment {
         }
 
         return view;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void provisionOwner() {
+        DevicePolicyManager manager =
+                (DevicePolicyManager) getActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+        ComponentName componentName = AvarioReceiver.getComponentName(getActivity());
+
+
+        if (!manager.isAdminActive(componentName)) {
+            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
+            startActivityForResult(intent, 0);
+            return;
+        }
+
+
+        if (manager.isDeviceOwnerApp(getActivity().getPackageName())) {
+            manager.setLockTaskPackages(componentName, new String[]{getActivity().getPackageName()});
+        }
     }
 
     private void setupSnapshot() {
@@ -697,5 +743,87 @@ public class SettingsDialogFragment extends DialogFragment {
         void onSettingsChange();
 
         void onDialogDetached();
+    }
+
+
+     /*
+    *****************************************************************************************************************
+    * FOR THE KIOSK MODE
+    * ***************************************************************************************************************
+    * */
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void setDefaultCosuPolicies(boolean active) {
+        // set user restrictions
+        setUserRestriction(UserManager.DISALLOW_SAFE_BOOT, active);
+        setUserRestriction(UserManager.DISALLOW_FACTORY_RESET, active);
+        setUserRestriction(UserManager.DISALLOW_ADD_USER, active);
+        setUserRestriction(UserManager.DISALLOW_MOUNT_PHYSICAL_MEDIA, active);
+        setUserRestriction(UserManager.DISALLOW_ADJUST_VOLUME, active);
+
+        // disable keyguard and status bar
+        mDevicePolicyManager.setKeyguardDisabled(mAdminComponentName, active);
+        mDevicePolicyManager.setStatusBarDisabled(mAdminComponentName, active);
+
+        // enable STAY_ON_WHILE_PLUGGED_IN
+        //enableStayOnWhilePluggedIn(active);
+
+        // set system update policy
+        if (active) {
+            mDevicePolicyManager.setSystemUpdatePolicy(mAdminComponentName,
+                    SystemUpdatePolicy.createWindowedInstallPolicy(60, 120));
+        } else {
+            mDevicePolicyManager.setSystemUpdatePolicy(mAdminComponentName,
+                    null);
+        }
+
+        // set this Activity as a lock task package
+
+        mDevicePolicyManager.setLockTaskPackages(mAdminComponentName,
+                active ? new String[]{getActivity().getPackageName()} : new String[]{});
+
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MAIN);
+        intentFilter.addCategory(Intent.CATEGORY_HOME);
+        intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+
+        if (active) {
+            // set Cosu activity as home intent receiver so that it is started
+            // on reboot
+            mDevicePolicyManager.addPersistentPreferredActivity(
+                    mAdminComponentName, intentFilter, new ComponentName(
+                            getActivity().getPackageName(), MainActivity.class.getName()));
+        } else {
+            mDevicePolicyManager.clearPackagePersistentPreferredActivities(
+                    mAdminComponentName, getActivity().getPackageName());
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void setUserRestriction(String restriction, boolean disallow) {
+        if (disallow) {
+            mDevicePolicyManager.addUserRestriction(mAdminComponentName,
+                    restriction);
+        } else {
+            mDevicePolicyManager.clearUserRestriction(mAdminComponentName,
+                    restriction);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void enableStayOnWhilePluggedIn(boolean enabled) {
+        if (enabled) {
+            mDevicePolicyManager.setGlobalSetting(
+                    mAdminComponentName,
+                    Settings.Global.STAY_ON_WHILE_PLUGGED_IN,
+                    Integer.toString(BatteryManager.BATTERY_PLUGGED_AC
+                            | BatteryManager.BATTERY_PLUGGED_USB
+                            | BatteryManager.BATTERY_PLUGGED_WIRELESS));
+        } else {
+            mDevicePolicyManager.setGlobalSetting(
+                    mAdminComponentName,
+                    Settings.Global.STAY_ON_WHILE_PLUGGED_IN,
+                    "0"
+            );
+        }
     }
 }

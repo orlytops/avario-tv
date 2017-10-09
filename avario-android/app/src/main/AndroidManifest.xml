@@ -61,9 +61,7 @@
         </receiver>
 
         <receiver
-
-
-            android:name=".service.DeviceAdminReceiver"
+            android:name=".service.AvarioReceiver"
             android:description="@string/app__name"
             android:label="@string/app__name"
             android:permission="android.permission.BIND_DEVICE_ADMIN">
@@ -72,16 +70,18 @@
                 android:resource="@xml/device_admin_receiver" />
 
             <intent-filter>
-                <action android:name="android.intent.action.DEVICE_ADMIN_ENABLED" />
-                <action android:name="android.intent.action.PROFILE_PROVISIONING_COMPLETE" />
+                <action android:name="android.app.action.PROFILE_PROVISIONING_COMPLETE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
 
         <activity
             android:name=".activity.MainActivity"
-            android:configChanges="keyboardHidden|orientation">
+            android:configChanges="keyboardHidden|orientation"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensorLandscape"
+            android:stateNotNeeded="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
