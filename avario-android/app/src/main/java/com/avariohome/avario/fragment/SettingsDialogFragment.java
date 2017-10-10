@@ -2,6 +2,7 @@ package com.avariohome.avario.fragment;
 
 
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -18,6 +19,8 @@ import android.content.res.Resources;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
@@ -63,6 +66,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import rx.Observable;
+import rx.Observer;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 /**
@@ -114,6 +123,7 @@ public class SettingsDialogFragment extends DialogFragment {
         this.mqttListener = new MqttConnectionListener();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder;
@@ -151,6 +161,7 @@ public class SettingsDialogFragment extends DialogFragment {
         super.onDetach();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private View setupViews(LayoutInflater inflater, ViewGroup container) {
         View view = inflater.inflate(R.layout.fragment__settings, container, false);
 
@@ -213,7 +224,7 @@ public class SettingsDialogFragment extends DialogFragment {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version = pInfo.versionName;
             //versionText.setText("Version: avario_v" + version + "b" + pInfo.versionCode);
-            versionText.setText("Version: avario_orly_v0.1.1");
+            versionText.setText("Version: avario_orly_v0.3.2");
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -225,8 +236,65 @@ public class SettingsDialogFragment extends DialogFragment {
             this.passwordET.setText(this.config.getPassword());
             this.secureCB.setChecked(this.config.isHttpSSL());
         }
-
+        startKiosk();
         return view;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void startKiosk() {
+        Observable.create(new Observable.OnSubscribe<Object>() {
+            @Override
+            public void call(Subscriber<? super Object> subscriber) {
+                mAdminComponentName = AvarioReceiver.getComponentName(getActivity());
+                mDevicePolicyManager = (DevicePolicyManager) getActivity().getSystemService(
+                        Context.DEVICE_POLICY_SERVICE);
+                mPackageManager = getActivity().getPackageManager();
+                if (mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())) {
+                    setDefaultCosuPolicies(true);
+                }
+
+                subscriber.onNext(new Object());
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Object>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+                        if (mDevicePolicyManager.isLockTaskPermitted(getActivity().getPackageName())) {
+                            final ActivityManager am = (ActivityManager) getActivity().getSystemService(
+                                    Context.ACTIVITY_SERVICE);
+                            Handler handler = new Handler(Looper.getMainLooper());
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        if (am.getLockTaskModeState() ==
+                                                ActivityManager.LOCK_TASK_MODE_NONE) {
+                                            if (mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())) {
+                                                getActivity().startLockTask();
+                                                kioskCheck.setChecked(true);
+                                                Config config = Config.getInstance();
+                                                config.setIsKiosk(true);
+                                            }
+                                        }
+                                    } catch (Exception exception) {
+                                    }
+                                }
+                            }, 100);
+                        }
+                    }
+                });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

@@ -18,6 +18,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.http.SslError;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -199,13 +201,6 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        }, 500);
         MqttManager manager = MqttManager.getInstance();
 
         if (manager.isConnected()) {
@@ -268,6 +263,7 @@ public class MainActivity extends BaseActivity {
                                             startLockTask();
                                             Config config = Config.getInstance();
                                             config.setIsKiosk(true);
+
                                         }
                                     } catch (Exception exception) {
                                     }
@@ -1071,6 +1067,8 @@ public class MainActivity extends BaseActivity {
     private void connectMQTT(String message) {
 
         StateArray states = StateArray.getInstance(this.getApplicationContext());
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
         try {
             states.load();

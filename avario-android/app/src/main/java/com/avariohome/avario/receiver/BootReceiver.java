@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.avariohome.avario.activity.MainActivity;
+import com.avariohome.avario.activity.BootActivity;
 
 /**
  * Created by orly on 9/22/17.
@@ -13,7 +13,7 @@ import com.avariohome.avario.activity.MainActivity;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Intent myIntent = new Intent(context, MainActivity.class);
+        Intent myIntent = new Intent(context, BootActivity.class);
         myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(myIntent);
     }
