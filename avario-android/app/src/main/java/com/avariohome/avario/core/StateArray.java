@@ -561,7 +561,6 @@ public class StateArray {
      ***********************************************************************************************
      */
     public String getHTTPUsername(String configId) throws AvarioException {
-        android.util.Log.v("WanLan", "getHTTPUsername");
         if (!this.hasData())
             return null;
         try {
@@ -592,7 +591,6 @@ public class StateArray {
     }
 
     public String getHTTPPassword(String configId) throws AvarioException {
-        android.util.Log.v("WanLan", "getHTTPPassword");
         if (!this.hasData())
             return null;
 
@@ -631,7 +629,6 @@ public class StateArray {
      * @throws AvarioException
      */
     public String getHTTPHost(String configId) throws AvarioException {
-        android.util.Log.v("WanLan", "getHTTPHost");
         if (!this.hasData())
             return null;
 
@@ -745,7 +742,6 @@ public class StateArray {
      ***********************************************************************************************
      */
     public JSONObject getMQTTSettings() throws AvarioException {
-        android.util.Log.v("WanLan", "getMQTTSettings");
         try {
             return Connectivity.isConnectedToLan() ?
                     this.data.getJSONObject("settings")

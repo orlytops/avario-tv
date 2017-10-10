@@ -832,4 +832,8 @@ public class DialButtonBar extends LinearLayout {
             this.entityJSONs = new ArrayList<>();
         }
     }
+
+    /*
+        Code is too complete and not enough documentation.
+     */
 }

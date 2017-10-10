@@ -55,6 +55,7 @@ import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
 import com.avariohome.avario.core.BluetoothScanner;
 import com.avariohome.avario.core.Config;
+import com.avariohome.avario.core.Light;
 import com.avariohome.avario.core.NagleTimers;
 import com.avariohome.avario.core.Notification;
 import com.avariohome.avario.core.NotificationArray;
@@ -270,7 +271,7 @@ public class MainActivity extends BaseActivity {
                 });
 
         stopService(new Intent(getApplicationContext(), FloatingViewService.class));
-
+        Light.addAlgo(Config.getInstance().getLightAlgo());
     }
 
     @Override
@@ -281,6 +282,7 @@ public class MainActivity extends BaseActivity {
         this.progressPD = null;
         this.visible = false;
         BluetoothScanner.getInstance().scanLeDevice(false);
+        Config.getInstance().setLightAlgo(Light.getInstance().algos);
     }
 
     @Override
