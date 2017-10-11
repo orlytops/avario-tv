@@ -134,4 +134,10 @@ public class DialFragment extends Fragment {
 
         this.dial.initialize();
     }
+
+    public void click(String entityId){
+        if (entityId != null){
+            dialbtnBar.click(entityId);
+        }
+    }
 }

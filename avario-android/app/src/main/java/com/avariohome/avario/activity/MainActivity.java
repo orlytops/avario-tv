@@ -74,6 +74,7 @@ import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.widget.DevicesList;
+import com.avariohome.avario.widget.DialButtonBar;
 import com.avariohome.avario.widget.ElementsBar;
 import com.avariohome.avario.widget.MediaList;
 import com.avariohome.avario.widget.MediaSourcesList;
@@ -271,7 +272,8 @@ public class MainActivity extends BaseActivity {
                 });
 
         stopService(new Intent(getApplicationContext(), FloatingViewService.class));
-        Light.addAlgo(Config.getInstance().getLightAlgo());
+//        Light.addAllAlgo(Config.getInstance().getLightAlgo());\
+        Config.getInstance().deleteAlgo();
     }
 
     @Override
@@ -797,6 +799,7 @@ public class MainActivity extends BaseActivity {
         entityIds = this.devicesList.setSelections(devicesJSON);
 
         if (entityIds.size() > 0) {
+            android.util.Log.v("Light", "Entity ID: " + entityIds);
             this.dialFragment.setEnabled(true);
             this.dialFragment.setEntities(entityIds);
         } else
@@ -831,10 +834,13 @@ public class MainActivity extends BaseActivity {
             DeviceAdapter adapter = this.devicesList.getAdapter();
             List<String> entityIds = new ArrayList<>();
 
-            for (Entity device : adapter.getSelected())
+            for (Entity device : adapter.getSelected()){
                 entityIds.add(device.id);
+            }
 
+            // TODO: 10/11/17 John - Perform dial button click here for light algo.
             this.dialFragment.setEntities(entityIds);
+            this.dialFragment.click(Light.isPresentOnAlgoList(entityIds));
         }
     }
 

@@ -272,4 +272,8 @@ public class Config {
                 new TypeToken<ArrayList<Light.Algo>>() {
                 }.getType());
     }
+
+    public void deleteAlgo(){
+        this.prefs.edit().remove(PREFKEY_LIGHT_ALGO).apply();
+    }
 }

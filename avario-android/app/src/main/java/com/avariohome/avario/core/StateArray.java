@@ -798,6 +798,18 @@ public class StateArray {
         }
     }
 
+    public String getSettingsDefaultLightAlgo(String key) {
+        String val = null;
+        try {
+            val = this.data.getJSONObject("settings")
+                    .getJSONObject("default.algo")
+                    .getString(key);
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        return val;
+    }
+
     public JSONObject getSettingsPowerTab() throws AvarioException {
         try {
             return this.data
