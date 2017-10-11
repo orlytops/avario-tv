@@ -285,6 +285,11 @@ public class MainActivity extends BaseActivity {
         BluetoothScanner.getInstance().scanLeDevice(false);
     }
 
+
+    @Override
+    public void onBackPressed() {
+    }
+
     @Override
     protected void onDestroy() {
         Application.worker.quitSafely();

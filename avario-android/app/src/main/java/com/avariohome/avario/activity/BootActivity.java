@@ -1,8 +1,11 @@
 package com.avariohome.avario.activity;
 
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.KeyguardManager;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.SystemUpdatePolicy;
@@ -18,7 +21,6 @@ import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserManager;
@@ -30,6 +32,7 @@ import android.view.Window;
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.bus.WifiChange;
+import com.avariohome.avario.bus.WifiConnected;
 import com.avariohome.avario.core.BluetoothScanner;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
@@ -40,6 +43,7 @@ import com.avariohome.avario.receiver.WifiReceiver;
 import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
+import com.avariohome.avario.util.MyCountDownTimer;
 import com.avariohome.avario.util.PlatformUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -72,7 +76,13 @@ public class BootActivity extends BaseActivity {
 
     private static final String DONT_STAY_ON = "0";
     private boolean timerIsStarted = false;
+    private int timerTimeOut = 25000;
+    private boolean isHasWifi = false;
     private LocalBroadcastManager localBroadcastManager;
+
+    private AlertDialog.Builder builder;
+    private AlertDialog alert11;
+
 
     private WifiReceiver wifiReceiver = new WifiReceiver();
 
@@ -83,20 +93,8 @@ public class BootActivity extends BaseActivity {
         super.setContentView(R.layout.activity__boot);
         mDevicePolicyManager = (DevicePolicyManager)
                 getSystemService(Context.DEVICE_POLICY_SERVICE);
-        EventBus.getDefault().register(this);
-
-        IntentFilter mIntentFilter = new IntentFilter();
-        mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
-        mIntentFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-        try {
-            registerReceiver(wifiReceiver, mIntentFilter);
-        } catch (Exception e) {
-
-        }
-
+        builder = new AlertDialog.Builder(BootActivity.this);
+        alert11 = builder.create();
         if (MqttManager.getInstance().isConnected()) {
             this.startMainActivity();
             return;
@@ -191,35 +189,46 @@ public class BootActivity extends BaseActivity {
         } catch (Exception e) {
 
         }
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        timerIsStarted = false;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        timerIsStarted = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-       /* @SuppressLint("WifiManagerLeak") final WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        if (!wifi.isWifiEnabled()) {
+        if (alert11 != null && alert11.isShowing()) {
+            alert11.hide();
+        }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(BootActivity.this);
-            builder.setTitle("Wifi is not connected");
-            builder.setMessage("Press Ok to turn on wifi");
-            builder.setCancelable(false);
+        EventBus.getDefault().register(this);
+        IntentFilter mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+        mIntentFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+        try {
+            registerReceiver(wifiReceiver, mIntentFilter);
+        } catch (Exception e) {
 
-            builder.setPositiveButton(
-                    "Ok",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                            wifi.setWifiEnabled(true);
-                            loadBootstrap();
-                        }
-                    });
+        }
 
-            AlertDialog alert11 = builder.create();
-            alert11.show();
-            return;
-        }*/
 
+        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE);
+        KeyguardManager.KeyguardLock lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
+        lock.disableKeyguard();
         //TOD: lockescreen should be romve during reboot
         Config config = Config.getInstance();
 
@@ -245,19 +254,43 @@ public class BootActivity extends BaseActivity {
             @Override
             public void run() {
                 if (states.hasData()) {
+
                     if (mWifi.isConnected()) {
+                        isHasWifi = true;
                         Connectivity.identifyConnection(getApplicationContext());
-                        sendFCMToken();
+                        //sendFCMToken();
                         connectMQTT(new MqttConnectionListener(), false);
                         progressPD.setMessage(getString(R.string.message__mqtt__connecting));
                         countDownTimer.cancel();
                     } else {
-                        progressPD.setMessage("Connecting to WIFI...");
+                        progressPD.setMessage("Connecting to WiFi...");
                         if (!timerIsStarted) {
-                            countDownTimer.start();
-                            timerIsStarted = true;
+                            final Handler mHandler = new Handler();
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+
+                                            try {
+                                                timerTimeOut = states.getWiFiHandlingTimeOut();
+                                                Log.d("Timeout", states.getWiFiHandlingTimeOut() + "");
+                                            } catch (AvarioException e) {
+                                                e.printStackTrace();
+                                            }
+                                            countDownTimer.setMillisInFuture(timerTimeOut);
+                                            countDownTimer.start();
+                                            timerIsStarted = true;
+                                        }
+                                    });
+                                }
+                            }).start();
                         }
-                        loadBootstrap();
+                        if (isHasWifi) {
+                            loadBootstrap();
+                        }
                     }
                 } else {
                     progressPD.hide();
@@ -268,42 +301,115 @@ public class BootActivity extends BaseActivity {
 
     }
 
-    private CountDownTimer countDownTimer = new CountDownTimer(30000, 1000) {
+    public MyCountDownTimer countDownTimer = new MyCountDownTimer(timerTimeOut, 1000) {
+
+        final StateArray states = StateArray.getInstance(getBaseContext());
+
         @Override
         public void onTick(long millisUntilFinished) {
+            long seconds = millisUntilFinished / 1000;
             Log.i("Seconds", "seconds remaining: " + millisUntilFinished / 1000);
+
+            if (seconds == 28) {
+                @SuppressLint("WifiManagerLeak") final WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+
+                final Handler mHandler = new Handler();
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                if (!wifi.isWifiEnabled()) {
+                                    String message = "";
+                                    countDownTimer.cancel();
+                                    try {
+                                        message = states.getWiFiHandlingStrings("0x03010");
+                                    } catch (AvarioException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    builder.setTitle("Wifi is not enabled");
+                                    builder.setMessage(message);
+                                    builder.setCancelable(false);
+
+                                    builder.setPositiveButton(
+                                            "Ok",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    dialog.cancel();
+                                                    wifi.setWifiEnabled(true);
+                                                    timerIsStarted = false;
+                                                }
+                                            });
+
+                                    alert11 = builder.create();
+
+                                    if (!alert11.isShowing()) {
+                                        alert11.show();
+                                    }
+                                    return;
+                                }
+                            }
+                        });
+                    }
+                }).start();
+
+            }
         }
 
         @Override
         public void onFinish() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(BootActivity.this);
-            builder.setTitle("Authentication Error");
-            builder.setMessage("Unable to connect to WIFI. Please check your wifi settings.");
-            builder.setCancelable(false);
 
-            builder.setPositiveButton(
-                    "Ok",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                            startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+            isHasWifi = false;
+            final Handler mHandler = new Handler();
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    String title = "";
+                    String message = "";
 
+                    try {
+                        title = states.getWiFiHandlingStrings("0x03020");
+                        message = states.getWiFiHandlingStrings("0x03030");
+                    } catch (AvarioException e) {
+                        e.printStackTrace();
+                    }
+
+                    builder.setTitle(title);
+                    builder.setMessage(message);
+                    builder.setCancelable(false);
+
+                    builder.setPositiveButton(
+                            "Ok",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                    startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                                    countDownTimer.cancel();
+                                }
+                            });
+
+                    alert11 = builder.create();
+                    try {
+                        unregisterReceiver(wifiReceiver);
+                    } catch (Exception e) {
+
+                    }
+                    try {
+                        if (!alert11.isShowing()) {
+                            alert11.show();
                         }
-                    });
+                    } catch (Exception exception) {
 
-            AlertDialog alert11 = builder.create();
-            try {
-                unregisterReceiver(wifiReceiver);
-            } catch (Exception e) {
-
-            }
-            try {
-                alert11.show();
-            } catch (Exception exception) {
-
-            }
+                    }
+                }
+            });
         }
     };
+
 
     private void sendFCMToken() {
         APIClient
@@ -312,8 +418,8 @@ public class BootActivity extends BaseActivity {
     }
 
     protected void startMainActivity() {
-        this.startActivity(new Intent(this, MainActivity.class));
         this.finish();
+        this.startActivity(new Intent(this, MainActivity.class));
     }
 
     /*
@@ -454,6 +560,17 @@ public class BootActivity extends BaseActivity {
     public void onMessageEvent(WifiChange event) {
         if (event.isAuthError()) {
             countDownTimer.cancel();
+            isHasWifi = false;
+        }
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(WifiConnected event) {
+        if (event.isConnected()) {
+            loadBootstrap();
+            countDownTimer.cancel();
+            isHasWifi = true;
         }
 
     }

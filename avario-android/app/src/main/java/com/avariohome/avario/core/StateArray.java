@@ -170,9 +170,9 @@ public class StateArray {
 
         // entities & media
         String[] properties = new String[]{
-            "entities",
-            "media",
-            "dial_buttons",
+                "entities",
+                "media",
+                "dial_buttons",
         };
 
         for (String property : properties) {
@@ -298,6 +298,41 @@ public class StateArray {
                     Constants.ERROR_STATE_MISSINGKEY,
                     exception,
                     new Object[]{"media.sources." + name}
+            );
+        }
+    }
+
+    public String getWiFiHandlingStrings(String name) throws AvarioException {
+        if (!this.hasData())
+            return null;
+
+        try {
+            return this.data
+                    .getJSONObject("wifi.handling")
+                    .getJSONObject("strings")
+                    .getString(name);
+        } catch (JSONException exception) {
+            throw new AvarioException(
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{"media.sources." + name}
+            );
+        }
+    }
+
+    public int getWiFiHandlingTimeOut() throws AvarioException {
+        if (!this.hasData())
+            return 0;
+
+        try {
+            return this.data
+                    .getJSONObject("wifi.handling")
+                    .getInt("timeout");
+        } catch (JSONException exception) {
+            throw new AvarioException(
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{"wifi.handling.timeout"}
             );
         }
     }

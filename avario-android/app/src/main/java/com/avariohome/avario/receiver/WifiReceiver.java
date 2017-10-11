@@ -13,6 +13,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.avariohome.avario.bus.WifiChange;
+import com.avariohome.avario.bus.WifiConnected;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -22,14 +23,20 @@ import org.greenrobot.eventbus.EventBus;
 
 
 public class WifiReceiver extends BroadcastReceiver {
+
+    public int TYPE_WIFI = 1;
+    public int TYPE_MOBILE = 2;
+    public int TYPE_NOT_CONNECTED = 0;
+
     @Override
     public void onReceive(final Context context, Intent intent) {
         String action = intent.getAction();
         Log.d("WifiReceiver", action);
-
+        String statusString = getConnectivityStatusString(context);
         if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
             Log.d("WifiReceiver", ">>>>SUPPLICANT_STATE_CHANGED_ACTION<<<<<<");
             SupplicantState supl_state = ((SupplicantState) intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE));
+            EventBus.getDefault().post(new WifiConnected(true));
             switch (supl_state) {
                 case ASSOCIATED:
                     Log.i("SupplicantState", "ASSOCIATED");
@@ -42,7 +49,6 @@ public class WifiReceiver extends BroadcastReceiver {
                     break;
                 case COMPLETED:
                     Log.i("SupplicantState", "Connected");
-                    EventBus.getDefault().post(new WifiChange(true));
                     break;
                 case DISCONNECTED:
                     Log.i("SupplicantState", "Disconnected");
@@ -109,4 +115,32 @@ public class WifiReceiver extends BroadcastReceiver {
 
         }
     }
+
+    public int getConnectivityStatus(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (null != activeNetwork) {
+            if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI)
+                return TYPE_WIFI;
+
+            if (activeNetwork.getType() == TYPE_MOBILE)
+                return TYPE_MOBILE;
+        }
+        return TYPE_NOT_CONNECTED;
+    }
+
+    public String getConnectivityStatusString(Context context) {
+        int conn = getConnectivityStatus(context);
+        String status = null;
+        if (conn == TYPE_WIFI) {
+            status = "Wifi enabled";
+        } else if (conn == TYPE_MOBILE) {
+            status = "Mobile data enabled";
+        } else if (conn == TYPE_NOT_CONNECTED) {
+            status = "Not connected to Internet";
+        }
+        return status;
+    }
+
 }
