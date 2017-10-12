@@ -2,6 +2,7 @@ package com.avariohome.avario.widget.adapter;
 
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -150,7 +151,6 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
                 })
             );*/
         }
-
         this.bindSeek(holder, entity);
     }
 
