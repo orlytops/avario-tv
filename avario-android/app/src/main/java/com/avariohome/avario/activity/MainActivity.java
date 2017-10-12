@@ -18,8 +18,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.http.SslError;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -1070,20 +1068,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private void connectMQTT(String message) {
+        Connectivity.identifyConnection(getApplicationContext());
+        this.showBusyDialog(message);
+        super.connectMQTT(new MqttConnectionListener(), false);
 
-        StateArray states = StateArray.getInstance(this.getApplicationContext());
-        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-        try {
-            states.load();
-        } catch (AvarioException exception) {
-        }
-        if (states.hasData()) {
-            Connectivity.identifyConnection(getApplicationContext());
-            this.showBusyDialog(message);
-            super.connectMQTT(new MqttConnectionListener(), false);
-        }
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(this.bluetoothReceiver, filter);
     }

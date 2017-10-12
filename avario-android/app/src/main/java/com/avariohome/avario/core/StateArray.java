@@ -302,6 +302,23 @@ public class StateArray {
         }
     }
 
+    public String getStringsWifi(String name) throws AvarioException {
+        if (!this.hasData())
+            return null;
+
+        try {
+            return this.data
+                    .getJSONObject("strings")
+                    .getString(name);
+        } catch (JSONException exception) {
+            throw new AvarioException(
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{"media.sources." + name}
+            );
+        }
+    }
+
     public String getWiFiHandlingStrings(String name) throws AvarioException {
         if (!this.hasData())
             return null;
@@ -498,6 +515,21 @@ public class StateArray {
         }
 
         return message;
+    }
+
+    public int getWifiTimeout() throws AvarioException {
+        try {
+            return this.data
+                    .getJSONObject("settings")
+                    .getJSONObject("delays")
+                    .getInt("timeout");
+        } catch (NullPointerException | JSONException exception) {
+            throw new AvarioException(
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{"settings.delays.timeout"}
+            );
+        }
     }
 
     public int getSettingsHoldDelay() throws AvarioException {

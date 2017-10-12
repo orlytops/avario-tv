@@ -275,8 +275,8 @@ public class BootActivity extends BaseActivity {
                                         public void run() {
 
                                             try {
-                                                timerTimeOut = states.getWiFiHandlingTimeOut();
-                                                Log.d("Timeout", states.getWiFiHandlingTimeOut() + "");
+                                                timerTimeOut = states.getWifiTimeout();
+                                                Log.d("Timeout", states.getWifiTimeout() + "");
                                             } catch (AvarioException e) {
                                                 e.printStackTrace();
                                             }
@@ -326,7 +326,7 @@ public class BootActivity extends BaseActivity {
                                     String message = "";
                                     countDownTimer.cancel();
                                     try {
-                                        message = states.getWiFiHandlingStrings("0x03010");
+                                        message = states.getStringsWifi("0x03010");
                                     } catch (AvarioException e) {
                                         e.printStackTrace();
                                     }
@@ -372,8 +372,8 @@ public class BootActivity extends BaseActivity {
                     String message = "";
 
                     try {
-                        title = states.getWiFiHandlingStrings("0x03020");
-                        message = states.getWiFiHandlingStrings("0x03030");
+                        title = states.getStringsWifi("0x03020");
+                        message = states.getStringsWifi("0x03030");
                     } catch (AvarioException e) {
                         e.printStackTrace();
                     }
