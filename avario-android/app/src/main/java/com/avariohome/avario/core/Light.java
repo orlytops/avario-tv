@@ -17,6 +17,10 @@ public class Light {
         algos = new ArrayList<>();
     }
 
+    /**
+     * To make sure Light only has one instance.
+     * @return Light
+     */
     public static Light getInstance(){
         if (instance == null){
             synchronized (Light.class){
@@ -28,6 +32,10 @@ public class Light {
         return instance;
     }
 
+    /**
+     * Refresh the list of algos.
+     * @param alg Algo class
+     */
     public static void addAllAlgo(ArrayList<Algo> alg){
         if (alg != null) {
             getInstance().algos.clear();
@@ -36,6 +44,11 @@ public class Light {
 
     }
 
+    /**
+     * To populate current list of algo if it is not yet existing on the list.
+     * @param name list of entity ids.
+     * @param payload payload json content of button entity.
+     */
     public static void addAlgo(String name, String payload){
         try {
             JSONObject jsonPayload = new JSONObject(payload);
@@ -62,6 +75,11 @@ public class Light {
         }
     }
 
+    /**
+     * To make sure algo on the list is updated.
+     * @param name list of entity ids.
+     * @param payload payload json content of button entity.
+     */
     public static void updateAlgo(String name, String payload){
         try {
             Algo alg = new Algo();
@@ -90,7 +108,13 @@ public class Light {
         }
     }
 
-    public static boolean isStateSelected(String entityIDs, String state){
+    /**
+     * Check if algo on the list has similar state.
+     * @param entityIDs entity id's of selected device list
+     * @param state current state of algo.
+     * @return boolean
+     */
+    public static boolean isStateSame(String entityIDs, String state){
         boolean result = false;
         Log.v(TAG, "Check state");
         for (Algo item : getInstance().algos) {
@@ -105,6 +129,11 @@ public class Light {
         return result;
     }
 
+    /**
+     * Make sure that selected entity ids are present on the algo list.
+     * @param entityIds array list of entity ids
+     * @return String combined entity ids to create a singel entity id.
+     */
     public static String isPresentOnAlgoList(List<String> entityIds){
         String name = null;
         for (String item : entityIds) {
@@ -122,24 +151,12 @@ public class Light {
         return null;
     }
 
-    public static boolean hasSameOptions(String entityIDs, String option){
-        boolean result = false;
-
-        for (Algo item : getInstance().algos) {
-            if (item.name.equals(entityIDs)){
-                if (item.option != null && item.option.equalsIgnoreCase(option)){
-                    result =  true;
-                }
-                break;
-            }
-        }
-
-        return result;
-    }
-
+    /**
+     * Store algo data from button entity.
+     */
     public static class Algo{
-        public String name;
-        public String option;
+        public String name; // name of all selected light device
+        public String option; // current state
         public String entityID;
         public String payload;
     }

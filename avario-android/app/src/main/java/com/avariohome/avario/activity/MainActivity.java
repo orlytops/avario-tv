@@ -272,7 +272,10 @@ public class MainActivity extends BaseActivity {
                 });
 
         stopService(new Intent(getApplicationContext(), FloatingViewService.class));
-//        Light.addAllAlgo(Config.getInstance().getLightAlgo());\
+
+        // add stored algo from shared preferences.
+        Light.addAllAlgo(Config.getInstance().getLightAlgo());
+        // delete algo stored to avoid redundancy.
         Config.getInstance().deleteAlgo();
     }
 
@@ -284,6 +287,8 @@ public class MainActivity extends BaseActivity {
         this.progressPD = null;
         this.visible = false;
         BluetoothScanner.getInstance().scanLeDevice(false);
+
+        // Store algo to be use later when app restarts.
         Config.getInstance().setLightAlgo(Light.getInstance().algos);
     }
 
@@ -799,7 +804,6 @@ public class MainActivity extends BaseActivity {
         entityIds = this.devicesList.setSelections(devicesJSON);
 
         if (entityIds.size() > 0) {
-            android.util.Log.v("Light", "Entity ID: " + entityIds);
             this.dialFragment.setEnabled(true);
             this.dialFragment.setEntities(entityIds);
         } else
@@ -838,8 +842,9 @@ public class MainActivity extends BaseActivity {
                 entityIds.add(device.id);
             }
 
-            // TODO: 10/11/17 John - Perform dial button click here for light algo.
             this.dialFragment.setEntities(entityIds);
+
+            // initial click action on selected dial button.
             this.dialFragment.click(Light.isPresentOnAlgoList(entityIds));
         }
     }

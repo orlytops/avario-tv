@@ -267,12 +267,14 @@ public class Config {
         this.prefs.edit().putString(PREFKEY_LIGHT_ALGO, set).apply();
     }
 
+    // To reuse algo list when app is closed.
     public ArrayList<Light.Algo> getLightAlgo() {
         return new Gson().fromJson(this.prefs.getString(PREFKEY_LIGHT_ALGO, null),
                 new TypeToken<ArrayList<Light.Algo>>() {
                 }.getType());
     }
 
+    // Delete algo content to avoid redundancy.
     public void deleteAlgo(){
         this.prefs.edit().remove(PREFKEY_LIGHT_ALGO).apply();
     }

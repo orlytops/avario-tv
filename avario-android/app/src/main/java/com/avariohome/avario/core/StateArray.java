@@ -798,6 +798,11 @@ public class StateArray {
         }
     }
 
+    /**
+     * Choose default algo for selected device.
+     * @param key default algo key
+     * @return defalt algo value
+     */
     public String getSettingsDefaultLightAlgo(String key) {
         String val = null;
         try {

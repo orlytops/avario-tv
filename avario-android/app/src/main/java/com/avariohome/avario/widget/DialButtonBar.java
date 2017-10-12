@@ -401,7 +401,6 @@ public class DialButtonBar extends LinearLayout {
                         : "icon_off"
                 );*/
 
-                Log.v("Light", "State " + stateActive);
                 Light.addAlgo(buttonEntity.entitiesId,
                         buttonJSON.getJSONObject("controls")
                                 .getJSONObject("api")
@@ -409,7 +408,7 @@ public class DialButtonBar extends LinearLayout {
                                 .getString("payload"));
 
                 iconURL = buttonJSON.getString(
-                        Light.isStateSelected(
+                        Light.isStateSame(
                                 buttonEntity.entitiesId, stateActive)
                                 ? "icon_on"
                                 : "icon_off");
@@ -812,7 +811,6 @@ public class DialButtonBar extends LinearLayout {
         private GestureDetector detector;
 
         private TouchListener(ImageButton source) {
-            Log.v("Light", "Touch receive");
             DialButtonBar self = DialButtonBar.this;
             GestureListener listener = new GestureListener(source);
 
@@ -826,13 +824,18 @@ public class DialButtonBar extends LinearLayout {
         }
     }
 
+    /**
+     * Initiate on touch event to selected dial button.
+     * Avoid hard coding api request and minimize code complexity.
+     *
+     * @param entityId button entity id
+     */
     public void click(String entityId){
         for (Map.Entry<ImageButton, DialButtonEntity> item : buttons.entrySet()){
             try {
                 if (item.getValue().entitiesId.equals(entityId)
-                        && Light.hasSameOptions(item.getValue().entitiesId,
+                        && Light.isStateSame(item.getValue().entitiesId,
                         item.getValue().buttonJSON.getString("active_state"))){
-                    Log.v("Light", "Perform click");
                     long downTime = SystemClock.uptimeMillis();
                     long eventTime = SystemClock.uptimeMillis() + 100;
                     float x = 0.0f;
@@ -855,7 +858,7 @@ public class DialButtonBar extends LinearLayout {
         }
     }
 
-    public class DialButtonEntity {
+    private class DialButtonEntity {
         /**
          * The consolidated entitiesId string of entityJSONs. Examples would be:
          *      > light.side
@@ -863,27 +866,27 @@ public class DialButtonBar extends LinearLayout {
          *
          * This field will be alphabetically arranged
          */
-        public String entitiesId;
-        public List<JSONObject> entityJSONs;
+        String entitiesId;
+        List<JSONObject> entityJSONs;
 
         /**
          * A reference to the object residing in the state entity object in the StateArray
          * mega JSON (e.g. light_algo/states JSONObject).
          */
-        public JSONObject stateJSON;
+        JSONObject stateJSON;
 
         /**
          * A reference to the object that represents the dial button JSON object in the StateArray
          */
-        public JSONObject buttonJSON;
+        JSONObject buttonJSON;
 
         /**
          * Non-null ONLY when button is multi-type because this is a ref string to the value of the
          * fan
          */
-        public String stateRef;
+        String stateRef;
 
-        public DialButtonEntity() {
+        DialButtonEntity() {
             this.entityJSONs = new ArrayList<>();
         }
     }
