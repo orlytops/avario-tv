@@ -1,6 +1,7 @@
 package com.avariohome.avario.activity;
 
 
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -39,10 +40,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.checkPlayServices();
 
-        try {
-            Application.startWorker(getApplicationContext());
-        } catch (NullPointerException ignored) {
-        }
+        // TODO: 10/12/17 startWorker might have crash causing ticker to not run John notes
+        Application.startWorker(BaseActivity.this);
     }
 
     @Override

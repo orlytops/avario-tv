@@ -1,11 +1,13 @@
 package com.avariohome.avario;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.android.volley.VolleyLog;
 import com.avariohome.avario.api.APIClient;
@@ -37,27 +39,33 @@ public class Application extends android.app.Application {
     public static Handler workHandler;
 
     public static WorkerThread worker;
+    public static TickerRunnable tickerRunnable;
 
     /**
      * Tries to start the worker thread just in case it was killed off before
      */
-    public static void startWorker(Context context) {
-        if (Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED)
-            return;
+    public static void startWorker(final Activity activity) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED){
+                    // Clear any instance of tickerRunnable to avoid duplicate
+                    // and initialize to make sure ticker is running as intended.
+                    Application.workHandler.removeCallbacks(Application.tickerRunnable);
+                    Application.tickerRunnable = null;
+                    Application.tickerRunnable = new TickerRunnable(activity, Application.workHandler);
+                    Application.tickerRunnable.tick();
+                    return;
+                }
+                Application.worker = new WorkerThread();
+                Application.worker.start();
 
-        try {
-            Application.worker = new WorkerThread();
-            Application.worker.start();
+                Application.workHandler = Application.worker.getHandler();
 
-            Application.workHandler = Application.worker.getHandler();
-        } catch (IllegalThreadStateException exception) {
-            // worker thread already started
-        }
-
-        TickerRunnable runnable;
-
-        runnable = new TickerRunnable(context, Application.workHandler);
-        runnable.tick();
+                Application.tickerRunnable = new TickerRunnable(activity, Application.workHandler);
+                Application.tickerRunnable.tick();
+            }
+        });
     }
 
     @Override
@@ -66,7 +74,9 @@ public class Application extends android.app.Application {
 
         VolleyLog.setTag("AvarioVolley");
 
-        Application.startWorker(this);
+        // TODO: 10/12/17 startWorker might have crash causing ticker to not run
+//        Application.startWorker((Activity) getApplicationContext());
+
         Application.mainHandler = new Handler(Looper.getMainLooper());
 
         // Initialize all important singletons with the application context
@@ -140,9 +150,11 @@ public class Application extends android.app.Application {
 //
 //                        Log.d(Constants.LOGTAG_EMERGENCY, builder.toString());
                     } catch (JSONException exception) {
+                        exception.printStackTrace();
                     }
                 }
             } catch (AvarioException exception) {
+                exception.printStackTrace();
             }
 
             LocalBroadcastManager
