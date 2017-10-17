@@ -12,6 +12,7 @@ public class Light {
     private static final String TAG = "Light";
     private static volatile Light instance;
     public ArrayList<Algo> algos;
+    public String currentAlgo = "Align";
 
     private Light(){
         algos = new ArrayList<>();

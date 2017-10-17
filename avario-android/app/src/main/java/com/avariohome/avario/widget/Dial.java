@@ -1639,7 +1639,7 @@ public class Dial extends FrameLayout {
         }
     }
 
-    private void processRequestSpec(JSONObject specJSON, String value) throws AvarioException {
+    private void processRequestSpec(JSONObject specJSON, String value, String algo) throws AvarioException {
         if (!APIClient.isValidRequestSpec(specJSON))
             throw new AvarioException(
                 Constants.ERROR_STATE_API_OBJECTS,
@@ -1655,6 +1655,7 @@ public class Dial extends FrameLayout {
             mapping = new HashMap<>();
             mapping.put("entity_ids", this.entitiesId);
             mapping.put("value", value);
+            mapping.put("algo", algo);
 
             specJSON.put("payload", RefStringUtil.replaceMarkers(matcher, mapping));
         }
@@ -1748,9 +1749,11 @@ public class Dial extends FrameLayout {
             progress > 0 ? "on" : "off"
         );
 
+        // TODO: 10/17/17 this is where brightness gets calculated John notes
         this.processRequestSpec(
-            specJSON,
-            String.valueOf(Math.round(progress * Constants.MAX_VALUE_NUMBER / 100f))
+                specJSON,
+                String.valueOf(Math.round(progress * Constants.MAX_VALUE_NUMBER / 100f)),
+                ""
         );
 
         return specJSON;
@@ -1769,8 +1772,9 @@ public class Dial extends FrameLayout {
         specJSON = this.getRequestSpec(directive);
 
         this.processRequestSpec(
-            specJSON,
-            String.format(Locale.US, "%.2f", progress / Constants.MAX_VALUE_VOLUME)
+                specJSON,
+                String.format(Locale.US, "%.2f", progress / Constants.MAX_VALUE_VOLUME),
+                ""
         );
 
         return specJSON;
@@ -1793,8 +1797,9 @@ public class Dial extends FrameLayout {
         JSONObject specJSON = this.getRequestSpec(directive);
 
         this.processRequestSpec(
-            specJSON,
-            String.valueOf(value)
+                specJSON,
+                String.valueOf(value),
+                ""
         );
 
         return specJSON;
@@ -1823,8 +1828,9 @@ public class Dial extends FrameLayout {
         int progress = this.arc.getValue();
 
         this.processRequestSpec(
-            specJSON,
-            String.valueOf(Math.round(progress * Constants.MAX_VALUE_COVER / 100f))
+                specJSON,
+                String.valueOf(Math.round(progress * Constants.MAX_VALUE_COVER / 100f)),
+                ""
         );
 
         return specJSON;
@@ -1833,7 +1839,7 @@ public class Dial extends FrameLayout {
     private JSONObject executeAPIMediaSeek() throws AvarioException {
         JSONObject specJSON = this.getRequestSpec("set");
 
-        this.processRequestSpec(specJSON, String.valueOf(this.arc.getValue()));
+        this.processRequestSpec(specJSON, String.valueOf(this.arc.getValue()), "");
 
         return specJSON;
 
@@ -1884,7 +1890,7 @@ public class Dial extends FrameLayout {
             );
         }
 
-        this.processRequestSpec(specJSON, "");
+        this.processRequestSpec(specJSON, "", "");
 
         return specJSON;
     }
