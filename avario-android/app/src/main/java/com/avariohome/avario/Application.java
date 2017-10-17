@@ -49,6 +49,8 @@ public class Application extends android.app.Application {
             @Override
             public void run() {
                 if (Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED){
+                    // Clear any instance of tickerRunnable to avoid duplicate
+                    // and initialize to make sure ticker is running as intended.
                     Application.workHandler.removeCallbacks(Application.tickerRunnable);
                     Application.tickerRunnable = null;
                     Application.tickerRunnable = new TickerRunnable(activity, Application.workHandler);
