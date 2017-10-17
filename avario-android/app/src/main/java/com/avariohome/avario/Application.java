@@ -39,6 +39,7 @@ public class Application extends android.app.Application {
     public static Handler workHandler;
 
     public static WorkerThread worker;
+    public static TickerRunnable tickerRunnable;
 
     /**
      * Tries to start the worker thread just in case it was killed off before
@@ -48,8 +49,10 @@ public class Application extends android.app.Application {
             @Override
             public void run() {
                 if (Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED){
-                    TickerRunnable runnable = new TickerRunnable(activity, Application.workHandler);
-                    runnable.tick();
+                    Application.workHandler.removeCallbacks(Application.tickerRunnable);
+                    Application.tickerRunnable = null;
+                    Application.tickerRunnable = new TickerRunnable(activity, Application.workHandler);
+                    Application.tickerRunnable.tick();
                     return;
                 }
                 Application.worker = new WorkerThread();
@@ -57,8 +60,8 @@ public class Application extends android.app.Application {
 
                 Application.workHandler = Application.worker.getHandler();
 
-                TickerRunnable runnable = new TickerRunnable(activity, Application.workHandler);
-                runnable.tick();
+                Application.tickerRunnable = new TickerRunnable(activity, Application.workHandler);
+                Application.tickerRunnable.tick();
             }
         });
     }
