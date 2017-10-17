@@ -265,7 +265,6 @@ public class MediaList extends RecyclerView {
             StateArray states = StateArray.getInstance();
 
             //// TODO: 10/12/17 This is were entity id gets receive when sending media commands John notes
-
             int length = adapter.getItemCount();
 
             if (entityId == null) {

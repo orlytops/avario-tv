@@ -151,7 +151,7 @@ public class SettingsDialogFragment extends DialogFragment {
         try {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version = pInfo.versionName;
-            versionText.setText("Version: avario_v" + version + "b" + pInfo.versionCode);
+            versionText.setText("Version: avario_john_v" + version);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

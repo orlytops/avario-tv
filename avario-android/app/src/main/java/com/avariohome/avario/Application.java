@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.android.volley.VolleyLog;
 import com.avariohome.avario.api.APIClient;
@@ -46,21 +47,17 @@ public class Application extends android.app.Application {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED)
+                if (Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED){
+                    TickerRunnable runnable = new TickerRunnable(activity, Application.workHandler);
+                    runnable.tick();
                     return;
-
-                try {
-                    Application.worker = new WorkerThread();
-                    Application.worker.start();
-
-                    Application.workHandler = Application.worker.getHandler();
-                } catch (IllegalThreadStateException exception) {
-                    // worker thread already started
                 }
+                Application.worker = new WorkerThread();
+                Application.worker.start();
 
-                TickerRunnable runnable;
+                Application.workHandler = Application.worker.getHandler();
 
-                runnable = new TickerRunnable(activity, Application.workHandler);
+                TickerRunnable runnable = new TickerRunnable(activity, Application.workHandler);
                 runnable.tick();
             }
         });
@@ -148,9 +145,11 @@ public class Application extends android.app.Application {
 //
 //                        Log.d(Constants.LOGTAG_EMERGENCY, builder.toString());
                     } catch (JSONException exception) {
+                        exception.printStackTrace();
                     }
                 }
             } catch (AvarioException exception) {
+                exception.printStackTrace();
             }
 
             LocalBroadcastManager
