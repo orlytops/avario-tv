@@ -12,7 +12,7 @@ public class Light {
     private static final String TAG = "Light";
     private static volatile Light instance;
     public ArrayList<Algo> algos;
-    public String currentAlgo = "Align";
+    public String currentAlgo = "";
 
     private Light(){
         algos = new ArrayList<>();
@@ -121,7 +121,9 @@ public class Light {
         for (Algo item : getInstance().algos) {
             if (item.name.equals(entityIDs)){
                 if (item.option != null && item.option.equalsIgnoreCase(state)){
+                    getInstance().currentAlgo = item.option;
                     result =  true;
+                    Log.v(TAG, "Current algo: " + getInstance().currentAlgo);
                 }
                 break;
             }

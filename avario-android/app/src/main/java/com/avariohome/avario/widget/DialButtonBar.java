@@ -738,11 +738,12 @@ public class DialButtonBar extends LinearLayout {
                     e.printStackTrace();
                 }
 
-                NagleTimers.reset(
-                    DialButtonBar.TIMER_ID,
-                    new NagleRunnable(buttonJSON, requestJSON),
-                    EntityUtil.getNagleDelay(buttonEntity.buttonJSON)
-                );
+                updateStates();
+//                NagleTimers.reset(
+//                    DialButtonBar.TIMER_ID,
+//                    new NagleRunnable(buttonJSON, requestJSON),
+//                    EntityUtil.getNagleDelay(buttonEntity.buttonJSON)
+//                );
             }
             catch (AvarioException exception) {
                 PlatformUtil

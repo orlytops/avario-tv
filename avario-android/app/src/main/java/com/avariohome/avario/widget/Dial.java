@@ -25,6 +25,7 @@ import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
 import com.avariohome.avario.core.APITimers;
 import com.avariohome.avario.core.Config;
+import com.avariohome.avario.core.Light;
 import com.avariohome.avario.core.NagleTimers;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
@@ -1753,7 +1754,7 @@ public class Dial extends FrameLayout {
         this.processRequestSpec(
                 specJSON,
                 String.valueOf(Math.round(progress * Constants.MAX_VALUE_NUMBER / 100f)),
-                ""
+                Light.getInstance().currentAlgo
         );
 
         return specJSON;
