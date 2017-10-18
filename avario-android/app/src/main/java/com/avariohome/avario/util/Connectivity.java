@@ -66,16 +66,10 @@ public class Connectivity {
                     break;
                 }
             }
-            Connectivity connectivity = StateArray.getInstance().getConnectivityDetails();
-            for (String item : connectivity.lanMac) {
-                Log.v("Connectivity", item);
-            }
         } catch (AvarioException | JSONException | NullPointerException e) {
             e.printStackTrace();
         }
         getInstance().isLan = result;
-        Toast.makeText(context, getInstance().isLan ?
-                "Connected to Lan" : "Connected to Wan", Toast.LENGTH_LONG).show();
         return result;
     }
 
