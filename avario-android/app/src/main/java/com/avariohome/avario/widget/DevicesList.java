@@ -40,7 +40,7 @@ import java.util.List;
 
 /**
  * Displays each item that will be affected by the changes in the dial. Supports multi-selection.
- *
+ * <p>
  * Created by aeroheart-c6 on 15/12/2016.
  */
 public class DevicesList extends RelativeLayout {
@@ -71,24 +71,24 @@ public class DevicesList extends RelativeLayout {
 
         float density = this.getResources().getDisplayMetrics().density;
 
-        int headerHeight = (int)(48.00 * density),
-            contentMargin = (int)(5 * density);
+        int headerHeight = (int) (48.00 * density),
+                contentMargin = (int) (5 * density);
 
         if (attributes != null) {
             TypedArray array = this.getContext().obtainStyledAttributes(
-                attributes,
-                R.styleable.DevicesList,
-                defaultStyleAttr,
-                0
+                    attributes,
+                    R.styleable.DevicesList,
+                    defaultStyleAttr,
+                    0
             );
 
             headerHeight = array.getDimensionPixelSize(
-                R.styleable.DevicesList_headerHeight,
-                headerHeight
+                    R.styleable.DevicesList_headerHeight,
+                    headerHeight
             );
             contentMargin = array.getDimensionPixelSize(
-                R.styleable.DevicesList_contentMargin,
-                contentMargin
+                    R.styleable.DevicesList_contentMargin,
+                    contentMargin
             );
 
             array.recycle();
@@ -107,17 +107,17 @@ public class DevicesList extends RelativeLayout {
         this.initializeBody();
 
         LocalBroadcastManager
-            .getInstance(this.getContext())
-            .registerReceiver(new StateReceiver(), new IntentFilter(Constants.BROADCAST_STATE_CHANGED));
+                .getInstance(this.getContext())
+                .registerReceiver(new StateReceiver(), new IntentFilter(Constants.BROADCAST_STATE_CHANGED));
     }
 
     private void initializeHead() {
         LayoutInflater inflater = LayoutInflater.from(this.getContext());
         LayoutParams params;
 
-        this.headerRL = (RelativeLayout)inflater.inflate(R.layout.deviceslist__header, this, false);
+        this.headerRL = (RelativeLayout) inflater.inflate(R.layout.deviceslist__header, this, false);
 
-        params = (RelativeLayout.LayoutParams)this.headerRL.getLayoutParams();
+        params = (RelativeLayout.LayoutParams) this.headerRL.getLayoutParams();
         params.height = this.headerHeight;
         params.leftMargin = this.contentMargin;
         params.rightMargin = this.contentMargin;
@@ -125,19 +125,17 @@ public class DevicesList extends RelativeLayout {
         this.headerRL.setId(this.headerId);
         this.headerRL.setVisibility(View.INVISIBLE);
         this.headerRL.setLayoutParams(params);
-
-        this.cancelRL = (RelativeLayout)this.headerRL.findViewById(R.id.cancel);
+        this.cancelRL = (RelativeLayout) this.headerRL.findViewById(R.id.cancel);
         this.cancelRL.setOnClickListener(new ClickListener());
 
-        this.cancelTV = (TextView)this.cancelRL.findViewById(R.id.text);
+        this.cancelTV = (TextView) this.cancelRL.findViewById(R.id.text);
 
 
         AssetUtil.toDrawable(
-            this.getContext(),
-            R.array.ic__deviceslist__back,
-            new AssetUtil.ImageViewCallback((ImageView)this.headerRL.findViewById(R.id.icon))
+                this.getContext(),
+                R.array.ic__deviceslist__back,
+                new AssetUtil.ImageViewCallback((ImageView) this.headerRL.findViewById(R.id.icon))
         );
-
         this.addView(this.headerRL);
     }
 
@@ -156,9 +154,9 @@ public class DevicesList extends RelativeLayout {
         this.devicesRV.setLayoutParams(params);
         this.devicesRV.setHasFixedSize(true);
         this.devicesRV.setLayoutManager(new LinearLayoutManager(
-            context,
-            LinearLayoutManager.VERTICAL,
-            false
+                context,
+                LinearLayoutManager.VERTICAL,
+                false
         ));
         this.devicesRV.setAdapter(this.adapter);
 
@@ -184,8 +182,8 @@ public class DevicesList extends RelativeLayout {
 
     public void updateSelectionHeader() {
         this.cancelTV.setText(this.getResources().getString(
-            R.string.deviceslist__selected,
-            this.selectCount
+                R.string.deviceslist__selected,
+                this.selectCount
         ));
     }
 
@@ -229,11 +227,9 @@ public class DevicesList extends RelativeLayout {
      * Highlights the entities specified in the JSONArray. ignores JSONExceptions it comes across
      * silently
      *
-     * @todo create a counterpart that accepts a List<String> parameter
-     *
      * @param entityIds a JSONArray of strings containing entity Ids
-     *
      * @return a List of Strings that been selected based on checks done by this object
+     * @todo create a counterpart that accepts a List<String> parameter
      */
     public List<String> setSelections(JSONArray entityIds) {
         DeviceAdapter adapter = this.getAdapter();
@@ -304,7 +300,7 @@ public class DevicesList extends RelativeLayout {
     }
 
     private class ItemListener extends GestureDetector.SimpleOnGestureListener
-                               implements RecyclerView.OnItemTouchListener {
+            implements RecyclerView.OnItemTouchListener {
 
         TapDetector detector;
 
@@ -319,10 +315,12 @@ public class DevicesList extends RelativeLayout {
         }
 
         @Override
-        public void onTouchEvent(RecyclerView source, MotionEvent event) {}
+        public void onTouchEvent(RecyclerView source, MotionEvent event) {
+        }
 
         @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        }
         // endregion
 
         // region GestureDetector.SimpleOnGestureListener
@@ -341,14 +339,13 @@ public class DevicesList extends RelativeLayout {
                 if (!multiselect) {
                     self.clearSelections(data.entity);
                     data.entity.selected = true;
-                }
-                else
+                } else
                     data.entity.selected = !data.entity.selected;
 
                 self.adapter.notifyItemRangeChanged(
-                    0,
-                    self.adapter.getItemCount(),
-                    DeviceAdapter.BIND_SELECTION
+                        0,
+                        self.adapter.getItemCount(),
+                        DeviceAdapter.BIND_SELECTION
                 );
 
                 self.updateSelections();
@@ -384,14 +381,13 @@ public class DevicesList extends RelativeLayout {
                 if (!multiselect) {
                     self.clearSelections(data.entity);
                     data.entity.selected = true;
-                }
-                else
+                } else
                     data.entity.selected = !data.entity.selected;
 
                 self.adapter.notifyItemRangeChanged(
-                    0,
-                    self.adapter.getItemCount(),
-                    DeviceAdapter.BIND_SELECTION
+                        0,
+                        self.adapter.getItemCount(),
+                        DeviceAdapter.BIND_SELECTION
                 );
 
                 self.updateSelections();
@@ -426,9 +422,9 @@ public class DevicesList extends RelativeLayout {
 
                 data.entity.selected = !self.multiselectMode || !data.entity.selected;
                 self.adapter.notifyItemRangeChanged(
-                    0,
-                    self.adapter.getItemCount(),
-                    DeviceAdapter.BIND_SELECTION
+                        0,
+                        self.adapter.getItemCount(),
+                        DeviceAdapter.BIND_SELECTION
                 );
 
                 self.updateSelections();
@@ -466,7 +462,7 @@ public class DevicesList extends RelativeLayout {
 
             String entityId = intent.getStringExtra("entity_id");
             int length = adapter.size(),
-                index;
+                    index;
 
             if (entityId == null) {
                 for (index = 0; index < length; index++) {
@@ -476,13 +472,12 @@ public class DevicesList extends RelativeLayout {
                         device = adapter.get(index);
                         device.data = states.getEntity(device.id);
                         APITimers.invalidate(device.id);
+                    } catch (AvarioException ignored) {
                     }
-                    catch (AvarioException ignored) {}
                 }
 
                 adapter.notifyItemRangeChanged(0, adapter.getItemCount());
-            }
-            else {
+            } else {
                 for (index = 0; index < length; index++) {
                     Entity device = adapter.get(index);
 
@@ -491,25 +486,23 @@ public class DevicesList extends RelativeLayout {
 
                     try {
                         String oldState,
-                               newState;
+                                newState;
 
                         device.data = states.getEntity(device.id);
 
                         try {
                             oldState = device.data
-                                .getJSONObject("old_state")
-                                .getString("state");
-                        }
-                        catch (JSONException exception) {
+                                    .getJSONObject("old_state")
+                                    .getString("state");
+                        } catch (JSONException exception) {
                             oldState = "";
                         }
 
                         try {
                             newState = device.data
-                                .getJSONObject("new_state")
-                                .getString("state");
-                        }
-                        catch (JSONException exception) {
+                                    .getJSONObject("new_state")
+                                    .getString("state");
+                        } catch (JSONException exception) {
                             newState = "";
                         }
 
@@ -518,8 +511,8 @@ public class DevicesList extends RelativeLayout {
                         else
                             adapter.notifyItemChanged(index);
                         APITimers.invalidate(device.id);
+                    } catch (AvarioException ignored) {
                     }
-                    catch (AvarioException ignored) {}
                 }
             }
         }
@@ -539,22 +532,22 @@ public class DevicesList extends RelativeLayout {
         @Override
         public void onDrawOver(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
             Drawable divider = parent.getContext()
-                .getResources()
-                .getDrawable(R.drawable.ic__divider);
+                    .getResources()
+                    .getDrawable(R.drawable.ic__divider);
 
-            DeviceAdapter adapter = (DeviceAdapter)parent.getAdapter();
+            DeviceAdapter adapter = (DeviceAdapter) parent.getAdapter();
 
             int inset = parent
                     .getContext()
                     .getResources()
                     .getDimensionPixelSize(R.dimen.deviceslist__inset),
-                insetDivider = parent
-                    .getContext()
-                    .getResources()
-                    .getDimensionPixelSize(R.dimen.deviceslist__inset__divider);
+                    insetDivider = parent
+                            .getContext()
+                            .getResources()
+                            .getDimensionPixelSize(R.dimen.deviceslist__inset__divider);
 
             int left = 0 + insetDivider,
-                right = parent.getWidth() - insetDivider - inset;
+                    right = parent.getWidth() - insetDivider - inset;
 
             for (int index = 0, length = parent.getChildCount() - 1; index < length; index++) {
                 View child = parent.getChildAt(index);
@@ -571,9 +564,9 @@ public class DevicesList extends RelativeLayout {
                 bottom = top + divider.getIntrinsicHeight();
 
                 if (item.selected)
-                    divider.setState(new int[] { android.R.attr.state_selected });
+                    divider.setState(new int[]{android.R.attr.state_selected});
                 else
-                    divider.setState(new int[] {});
+                    divider.setState(new int[]{});
 
                 divider.setBounds(left, top, right, bottom);
                 divider.draw(canvas);

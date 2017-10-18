@@ -15,6 +15,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/toolbar"
+            android:layout_alignTop="@+id/toolbar"
+            android:background="@color/white__60" />
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_below="@+id/toolbar"
+            android:background="@drawable/drop_shadow" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -29,6 +43,7 @@
                 android:id="@+id/controls__holder"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_marginTop="20dp"
                 android:layout_weight="1" />
 
             <FrameLayout
@@ -51,18 +66,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="?attr/botbarBG"
+            android:background="@color/white__60"
             presetsbar:pageSize="11" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_above="@id/elements"
+            android:background="@drawable/top_shadow" />
 
         <RelativeLayout
             android:id="@+id/toolbar"
             android:layout_width="0dp"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_alignParentStart="true"
+            android:layout_height="70dp"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_marginStart="275dp"
-            android:background="?attr/topbarBG">
+            android:background="@color/white__60">
 
             <ImageButton
                 android:id="@+id/devices"
@@ -132,8 +153,8 @@
             <ImageButton
                 android:id="@id/home"
                 style="@style/ModeButton"
-                android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:layout_marginEnd="20dp" />
         </RelativeLayout>
 
@@ -144,6 +165,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_below="@id/toolbar"
+            android:layout_marginTop="10dp"
             roomselect:bodyBG="?attr/roomselectBodyBG"
             roomselect:handleBG="?attr/roomselectHandleBG"
             roomselect:handleHeight="?attr/actionBarSize"
@@ -165,8 +187,8 @@
         android:layout_gravity="start"
         android:background="#FF333333"
         android:paddingBottom="?attr/actionBarSize"
-        android:paddingStart="25dp"
         android:paddingEnd="25dp"
+        android:paddingStart="25dp"
         android:paddingTop="?attr/actionBarSize" />
 
 </android.support.v4.widget.DrawerLayout>

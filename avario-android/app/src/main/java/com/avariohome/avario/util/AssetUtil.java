@@ -45,7 +45,7 @@ public class AssetUtil {
         url = String.format("%s%s", conf.getHttpDomain(), conf.getAssetRoot());
         url = String.format(url, context.getResources().getDisplayMetrics().density);
 
-        return url;
+        return "https://192.168.0.18:21443/local/assets/x2.0-new";
     }
 
     public static DrawableLoader toDrawable(Context context, int assetId, DrawableLoader.Callback callback) {
@@ -92,6 +92,8 @@ public class AssetUtil {
         for (int index = 0; index < urls.length; index++)
             output[index] = String.format("%s%s", root, urls[index]);
 
+        /*for (int index = 0; index < urls.length; index++)
+            Log.d("Output", output[index]);*/
         return output;
     }
 

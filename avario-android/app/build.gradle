@@ -16,7 +16,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 25
         versionCode 2
-        versionName "0.4.1"
+        versionName "0.5.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -53,16 +53,16 @@ repositories {
 
 dependencies {
     def versions = [
-            'fcm': '11.0.2',
-            'mqtt': '1.1.1',
-            'okhttp': '3.8.0',
+            'fcm'              : '11.0.2',
+            'mqtt'             : '1.1.1',
+            'okhttp'           : '3.8.0',
             'okhttp3downloader': '1.1.0',
-            'playservices': '11.0.2',
-            'picasso': '2.5.2',
-            'rhino': '1.7.7.1',
-            'supt': '25.3.1',
-            'volley': '1.0.0',
-            'nv-bluetooth': '1.8'
+            'playservices'     : '11.0.2',
+            'picasso'          : '2.5.2',
+            'rhino'            : '1.7.7.1',
+            'supt'             : '25.3.1',
+            'volley'           : '1.0.0',
+            'nv-bluetooth'     : '1.8'
     ]
 
     compile fileTree(dir: 'libs', include: ['*.jar'])

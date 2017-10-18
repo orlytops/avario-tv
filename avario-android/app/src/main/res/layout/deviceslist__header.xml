@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,8 +8,8 @@
         android:id="@+id/cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
         android:clickable="true">
 
         <ImageView
@@ -19,13 +18,13 @@
             android:layout_height="36dp"
             android:layout_alignParentLeft="true"
             android:padding="8dp"
-            android:scaleType="fitXY"/> <!-- android:src="@drawable/ic__back" -->
+            android:scaleType="centerCrop" /> <!-- android:src="@drawable/ic__back" -->
 
         <TextView
             android:id="@+id/text"
-            android:layout_toRightOf="@id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/icon" />
     </RelativeLayout>
 </RelativeLayout>

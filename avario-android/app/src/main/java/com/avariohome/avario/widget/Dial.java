@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -23,6 +24,7 @@ import com.avariohome.avario.Constants;
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
+import com.avariohome.avario.api.models.ColorBody;
 import com.avariohome.avario.core.APITimers;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.Light;
@@ -35,6 +37,7 @@ import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.util.RefStringUtil;
+import com.google.gson.Gson;
 import com.triggertrap.seekarc.SeekArc;
 
 import org.json.JSONException;
@@ -51,32 +54,36 @@ import java.util.regex.Matcher;
 
 /**
  * View to show the different dial controls depending on selected entities.
- *
+ * <p>
  * Created by aeroheart-c6 on 08/03/2017.
  */
 public class Dial extends FrameLayout {
     public enum Category {
         ENTITY,
         MEDIA,
-        VOLUME
+        VOLUME,
+        COLOUR,
+        SATURATION,
+        BRIGHTNESS,
     }
 
     public enum Type {
-        SWITCH   ("dial.switch"),
-        LIGHT    ("dial.light"),
-        VOLUME   ("dial.volume"),
-        THERMO   ("dial.thermo"),
-        COVER    ("dial.cover"),
+        SWITCH("dial.switch"),
+        LIGHT("dial.light"),
+        VOLUME("dial.volume"),
+        THERMO("dial.thermo"),
+        COVER("dial.cover"),
         MEDIASEEK("dial.mediaseek"),
-        MEDIANS  ("dial.medians"), // media no-seek
-        MEDIADPAD("dial.mediapad");
+        MEDIANS("dial.medians"), // media no-seek
+        MEDIADPAD("dial.mediapad"),
+        SATURATION("dial.saturation"),
+        COLOUR("dial.colour");
 
         /**
          * Iterates through the available values to find a match. Should there be no
          * match, returns the SWITCH type
          *
          * @param id the dial entity ID as described in the bootstrap JSON file
-         *
          * @return the actual Type object
          */
         public static Type fromId(String id) {
@@ -183,7 +190,7 @@ public class Dial extends FrameLayout {
         this.idleRunnable = new IdleRunnable();
         this.holdRunnable = new HoldRunnable();
 
-        this.arc = (SeekArc)this.findViewById(R.id.arc);
+        this.arc = (SeekArc) this.findViewById(R.id.arc);
         this.arc.setOnSeekArcChangeListener(new SeekArcChangeListener());
 
         this.bootAccessories();
@@ -202,48 +209,48 @@ public class Dial extends FrameLayout {
         AccessoryTouchListener touchListener = new AccessoryTouchListener();
         View holder;
 
-        holder = this.switchHolder = (FrameLayout)this.findViewById(R.id.acc__switch__holder);
-        this.switchPowerIB = (ImageButton)holder.findViewById(R.id.switch__btn);
+        holder = this.switchHolder = (FrameLayout) this.findViewById(R.id.acc__switch__holder);
+        this.switchPowerIB = (ImageButton) holder.findViewById(R.id.switch__btn);
 
         this.switchPowerIB.setOnClickListener(clickListener);
 
-        holder = this.lightHolder = (FrameLayout)this.findViewById(R.id.acc__light__holder);
-        this.lightPercentTV = (TextView)holder.findViewById(R.id.light__percent);
-        this.lightPowerIB = (ImageButton)holder.findViewById(R.id.light__btn);
+        holder = this.lightHolder = (FrameLayout) this.findViewById(R.id.acc__light__holder);
+        this.lightPercentTV = (TextView) holder.findViewById(R.id.light__percent);
+        this.lightPowerIB = (ImageButton) holder.findViewById(R.id.light__btn);
 
         this.lightPowerIB.setOnClickListener(clickListener);
 
-        holder = this.volumeHolder = (FrameLayout)this.findViewById(R.id.acc__volume__holder);
-        this.volumePercentTV = (TextView)holder.findViewById(R.id.volume__percent);
-        this.volumePowerIB = (ImageButton)holder.findViewById(R.id.volume__btn);
+        holder = this.volumeHolder = (FrameLayout) this.findViewById(R.id.acc__volume__holder);
+        this.volumePercentTV = (TextView) holder.findViewById(R.id.volume__percent);
+        this.volumePowerIB = (ImageButton) holder.findViewById(R.id.volume__btn);
 
         this.volumePowerIB.setOnClickListener(clickListener);
 
-        holder = this.thermoHolder = (FrameLayout)this.findViewById(R.id.acc__thermo__holder);
-        this.thermoPercentTV = (TextView)holder.findViewById(R.id.thermo__percent);
-        this.thermoPowerIB = (ImageButton)holder.findViewById(R.id.thermo__btn);
+        holder = this.thermoHolder = (FrameLayout) this.findViewById(R.id.acc__thermo__holder);
+        this.thermoPercentTV = (TextView) holder.findViewById(R.id.thermo__percent);
+        this.thermoPowerIB = (ImageButton) holder.findViewById(R.id.thermo__btn);
 
         this.thermoPowerIB.setOnClickListener(clickListener);
 
-        holder = this.coverHolder = (FrameLayout)this.findViewById(R.id.acc__cover__holder);
-        this.coverCtrlHolder = (FrameLayout)holder.findViewById(R.id.cover__controls__holder);
-        this.coverOpenTV = (TextView)holder.findViewById(R.id.cover__open);
-        this.coverCloseTV = (TextView)holder.findViewById(R.id.cover__close);
-        this.coverPercentTV = (TextView)holder.findViewById(R.id.cover__percent);
+        holder = this.coverHolder = (FrameLayout) this.findViewById(R.id.acc__cover__holder);
+        this.coverCtrlHolder = (FrameLayout) holder.findViewById(R.id.cover__controls__holder);
+        this.coverOpenTV = (TextView) holder.findViewById(R.id.cover__open);
+        this.coverCloseTV = (TextView) holder.findViewById(R.id.cover__close);
+        this.coverPercentTV = (TextView) holder.findViewById(R.id.cover__percent);
 
         this.coverOpenTV.setOnClickListener(clickListener);
         this.coverCloseTV.setOnClickListener(clickListener);
 
-        holder = this.mediaseekHolder = (RelativeLayout)this.findViewById(R.id.acc__media__holder);
-        this.mediaseekCurrentTV = (TextView)holder.findViewById(R.id.mediaseek__current);
-        this.mediaseekRemainTV = (TextView)holder.findViewById(R.id.mediaseek__remaining);
+        holder = this.mediaseekHolder = (RelativeLayout) this.findViewById(R.id.acc__media__holder);
+        this.mediaseekCurrentTV = (TextView) holder.findViewById(R.id.mediaseek__current);
+        this.mediaseekRemainTV = (TextView) holder.findViewById(R.id.mediaseek__remaining);
 
-        holder = this.mediadpadHolder = (RelativeLayout)this.findViewById(R.id.acc__dpad__holder);
-        this.mediadpadCenterIB = (ImageButton)holder.findViewById(R.id.dpad__center);
-        this.mediadpadUpIB = (ImageButton)holder.findViewById(R.id.dpad__up);
-        this.mediadpadDownIB = (ImageButton)holder.findViewById(R.id.dpad__down);
-        this.mediadpadLeftIB = (ImageButton)holder.findViewById(R.id.dpad__left);
-        this.mediadpadRightIB = (ImageButton)holder.findViewById(R.id.dpad__right);
+        holder = this.mediadpadHolder = (RelativeLayout) this.findViewById(R.id.acc__dpad__holder);
+        this.mediadpadCenterIB = (ImageButton) holder.findViewById(R.id.dpad__center);
+        this.mediadpadUpIB = (ImageButton) holder.findViewById(R.id.dpad__up);
+        this.mediadpadDownIB = (ImageButton) holder.findViewById(R.id.dpad__down);
+        this.mediadpadLeftIB = (ImageButton) holder.findViewById(R.id.dpad__left);
+        this.mediadpadRightIB = (ImageButton) holder.findViewById(R.id.dpad__right);
 
         this.mediadpadCenterIB.setOnTouchListener(touchListener);
         this.mediadpadUpIB.setOnTouchListener(touchListener);
@@ -256,67 +263,68 @@ public class Dial extends FrameLayout {
         Context context = this.getContext();
 
         AssetUtil.toDrawable(
-            context, R.array.bg__dial__base,
-            new AssetUtil.BackgroundCallback(this)
+                context, R.array.bg__dial__base,
+                new AssetUtil.BackgroundCallback(this)
         );
 
         // our default disabled asset
         AssetUtil.toDrawable(
-            this.getContext(),
-            R.array.bg__dial__top__flat,
-            new AssetUtil.BackgroundCallback(this.arc)
+                this.getContext(),
+                R.array.bg__dial__top__flat,
+                new AssetUtil.BackgroundCallback(this.arc)
         );
 
         // Switch Dial
         AssetUtil.toDrawable(
-            context, R.array.ic__dial__power,
-            new AssetUtil.ImageViewCallback(this.switchPowerIB)
+                context, R.array.ic__dial__power,
+                new AssetUtil.ImageViewCallback(this.switchPowerIB)
         );
 
         // Light Dial
         AssetUtil.toDrawable(
-            context, R.array.ic__dial__power,
-            new AssetUtil.ImageViewCallback(this.lightPowerIB)
+                context, R.array.ic__dial__power,
+                new AssetUtil.ImageViewCallback(this.lightPowerIB)
         );
 
         // Volume Dial
         AssetUtil.toDrawable(
-            context, R.array.ic__dial__power,
-            new AssetUtil.ImageViewCallback(this.volumePowerIB)
+                context, R.array.ic__dial__power,
+                new AssetUtil.ImageViewCallback(this.volumePowerIB)
         );
 
         // Thermo Dial
         AssetUtil.toDrawable(
-            context, R.array.ic__dial__power,
-            new AssetUtil.ImageViewCallback(this.thermoPowerIB)
+                context, R.array.ic__dial__power,
+                new AssetUtil.ImageViewCallback(this.thermoPowerIB)
         );
 
         // MediaDpad Dial
         AssetUtil.toDrawable(
-            context, R.array.ic__dial__dpad__center,
-            new AssetUtil.ImageViewCallback(this.mediadpadCenterIB)
+                context, R.array.ic__dial__dpad__center,
+                new AssetUtil.ImageViewCallback(this.mediadpadCenterIB)
         );
 
         AssetUtil.toDrawable(
-            context, R.array.ic__dial__dpad__up,
-            new AssetUtil.ImageViewCallback(this.mediadpadUpIB)
+                context, R.array.ic__dial__dpad__up,
+                new AssetUtil.ImageViewCallback(this.mediadpadUpIB)
         );
 
         AssetUtil.toDrawable(
-            context, R.array.ic__dial__dpad__down,
-            new AssetUtil.ImageViewCallback(this.mediadpadDownIB)
+                context, R.array.ic__dial__dpad__down,
+                new AssetUtil.ImageViewCallback(this.mediadpadDownIB)
         );
 
         AssetUtil.toDrawable(
-            context, R.array.ic__dial__dpad__left,
-            new AssetUtil.ImageViewCallback(this.mediadpadLeftIB)
+                context, R.array.ic__dial__dpad__left,
+                new AssetUtil.ImageViewCallback(this.mediadpadLeftIB)
         );
 
         AssetUtil.toDrawable(
-            context, R.array.ic__dial__dpad__right,
-            new AssetUtil.ImageViewCallback(this.mediadpadRightIB)
+                context, R.array.ic__dial__dpad__right,
+                new AssetUtil.ImageViewCallback(this.mediadpadRightIB)
         );
     }
+
     // endregion
     public Type getType() {
         return this.type;
@@ -334,8 +342,8 @@ public class Dial extends FrameLayout {
         Config config = Config.getInstance();
 
         return this.dialJSON.optInt(
-            "nagle",
-            this.category == Category.ENTITY ? config.getNagleDelay() : config.getNagleMediaDelay()
+                "nagle",
+                this.category == Category.ENTITY ? config.getNagleDelay() : config.getNagleMediaDelay()
         );
     }
 
@@ -346,19 +354,18 @@ public class Dial extends FrameLayout {
         JSONObject entityJSON = this.entities.get(0);
 
         try {
-            return (int)Math.round(
-                entityJSON
-                    .getJSONObject("new_state")
-                    .getJSONObject("attributes")
-                    .getDouble("media_duration")
+            return (int) Math.round(
+                    entityJSON
+                            .getJSONObject("new_state")
+                            .getJSONObject("attributes")
+                            .getDouble("media_duration")
             );
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             AvarioException exception = new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY, e,
-                new Object[] {
-                    String.format("%s.new_state.attributes.media_duration", entityJSON.optString("entity_id"))
-                }
+                    Constants.ERROR_STATE_MISSINGKEY, e,
+                    new Object[]{
+                            String.format("%s.new_state.attributes.media_duration", entityJSON.optString("entity_id"))
+                    }
             );
 
             PlatformUtil.logError(exception);
@@ -377,24 +384,22 @@ public class Dial extends FrameLayout {
             return null;
 
         String state = this.entities.isEmpty()
-                     ? "off"
-                     : "on";
+                ? "off"
+                : "on";
 
         for (JSONObject entityJSON : this.entities) {
             String value,
-                   stateTmp;
+                    stateTmp;
 
             try {
                 value = RefStringUtil.processCode(entityJSON.optString("value"));
-            }
-            catch (AvarioException exception) {
+            } catch (AvarioException exception) {
                 value = "off";
             }
 
             try {
                 stateTmp = Float.parseFloat(value) <= 0 ? "off" : "on";
-            }
-            catch (NumberFormatException exception) {
+            } catch (NumberFormatException exception) {
                 stateTmp = EntityUtil.isConsideredOn(value) ? "on" : "off";
             }
 
@@ -411,7 +416,7 @@ public class Dial extends FrameLayout {
     /**
      * Returns the general state for the light dial according to entities' brightness levels.
      * Particularly useful on multiple entities. This is currently used in
-     *
+     * <p>
      * Brightness level is read from {{ entity_id/new_state/attributes/brightness }}
      *
      * @return the state of the light whether or not it's "on" or "off"
@@ -421,19 +426,18 @@ public class Dial extends FrameLayout {
             return null;
 
         String state = this.entities.isEmpty()
-                     ? "off"
-                     : null;
+                ? "off"
+                : null;
 
         for (JSONObject entityJSON : this.entities) {
             String stateTmp;
             int brightness;
 
             try {
-                brightness = (int)Float.parseFloat(RefStringUtil.processCode(
-                    entityJSON.optString("value")
+                brightness = (int) Float.parseFloat(RefStringUtil.processCode(
+                        entityJSON.optString("value")
                 ));
-            }
-            catch (AvarioException | NumberFormatException exception) {
+            } catch (AvarioException | NumberFormatException exception) {
                 brightness = 0;
             }
 
@@ -460,18 +464,17 @@ public class Dial extends FrameLayout {
             return null;
 
         String state = this.entities.isEmpty()
-                     ? Constants.ENTITY_COVER_STATE_CLOSED
-                     : null;
+                ? Constants.ENTITY_COVER_STATE_CLOSED
+                : null;
 
         for (JSONObject entityJSON : this.entities) {
             String tmp;
 
             try {
                 tmp = entityJSON
-                    .getJSONObject("new_state")
-                    .getString("state");
-            }
-            catch (JSONException exception) {
+                        .getJSONObject("new_state")
+                        .getString("state");
+            } catch (JSONException exception) {
                 tmp = Constants.ENTITY_COVER_STATE_CLOSED;
             }
 
@@ -480,11 +483,10 @@ public class Dial extends FrameLayout {
             else if (state.equals(Constants.ENTITY_COVER_STATE_OPENING))
                 break;
             else if (state.equals(Constants.ENTITY_COVER_STATE_CLOSING)
-                && tmp.equals(Constants.ENTITY_COVER_STATE_OPENING)) {
+                    && tmp.equals(Constants.ENTITY_COVER_STATE_OPENING)) {
                 state = tmp;
                 break;
-            }
-            else if (!state.equals(tmp)) {
+            } else if (!state.equals(tmp)) {
                 state = Constants.ENTITY_COVER_STATE_PARTIAL;
                 break;
             }
@@ -497,8 +499,7 @@ public class Dial extends FrameLayout {
     public void setEnabled(boolean enabled) {
         if (enabled) {
             this.arc.setEnabled(true);
-        }
-        else {
+        } else {
             this.arc.setEnabled(false);
             this.arc.setValue(0);
 
@@ -509,9 +510,9 @@ public class Dial extends FrameLayout {
 
     public void swapMediaDialType() throws AvarioException {
         JSONObject entityJSON = this.entities.get(0);
-        String dialId,
-               dpadId,
-               seekId;
+        String dialId;
+        String dpadId;
+        String seekId;
 
         if (this.category == Category.ENTITY || this.dialJSON == null)
             return;
@@ -521,55 +522,139 @@ public class Dial extends FrameLayout {
 
         try {
             dpadId = entityJSON
-                .getJSONObject("dials")
-                .getJSONObject("dpad")
-                .getString("dial_type");
-        }
-        catch (JSONException exception) {
-            String[] msgArgs = new String[] { String.format(
-                "%s.dials.dpad.dial_type",
-                entityJSON.optString("entity_id")
-            ) };
+                    .getJSONObject("dials")
+                    .getJSONObject("dpad")
+                    .getString("dial_type");
+        } catch (JSONException exception) {
+            String[] msgArgs = new String[]{String.format(
+                    "%s.dials.dpad.dial_type",
+                    entityJSON.optString("entity_id")
+            )};
 
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                msgArgs
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    msgArgs
             );
         }
 
         try {
             seekId = entityJSON
-                .getJSONObject("dials")
-                .getJSONObject("seek")
-                .getString("dial_type");
-        }
-        catch (JSONException exception) {
-            String[] msgArgs = new String[] { String.format(
-                "%s.dials.seek.dial_type",
-                entityJSON.optString("entity_id")
-            ) };
+                    .getJSONObject("dials")
+                    .getJSONObject("seek")
+                    .getString("dial_type");
+        } catch (JSONException exception) {
+            String[] msgArgs = new String[]{String.format(
+                    "%s.dials.seek.dial_type",
+                    entityJSON.optString("entity_id")
+            )};
 
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                msgArgs
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    msgArgs
             );
         }
 
         dialId = this.dialJSON.optString("entity_id").equals(dpadId)
-               ? seekId
-               : dpadId;
+                ? seekId
+                : dpadId;
 
         this.unrender();
 
         try {
             this.dialJSON = StateArray
-                .getInstance()
-                .getDial(dialId);
+                    .getInstance()
+                    .getDial(dialId);
             this.type = Type.fromId(dialId);
+        } catch (AvarioException exception) {
+            return;
         }
-        catch (AvarioException exception) {
+
+        this.render();
+    }
+
+
+    public void changeDialType(int id) throws AvarioException {
+        JSONObject entityJSON = this.entities.get(0);
+        String dialId = "";
+        String brightnessId;
+        String colourId;
+        String saturationId;
+
+        switch (id) {
+            case R.id.dialbtn__brightness:
+                try {
+                    brightnessId = entityJSON
+                            .getJSONObject("dials")
+                            .getJSONObject("brightness")
+                            .getString("dial_type");
+                } catch (JSONException exception) {
+                    String[] msgArgs = new String[]{String.format(
+                            "%s.dials.brightness.dial_type",
+                            entityJSON.optString("entity_id")
+                    )};
+
+                    throw new AvarioException(
+                            Constants.ERROR_STATE_MISSINGKEY,
+                            exception,
+                            msgArgs
+                    );
+                }
+
+                dialId = brightnessId;
+                break;
+            case R.id.dialbtn__colour:
+                try {
+                    colourId = entityJSON
+                            .getJSONObject("dials")
+                            .getJSONObject("colour")
+                            .getString("dial_type");
+                } catch (JSONException exception) {
+                    String[] msgArgs = new String[]{String.format(
+                            "%s.dials.colour.dial_type",
+                            entityJSON.optString("entity_id")
+                    )};
+
+                    throw new AvarioException(
+                            Constants.ERROR_STATE_MISSINGKEY,
+                            exception,
+                            msgArgs
+                    );
+                }
+
+                dialId = colourId;
+                break;
+            case R.id.dialbtn__saturation:
+                try {
+                    saturationId = entityJSON
+                            .getJSONObject("dials")
+                            .getJSONObject("saturation")
+                            .getString("dial_type");
+                } catch (JSONException exception) {
+                    String[] msgArgs = new String[]{String.format(
+                            "%s.dials.saturation.dial_type",
+                            entityJSON.optString("entity_id")
+                    )};
+
+                    throw new AvarioException(
+                            Constants.ERROR_STATE_MISSINGKEY,
+                            exception,
+                            msgArgs
+                    );
+                }
+
+                dialId = saturationId;
+                break;
+        }
+        this.unrender();
+
+        try {
+            this.dialJSON = StateArray
+                    .getInstance()
+                    .getDial(dialId);
+            this.type = Type.fromId(dialId);
+        } catch (AvarioException exception) {
             return;
         }
 
@@ -595,6 +680,9 @@ public class Dial extends FrameLayout {
         this.category = category;
 
         switch (category) {
+            case COLOUR:
+                //this.adapt();
+                break;
             case ENTITY:
                 this.adapt();
                 break;
@@ -605,6 +693,9 @@ public class Dial extends FrameLayout {
 
             case VOLUME:
                 this.adaptVolume();
+                break;
+            case SATURATION:
+                this.adapt();
                 break;
         }
     }
@@ -620,13 +711,13 @@ public class Dial extends FrameLayout {
     private void adapt() {
         StateArray states = StateArray.getInstance();
         String dialId = null,
-               type;
+                type;
 
         for (JSONObject entity : this.entities) {
             try {
                 type = entity
-                    .getJSONObject("dial")
-                    .getString("dial_type");
+                        .getJSONObject("dial")
+                        .getString("dial_type");
 
                 if (dialId == null)
                     dialId = type;
@@ -635,18 +726,17 @@ public class Dial extends FrameLayout {
                     dialId = null;
                     break;
                 }
-            }
-            catch (JSONException e) {
+            } catch (JSONException e) {
                 AvarioException exception = new AvarioException(
-                    Constants.ERROR_STATE_MISSINGKEY, e,
-                    new Object[] {
-                        String.format("%s.dial.dial_type", entity.optString("entity_id"))
-                    }
+                        Constants.ERROR_STATE_MISSINGKEY, e,
+                        new Object[]{
+                                String.format("%s.dial.dial_type", entity.optString("entity_id"))
+                        }
                 );
 
                 PlatformUtil
-                    .getErrorToast(this.getContext(), exception)
-                    .show();
+                        .getErrorToast(this.getContext(), exception)
+                        .show();
             }
         }
 
@@ -654,23 +744,22 @@ public class Dial extends FrameLayout {
         try {
             dialId = dialId == null ? Type.SWITCH.getId() : dialId;
 
-            if (this.dialJSON.optString("entity_id").equals(dialId))
+            if (this.dialJSON.optString("entity_id").equals(dialId) || this.dialJSON.optString("entity_id").equals("dial.colour"))
                 return;
+        } catch (NullPointerException ignored) {
         }
-        catch (NullPointerException ignored) {}
 
-        Log.d(TAG, "Adapting to: " + dialId);
+        Log.d(TAG, "Adapting to 1: " + dialId);
 
         this.unrender();
 
         try {
             this.dialJSON = states.getDial(dialId);
             this.type = Type.fromId(dialId);
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
 
             return;
         }
@@ -681,7 +770,7 @@ public class Dial extends FrameLayout {
     private void adaptMedia() {
         JSONObject entityJSON;
         String dialId,
-               type;
+                type;
 
         // resolve the dialId to show depending on the bootstrap directive
         entityJSON = this.entities.get(0);
@@ -694,24 +783,23 @@ public class Dial extends FrameLayout {
                 dialId = Type.MEDIADPAD.getId();
             else {
                 dialId = dialspecJSON
-                    .getJSONObject(type)
-                    .getString("dial_type");
+                        .getJSONObject(type)
+                        .getString("dial_type");
             }
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             AvarioException exception = new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY, e,
-                new Object[] {
-                    String.format("%s.dials.%s.dial_type",
-                        entityJSON.optString("entity_id"),
-                        type
-                    )
-                }
+                    Constants.ERROR_STATE_MISSINGKEY, e,
+                    new Object[]{
+                            String.format("%s.dials.%s.dial_type",
+                                    entityJSON.optString("entity_id"),
+                                    type
+                            )
+                    }
             );
 
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
 
             dialId = null;
         }
@@ -721,14 +809,14 @@ public class Dial extends FrameLayout {
             String currentId = this.dialJSON == null ? null : this.dialJSON.optString("entity_id");
 
             if (!this.entitiesChanged || (currentId != null &&
-                (currentId.equals(Type.MEDIADPAD.getId()) ||
-                 currentId.equals(Type.MEDIANS.getId()) ||
-                 currentId.equals(Type.MEDIASEEK.getId()) ||
-                 currentId.equals(Type.VOLUME.getId())))
-            )
+                    (currentId.equals(Type.MEDIADPAD.getId()) ||
+                            currentId.equals(Type.MEDIANS.getId()) ||
+                            currentId.equals(Type.MEDIASEEK.getId()) ||
+                            currentId.equals(Type.VOLUME.getId())))
+                    )
                 return;
+        } catch (NullPointerException ignored) {
         }
-        catch (NullPointerException ignored) {}
 
         Log.d(TAG, "Adapting to: " + dialId);
 
@@ -736,14 +824,13 @@ public class Dial extends FrameLayout {
 
         try {
             this.dialJSON = StateArray
-                .getInstance()
-                .getDial(dialId);
+                    .getInstance()
+                    .getDial(dialId);
             this.type = Type.fromId(dialId);
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
 
             return;
         }
@@ -758,22 +845,21 @@ public class Dial extends FrameLayout {
         // get spec object from entity first
         try {
             JSONObject dialspecJSON = entityJSON
-                .getJSONObject("dials")
-                .getJSONObject("volume");
+                    .getJSONObject("dials")
+                    .getJSONObject("volume");
 
             dialId = dialspecJSON.getString("dial_type");
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             AvarioException exception = new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY, e,
-                new Object[] {
-                    String.format("%s.dials.volume.dial_type")
-                }
+                    Constants.ERROR_STATE_MISSINGKEY, e,
+                    new Object[]{
+                            String.format("%s.dials.volume.dial_type")
+                    }
             );
 
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
 
             dialId = null;
         }
@@ -782,21 +868,20 @@ public class Dial extends FrameLayout {
         try {
             if (this.dialJSON.optString("entity_id").equals(dialId))
                 return;
+        } catch (NullPointerException ignored) {
         }
-        catch (NullPointerException ignored) {}
 
         this.unrender();
 
         try {
             this.dialJSON = StateArray
-                .getInstance()
-                .getDial(dialId);
+                    .getInstance()
+                    .getDial(dialId);
             this.type = Type.fromId(dialId);
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
 
             return;
         }
@@ -843,6 +928,12 @@ public class Dial extends FrameLayout {
             case MEDIADPAD:
                 this.unrenderMediaDpad();
                 break;
+            case COLOUR:
+                this.unrenderColour();
+                break;
+            case SATURATION:
+                this.unrenderLight();
+                break;
         }
     }
 
@@ -880,12 +971,20 @@ public class Dial extends FrameLayout {
         this.mediadpadHolder.setVisibility(View.GONE);
     }
 
+    private void unrenderColour() {
+        this.lightHolder.setVisibility(View.GONE);
+        arc.setStartAngle(30);
+        arc.setSweepAngle(300);
+    }
+
     // endregion
 
     // region Dial Rendering
     private void render() {
         if (this.dialJSON == null)
             return;
+
+        Log.d("Type ", this.type.toString());
 
         switch (this.type) {
             case SWITCH:
@@ -919,6 +1018,12 @@ public class Dial extends FrameLayout {
             case MEDIADPAD:
                 this.renderMediaDpad();
                 break;
+            case COLOUR:
+                this.renderColour();
+                break;
+            case SATURATION:
+                this.renderLight();
+                break;
         }
 
         this.showIdleState();
@@ -930,52 +1035,103 @@ public class Dial extends FrameLayout {
         Log.d(TAG, "Rendering switch..");
 
         AssetUtil.toDrawable(
-            context,
-            R.array.bg__dial__top__button,
-            new AssetUtil.BackgroundCallback(this.arc)
+                context,
+                R.array.bg__dial__top__button,
+                new AssetUtil.BackgroundCallback(this.arc)
         );
 
         AssetUtil.toDrawable(
-            context,
-            R.array.ic__dial__dimple,
-            new ArcThumbCallback(this.arc)
+                context,
+                R.array.ic__dial__dimple,
+                new ArcThumbCallback(this.arc)
         );
 
         this.arc.setMax(1);
-        this.arc.setProgressColor(
-            context.getResources().getColor(R.color.dial__color1),
-            context.getResources().getColor(R.color.dial__color2),
-            context.getResources().getColor(R.color.dial__color3)
-        );
+        /*this.arc.setProgressColor(
+                context.getResources().getColor(R.color.dial__color1),
+                context.getResources().getColor(R.color.dial__color2),
+                context.getResources().getColor(R.color.dial__color3)
+        );*/
+        String arcColourStart = "";
+        String arcColourMid = "";
+        String arcColourEnd = "";
+
+        JSONObject dial = entities.get(0).optJSONObject("dial");
+        Log.d("Dial: ", dial.toString());
+
+        arcColourStart = dial.optString("arc_colour_start");
+        arcColourEnd = dial.optString("arc_colour_end");
+        /*handled bootstrap colors*/
+        if (!arcColourStart.isEmpty())
+            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
         this.switchHolder.setVisibility(View.VISIBLE);
     }
 
     private void renderLight() {
-        Context context = this.getContext();
+        final Context context = this.getContext();
 
         Log.d(TAG, "Rendering light..");
+        Log.d(TAG, "Entities: " + entitiesId);
 
         AssetUtil.toDrawable(
-            context,
-            R.array.bg__dial__top__button,
-            new AssetUtil.BackgroundCallback(this.arc)
+                context,
+                R.array.bg__dial__top__button,
+                new AssetUtil.BackgroundCallback(this.arc)
         );
 
         AssetUtil.toDrawable(
-            context,
-            R.array.ic__dial__dimple,
-            new ArcThumbCallback(this.arc)
+                context,
+                R.array.ic__dial__dimple,
+                new ArcThumbCallback(this.arc)
         );
 
         this.arc.setMax(100); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
-        this.arc.setProgressColor(
-            context.getResources().getColor(R.color.dial__color1),
-            context.getResources().getColor(R.color.dial__color2),
-            context.getResources().getColor(R.color.dial__color3)
+
+
+        String arcColourStart = "";
+        String arcColourMid = "";
+        String arcColourEnd = "";
+
+        JSONObject dial = entities.get(0).optJSONObject("dial");
+        Log.d("Dial: ", dial.toString());
+
+        arcColourStart = dial.optString("arc_colour_start");
+        arcColourEnd = dial.optString("arc_colour_end");
+        //handled bootstrap colors
+        if (!arcColourStart.isEmpty())
+            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+
+        lightHolder.setVisibility(View.VISIBLE);
+    }
+
+    private void renderColour() {
+        final Context context = this.getContext();
+
+        Log.d(TAG, "Rendering Hue..");
+        Log.d(TAG, "Entities: " + entitiesId);
+
+        AssetUtil.toDrawable(
+                context,
+                R.array.bg__dial__top__button,
+                new AssetUtil.BackgroundCallback(this.arc)
         );
 
-        this.lightHolder.setVisibility(View.VISIBLE);
+        AssetUtil.toDrawable(
+                context,
+                R.array.ic__dial__dimple,
+                new ArcThumbCallback(this.arc)
+        );
+
+        this.arc.setMax(360); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
+
+        arc.setSeekColor(getResources().getColor(R.color.trasnparent));
+        arc.setStartAngle(0);
+        arc.setSweepAngle(360);
+        arc.setValue(360);
+        arc.setHue();
+        arc.setProgress(360);
+        lightHolder.setVisibility(View.VISIBLE);
     }
 
     private void renderVolume() {
@@ -984,23 +1140,36 @@ public class Dial extends FrameLayout {
         Log.d(TAG, "Rendering volume..");
 
         AssetUtil.toDrawable(
-            context,
-            R.array.bg__dial__top__button,
-            new AssetUtil.BackgroundCallback(this.arc)
+                context,
+                R.array.bg__dial__top__button,
+                new AssetUtil.BackgroundCallback(this.arc)
         );
 
         AssetUtil.toDrawable(
-            context,
-            R.array.ic__dial__dimple,
-            new ArcThumbCallback(this.arc)
+                context,
+                R.array.ic__dial__dimple,
+                new ArcThumbCallback(this.arc)
         );
 
         this.arc.setMax(100); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
-        this.arc.setProgressColor(
-            context.getResources().getColor(R.color.dial__color1),
-            context.getResources().getColor(R.color.dial__color2),
-            context.getResources().getColor(R.color.dial__color3)
-        );
+       /* this.arc.setProgressColor(
+                context.getResources().getColor(R.color.dial__color1),
+                context.getResources().getColor(R.color.dial__color2),
+                context.getResources().getColor(R.color.dial__color3)
+        );*/
+
+        String arcColourStart = "";
+        String arcColourMid = "";
+        String arcColourEnd = "";
+
+        JSONObject dial = entities.get(0).optJSONObject("dial");
+        Log.d("Dial: ", dial.toString());
+
+        arcColourStart = dial.optString("arc_colour_start");
+        arcColourEnd = dial.optString("arc_colour_end");
+        /*handled bootstrap colors*/
+        if (!arcColourStart.isEmpty())
+            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
         this.volumeHolder.setVisibility(View.VISIBLE);
     }
@@ -1011,26 +1180,39 @@ public class Dial extends FrameLayout {
         Log.d(TAG, "Rendering thermo...");
 
         AssetUtil.toDrawable(
-            context,
-            R.array.bg__dial__top__button,
-            new AssetUtil.BackgroundCallback(this.arc)
+                context,
+                R.array.bg__dial__top__button,
+                new AssetUtil.BackgroundCallback(this.arc)
         );
 
         AssetUtil.toDrawable(
-            context,
-            R.array.ic__dial__dimple,
-            new ArcThumbCallback(this.arc)
+                context,
+                R.array.ic__dial__dimple,
+                new ArcThumbCallback(this.arc)
         );
 
         this.arc.setMax(100); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
-        this.arc.setProgressColor(
-            context.getResources().getColor(R.color.dial__temperature1),
-            context.getResources().getColor(R.color.dial__temperature2),
-            context.getResources().getColor(R.color.dial__temperature3),
-            context.getResources().getColor(R.color.dial__temperature4),
-            context.getResources().getColor(R.color.dial__temperature5),
-            context.getResources().getColor(R.color.dial__temperature6)
-        );
+        /*this.arc.setProgressColor(
+                context.getResources().getColor(R.color.dial__temperature1),
+                context.getResources().getColor(R.color.dial__temperature2),
+                context.getResources().getColor(R.color.dial__temperature3),
+                context.getResources().getColor(R.color.dial__temperature4),
+                context.getResources().getColor(R.color.dial__temperature5),
+                context.getResources().getColor(R.color.dial__temperature6)
+        );*/
+
+        String arcColourStart = "";
+        String arcColourMid = "";
+        String arcColourEnd = "";
+
+        JSONObject dial = entities.get(0).optJSONObject("dial");
+        Log.d("Dial: ", dial.toString());
+
+        arcColourStart = dial.optString("arc_colour_start");
+        arcColourEnd = dial.optString("arc_colour_end");
+        /*handled bootstrap colors*/
+        if (!arcColourStart.isEmpty())
+            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
         this.thermoHolder.setVisibility(View.VISIBLE);
     }
@@ -1041,23 +1223,35 @@ public class Dial extends FrameLayout {
         Log.d(TAG, "Rendering cover...");
 
         AssetUtil.toDrawable(
-            context,
-            R.array.bg__dial__top__flat,
-            new AssetUtil.BackgroundCallback(this.arc)
+                context,
+                R.array.bg__dial__top__flat,
+                new AssetUtil.BackgroundCallback(this.arc)
         );
 
         AssetUtil.toDrawable(
-            context,
-            R.array.ic__dial__dimple,
-            new ArcThumbCallback(this.arc)
+                context,
+                R.array.ic__dial__dimple,
+                new ArcThumbCallback(this.arc)
         );
 
         this.arc.setMax(100); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
-        this.arc.setProgressColor(
-            context.getResources().getColor(R.color.dial__color1),
-            context.getResources().getColor(R.color.dial__color2),
-            context.getResources().getColor(R.color.dial__color3)
-        );
+        /*this.arc.setProgressColor(
+                context.getResources().getColor(R.color.dial__color1),
+                context.getResources().getColor(R.color.dial__color2),
+                context.getResources().getColor(R.color.dial__color3)
+        );*/
+        String arcColourStart = "";
+        String arcColourMid = "";
+        String arcColourEnd = "";
+
+        JSONObject dial = entities.get(0).optJSONObject("dial");
+        Log.d("Dial: ", dial.toString());
+
+        arcColourStart = dial.optString("arc_colour_start");
+        arcColourEnd = dial.optString("arc_colour_end");
+        /*handled bootstrap colors*/
+        if (!arcColourStart.isEmpty())
+            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
         this.coverHolder.setVisibility(View.VISIBLE);
     }
@@ -1071,24 +1265,35 @@ public class Dial extends FrameLayout {
             return;
 
         AssetUtil.toDrawable(
-            context,
-            R.array.bg__dial__top__flat,
-            new AssetUtil.BackgroundCallback(this.arc)
+                context,
+                R.array.bg__dial__top__flat,
+                new AssetUtil.BackgroundCallback(this.arc)
         );
 
         AssetUtil.toDrawable(
-            context,
-            R.array.ic__dial__dimple,
-            new ArcThumbCallback(this.arc)
+                context,
+                R.array.ic__dial__dimple,
+                new ArcThumbCallback(this.arc)
         );
 
-        this.arc.setMax(this.getMediaDuration());
+        /*this.arc.setMax(this.getMediaDuration());
         this.arc.setProgressColor(
-            context.getResources().getColor(R.color.dial__color1),
-            context.getResources().getColor(R.color.dial__color2),
-            context.getResources().getColor(R.color.dial__color3)
-        );
+                context.getResources().getColor(R.color.dial__color1),
+                context.getResources().getColor(R.color.dial__color2),
+                context.getResources().getColor(R.color.dial__color3)
+        );*/
 
+        String arcColourStart = "";
+        String arcColourMid = "";
+        String arcColourEnd = "";
+
+        JSONObject dial = entities.get(0).optJSONObject("dial");
+        Log.d("Dial: ", dial.toString());
+
+        arcColourStart = dial.optString("arc_colour_start");
+        arcColourEnd = dial.optString("arc_colour_end");
+        if (!arcColourStart.isEmpty())
+            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
         this.mediaseekHolder.setVisibility(View.VISIBLE);
     }
 
@@ -1101,19 +1306,29 @@ public class Dial extends FrameLayout {
             return;
 
         AssetUtil.toDrawable(
-            context,
-            R.array.bg__dial__top__flat,
-            new AssetUtil.BackgroundCallback(this.arc)
+                context,
+                R.array.bg__dial__top__flat,
+                new AssetUtil.BackgroundCallback(this.arc)
         );
 
         this.arc.setEnabled(false);
         this.arc.setMax(0);
         this.arc.setValue(0);
-        this.arc.setProgressColor(
-            context.getResources().getColor(R.color.dial__color1),
-            context.getResources().getColor(R.color.dial__color2),
-            context.getResources().getColor(R.color.dial__color3)
-        );
+        /*this.arc.setProgressColor(
+                context.getResources().getColor(R.color.dial__color1),
+                context.getResources().getColor(R.color.dial__color2),
+                context.getResources().getColor(R.color.dial__color3)
+        );*/
+
+        String arcColourStart = "";
+        String arcColourMid = "";
+        String arcColourEnd = "";
+
+        arcColourStart = dialJSON.optString("arc_colour_start");
+        arcColourEnd = dialJSON.optString("arc_colour_end");
+        /*handled bootstrap colors*/
+        if (!arcColourStart.isEmpty())
+            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
         this.mediaseekHolder.setVisibility(View.VISIBLE);
     }
@@ -1124,9 +1339,9 @@ public class Dial extends FrameLayout {
         Log.d(TAG, "Rendering media pad...");
 
         AssetUtil.toDrawable(
-            context,
-            R.array.bg__dial__top__dpad,
-            new AssetUtil.BackgroundCallback(this.arc)
+                context,
+                R.array.bg__dial__top__dpad,
+                new AssetUtil.BackgroundCallback(this.arc)
         );
 
         this.arc.setEnabled(false);
@@ -1134,15 +1349,29 @@ public class Dial extends FrameLayout {
         this.arc.setValue(0);
         this.mediadpadHolder.setVisibility(View.VISIBLE);
 
-        this.arc.setProgressColor(
-            context.getResources().getColor(R.color.dial__color1),
-            context.getResources().getColor(R.color.dial__color2),
-            context.getResources().getColor(R.color.dial__color3)
-        );
+        /*this.arc.setProgressColor(
+                context.getResources().getColor(R.color.dial__color1),
+                context.getResources().getColor(R.color.dial__color2),
+                context.getResources().getColor(R.color.dial__color3)
+        );*/
+        String arcColourStart = "";
+        String arcColourMid = "";
+        String arcColourEnd = "";
+
+        JSONObject dial = entities.get(0).optJSONObject("dial");
+        if (dial == null) {
+            return;
+        }
+        arcColourStart = dial.optString("arc_colour_start");
+        arcColourEnd = dial.optString("arc_colour_end");
+        /*handled bootstrap colors*/
+        if (!arcColourStart.isEmpty())
+            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
     }
     // endregion
 
     // region UI Updates
+
     /**
      * Shows the necessary views when the dial is being interacted on. (e.g. for light dial, the
      * percentage will be shown)
@@ -1171,7 +1400,14 @@ public class Dial extends FrameLayout {
                 this.coverCtrlHolder.setVisibility(View.GONE);
                 this.coverPercentTV.setVisibility(View.VISIBLE);
                 break;
-
+            case COLOUR:
+                this.lightPowerIB.setVisibility(View.GONE);
+                this.lightPercentTV.setVisibility(View.VISIBLE);
+                break;
+            case SATURATION:
+                this.lightPowerIB.setVisibility(View.GONE);
+                this.lightPercentTV.setVisibility(View.VISIBLE);
+                break;
             default:
         }
     }
@@ -1203,20 +1439,28 @@ public class Dial extends FrameLayout {
                 this.coverCtrlHolder.setVisibility(View.VISIBLE);
                 this.coverPercentTV.setVisibility(View.GONE);
                 break;
+
+            case COLOUR:
+                this.lightPowerIB.setVisibility(View.VISIBLE);
+                this.lightPercentTV.setVisibility(View.GONE);
+
+            case SATURATION:
+                this.lightPowerIB.setVisibility(View.VISIBLE);
+                this.lightPercentTV.setVisibility(View.GONE);
         }
     }
 
     /**
      * Updates the arc of the dial depending on the source of the value
      *
-     * @param value the value of the dial
+     * @param value  the value of the dial
      * @param source whether or not this is called from an MQTT update
      */
     private void updateDial(int value, int source) {
         if (source == Dial.SOURCE_MQTT)
             if (this.entitiesUpdated == null
-                || this.entitiesUpdated.size() == this.entities.size()
-                || !this.expectsMQTT)
+                    || this.entitiesUpdated.size() == this.entities.size()
+                    || !this.expectsMQTT)
                 this.arc.setValue(value);
             else
                 this.arc.setProgress(value);
@@ -1247,7 +1491,12 @@ public class Dial extends FrameLayout {
             case COVER:
                 this.refreshCover(value, units);
                 break;
-
+            case COLOUR:
+                this.refreshLight(value, fromUser, units);
+                break;
+            case SATURATION:
+                this.refreshLight(value, fromUser, units);
+                break;
             case MEDIASEEK:
             case MEDIANS:
                 this.refreshMediaSeek(value);
@@ -1265,9 +1514,9 @@ public class Dial extends FrameLayout {
 
         this.lightPowerIB.setActivated(value > 0);
         this.lightPercentTV.setText(this.getResources().getString(
-            R.string.dial__powervalue,
-            value,
-            units
+                R.string.dial__powervalue,
+                value,
+                units
         ));
     }
 
@@ -1277,9 +1526,9 @@ public class Dial extends FrameLayout {
 
         this.thermoPowerIB.setActivated(value > 0);
         this.thermoPercentTV.setText(this.getResources().getString(
-            R.string.dial__powervalue,
-            value,
-            units
+                R.string.dial__powervalue,
+                value,
+                units
         ));
     }
 
@@ -1291,18 +1540,17 @@ public class Dial extends FrameLayout {
 
         try {
             state = this.entities.get(0)
-                .getJSONObject("new_state")
-                .getString("state");
-        }
-        catch (JSONException | IndexOutOfBoundsException exception) {
+                    .getJSONObject("new_state")
+                    .getString("state");
+        } catch (JSONException | IndexOutOfBoundsException exception) {
             return; // do nothing. nothing to update
         }
 
         this.volumePowerIB.setActivated(state.equals(Constants.ENTITY_MEDIA_STATE_PLAYING));
         this.volumePercentTV.setText(this.getResources().getString(
-            R.string.dial__powervalue,
-            value,
-            units
+                R.string.dial__powervalue,
+                value,
+                units
         ));
     }
 
@@ -1310,7 +1558,7 @@ public class Dial extends FrameLayout {
         Resources res = this.getResources();
 
         int selectedClr = res.getColor(android.R.color.white),
-            defaultClr = res.getColor(R.color.gray2);
+                defaultClr = res.getColor(R.color.gray2);
 
         // find the "priority" state.
         // so it's "opening" > "closing" > "partial" > "open" > "closed"
@@ -1340,9 +1588,9 @@ public class Dial extends FrameLayout {
         }
 
         AssetUtil.toDrawable(
-            this.getContext(),
-            assetId,
-            new AssetUtil.BackgroundCallback(this.coverCtrlHolder)
+                this.getContext(),
+                assetId,
+                new AssetUtil.BackgroundCallback(this.coverCtrlHolder)
         );
 
         this.coverPercentTV.setText(value + units);
@@ -1352,14 +1600,12 @@ public class Dial extends FrameLayout {
             this.coverCloseTV.setText(R.string.dial__coverclose);
             this.coverOpenTV.setTag(R.id.tag__cover__stop, true);
             this.coverCloseTV.setTag(R.id.tag__cover__stop, null);
-        }
-        else if (state.equals(Constants.ENTITY_COVER_STATE_CLOSING)) {
+        } else if (state.equals(Constants.ENTITY_COVER_STATE_CLOSING)) {
             this.coverOpenTV.setText(R.string.dial__coveropen);
             this.coverCloseTV.setText(R.string.dial__coverstop);
             this.coverOpenTV.setTag(R.id.tag__cover__stop, null);
             this.coverCloseTV.setTag(R.id.tag__cover__stop, true);
-        }
-        else {
+        } else {
             this.coverOpenTV.setText(R.string.dial__coveropen);
             this.coverCloseTV.setText(R.string.dial__coverclose);
             this.coverOpenTV.setTag(R.id.tag__cover__stop, null);
@@ -1413,6 +1659,12 @@ public class Dial extends FrameLayout {
             case MEDIANS:
                 this.computeValueMediaNoSeek(source);
                 break;
+            case COLOUR:
+                //this.computeValueLight(source);
+                break;
+            case SATURATION:
+                this.computeValueLight(source);
+                break;
         }
     }
 
@@ -1435,12 +1687,11 @@ public class Dial extends FrameLayout {
         int volume;
 
         try {
-            volume = (int)Math.round(Constants.MAX_VALUE_VOLUME * this.entities.get(0)
-                .getJSONObject("new_state")
-                .getJSONObject("attributes")
-                .getDouble("volume_level"));
-        }
-        catch (JSONException | IndexOutOfBoundsException exception) {
+            volume = (int) Math.round(Constants.MAX_VALUE_VOLUME * this.entities.get(0)
+                    .getJSONObject("new_state")
+                    .getJSONObject("attributes")
+                    .getDouble("volume_level"));
+        } catch (JSONException | IndexOutOfBoundsException exception) {
             return;
         }
 
@@ -1456,8 +1707,8 @@ public class Dial extends FrameLayout {
      * computes value for power-button based dials. Namely currently, these are LIGHT and THERMO
      * type dials
      *
-     * @oaran algoEntityId
      * @param source
+     * @oaran algoEntityId
      */
     private void computeValuePower(String algoEntityId, int source) {
         List<Float> values = new ArrayList<>();
@@ -1467,10 +1718,9 @@ public class Dial extends FrameLayout {
         for (JSONObject entityJSON : this.entities) {
             try {
                 values.add(Float.parseFloat(RefStringUtil.processCode(
-                    entityJSON.optString("value")
+                        entityJSON.optString("value")
                 )));
-            }
-            catch (AvarioException | NumberFormatException exception) {
+            } catch (AvarioException | NumberFormatException exception) {
                 values.add(0f);
             }
         }
@@ -1479,23 +1729,21 @@ public class Dial extends FrameLayout {
 
         try {
             JSONObject algoJSON = StateArray
-                .getInstance()
-                .getDialButtonState(algoEntityId);
+                    .getInstance()
+                    .getDialButtonState(algoEntityId);
 
             try {
                 algorithm = algoJSON
-                    .getJSONObject("states")
-                    .getString(PlatformUtil.hashMD5(this.entitiesId));
-            }
-            catch (JSONException exception) {
+                        .getJSONObject("states")
+                        .getString(PlatformUtil.hashMD5(this.entitiesId));
+            } catch (JSONException exception) {
                 throw new AvarioException(
-                    Constants.ERROR_STATE_MISSINGKEY,
-                    exception,
-                    new Object[] { algoEntityId + ".states." + PlatformUtil.hashMD5(this.entitiesId) }
+                        Constants.ERROR_STATE_MISSINGKEY,
+                        exception,
+                        new Object[]{algoEntityId + ".states." + PlatformUtil.hashMD5(this.entitiesId)}
                 );
             }
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             algorithm = "aligned";
         }
 
@@ -1506,15 +1754,15 @@ public class Dial extends FrameLayout {
 
             case "converge":
                 value = this.applyFormulaConverge(
-                    Collections.min(values),
-                    Collections.max(values)
+                        Collections.min(values),
+                        Collections.max(values)
                 );
                 break;
 
             case "relative":
                 value = this.applyFormulaRelative(
-                    Collections.min(values),
-                    Collections.max(values)
+                        Collections.min(values),
+                        Collections.max(values)
                 );
                 break;
 
@@ -1544,14 +1792,13 @@ public class Dial extends FrameLayout {
                 int item;
 
                 try {
-                    item = (int)Math.round(
-                        entityJSON
-                            .getJSONObject("new_state")
-                            .getJSONObject("attributes")
-                            .getDouble("current_position")
+                    item = (int) Math.round(
+                            entityJSON
+                                    .getJSONObject("new_state")
+                                    .getJSONObject("attributes")
+                                    .getDouble("current_position")
                     );
-                }
-                catch (JSONException | NumberFormatException exception) {
+                } catch (JSONException | NumberFormatException exception) {
                     item = 0;
                 }
 
@@ -1568,14 +1815,13 @@ public class Dial extends FrameLayout {
     private void computeValueMediaSeek(int source) {
         JSONObject entityJSON;
         int valueArc,
-            valueCtrl;
+                valueCtrl;
 
         try {
             entityJSON = this.entities.get(0);
             valueArc = EntityUtil.getSeekPosition(entityJSON);
             valueCtrl = valueArc;
-        }
-        catch (IndexOutOfBoundsException | AvarioException exception) {
+        } catch (IndexOutOfBoundsException | AvarioException exception) {
             valueArc = 0;
             valueCtrl = -1;
         }
@@ -1593,8 +1839,7 @@ public class Dial extends FrameLayout {
         try {
             entityJSON = this.entities.get(0);
             valueCtrl = EntityUtil.getSeekPosition(entityJSON);
-        }
-        catch (IndexOutOfBoundsException | AvarioException exception) {
+        } catch (IndexOutOfBoundsException | AvarioException exception) {
             valueCtrl = -1;
         }
 
@@ -1623,19 +1868,20 @@ public class Dial extends FrameLayout {
 
     // region API Execution
     private JSONObject getRequestSpec(String state) throws AvarioException {
+        Log.d("state ", state);
+        Log.d("json", this.dialJSON.toString());
         try {
             return new JSONObject(
-                this.dialJSON
-                    .getJSONObject("controls")
-                    .getJSONObject(state)
-                    .toString()
+                    this.dialJSON
+                            .getJSONObject("controls")
+                            .getJSONObject(state)
+                            .toString()
             );
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                new Object[] { String.format("%s.controls.%s", this.dialJSON.optString("entity_id"), state) }
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{String.format("%s.controls.%s", this.dialJSON.optString("entity_id"), state)}
             );
         }
     }
@@ -1643,9 +1889,9 @@ public class Dial extends FrameLayout {
     private void processRequestSpec(JSONObject specJSON, String value, String algo) throws AvarioException {
         if (!APIClient.isValidRequestSpec(specJSON))
             throw new AvarioException(
-                Constants.ERROR_STATE_API_OBJECTS,
-                null,
-                new Object[] { this.dialJSON.optString("entity_id"), 0 }
+                    Constants.ERROR_STATE_API_OBJECTS,
+                    null,
+                    new Object[]{this.dialJSON.optString("entity_id"), 0}
             );
 
         try {
@@ -1659,8 +1905,38 @@ public class Dial extends FrameLayout {
             mapping.put("algo", algo);
 
             specJSON.put("payload", RefStringUtil.replaceMarkers(matcher, mapping));
+        } catch (JSONException ignored) {
         }
-        catch (JSONException ignored) {}
+    }
+
+    private void processRequestSpec(JSONObject specJSON, int[] value) throws AvarioException {
+        if (!APIClient.isValidRequestSpec(specJSON))
+            throw new AvarioException(
+                    Constants.ERROR_STATE_API_OBJECTS,
+                    null,
+                    new Object[]{this.dialJSON.optString("entity_id"), 0}
+            );
+
+        try {
+            // payload processing
+            Matcher matcher = RefStringUtil.extractMarkers(specJSON.getString("payload"), null);
+            Map<String, Object> mapping;
+
+            mapping = new HashMap<>();
+            mapping.put("entity_ids", this.entitiesId);
+            mapping.put("rgb_color", value);
+
+
+            Gson gson = new Gson();
+            ColorBody colorBody = new ColorBody();
+            colorBody.setEntityId(this.entitiesId);
+            colorBody.setRgbColor(value);
+
+            String jsonBody = gson.toJson(colorBody);
+
+            specJSON.put("payload", jsonBody);
+        } catch (JSONException ignored) {
+        }
     }
 
     private void executeAPI(View source) {
@@ -1695,7 +1971,9 @@ public class Dial extends FrameLayout {
                 case MEDIADPAD:
                     specJSON = this.executeAPIMediaDpad(source);
                     break;
-
+                case COLOUR:
+                    specJSON = this.executeAPIColor(source);
+                    break;
                 default:
                     specJSON = null;
             }
@@ -1715,19 +1993,18 @@ public class Dial extends FrameLayout {
             this.expectsMQTT = true;
 
             APIClient.getInstance().executeRequest(
-                specJSON,
-                this.dialJSON.optString("entity_id"),
-                Dial.TIMER_ID,
-                new APIListener()
+                    specJSON,
+                    this.dialJSON.optString("entity_id"),
+                    Dial.TIMER_ID,
+                    new APIListener()
             );
-        }
-        catch (final AvarioException exception) {
+        } catch (final AvarioException exception) {
             Application.mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     PlatformUtil
-                        .getErrorToast(Dial.this.getContext(), exception)
-                        .show();
+                            .getErrorToast(Dial.this.getContext(), exception)
+                            .show();
                 }
             });
         }
@@ -1739,16 +2016,17 @@ public class Dial extends FrameLayout {
 
         progress = this.arc.getValue();
         directive = this.arc == source
-                  ? "set"
-                  : progress > 0 ? "on" : "off";
+                ? "set"
+                : progress > 0 ? "on" : "off";
 
         if (!directive.equals("set") && directive.equals(this.getStateLight()))
             return null;
 
         JSONObject specJSON = this.getRequestSpec(
-            this.arc == source ? "set" :
-            progress > 0 ? "on" : "off"
+                this.arc == source ? "set" :
+                        progress > 0 ? "on" : "off"
         );
+        Log.d("specJson: ", specJSON.toString());
 
         // TODO: 10/17/17 this is where brightness gets calculated John notes
         this.processRequestSpec(
@@ -1756,8 +2034,102 @@ public class Dial extends FrameLayout {
                 String.valueOf(Math.round(progress * Constants.MAX_VALUE_NUMBER / 100f)),
                 Light.getInstance().currentAlgo
         );
+        return specJSON;
+    }
+
+    private JSONObject executeAPIColor(View source) throws AvarioException {
+        String directive;
+        int progress;
+
+        int[] rgbint = new int[3];
+        progress = this.arc.getValue();
+        int colorInt = Color.HSVToColor(new float[]{progress, 1, 1});
+        int red = Color.red(colorInt);
+        int green = Color.green(colorInt);
+        int blue = Color.blue(colorInt);
+
+        Log.d("RGB", "[" + red + "," + green + "," + blue + "]");
+        rgbint[0] = red;
+        rgbint[1] = green;
+        rgbint[2] = blue;
+        String rgbString = "[" + red + "," + green + "," + blue + "]";
+        JSONObject specJSON = this.getRequestSpec("on");
+        Log.d("specJson: ", specJSON.toString());
+
+        this.processRequestSpec(
+                specJSON, rgbint
+        );
 
         return specJSON;
+    }
+
+    public static String hsvToRGB(float H, float S, float V) {
+
+        float R, G, B;
+
+        H /= 360f;
+        S /= 100f;
+        V /= 100f;
+
+        if (S == 0) {
+            R = V * 255;
+            G = V * 255;
+            B = V * 255;
+        } else {
+            float var_h = H * 6;
+            if (var_h == 6)
+                var_h = 0; // H must be < 1
+            int var_i = (int) Math.floor((double) var_h); // Or ... var_i =
+            // floor( var_h )
+            float var_1 = V * (1 - S);
+            float var_2 = V * (1 - S * (var_h - var_i));
+            float var_3 = V * (1 - S * (1 - (var_h - var_i)));
+
+            float var_r;
+            float var_g;
+            float var_b;
+            if (var_i == 0) {
+                var_r = V;
+                var_g = var_3;
+                var_b = var_1;
+            } else if (var_i == 1) {
+                var_r = var_2;
+                var_g = V;
+                var_b = var_1;
+            } else if (var_i == 2) {
+                var_r = var_1;
+                var_g = V;
+                var_b = var_3;
+            } else if (var_i == 3) {
+                var_r = var_1;
+                var_g = var_2;
+                var_b = V;
+            } else if (var_i == 4) {
+                var_r = var_3;
+                var_g = var_1;
+                var_b = V;
+            } else {
+                var_r = V;
+                var_g = var_1;
+                var_b = var_2;
+            }
+
+            R = var_r * 255; // RGB results from 0 to 255
+            G = var_g * 255;
+            B = var_b * 255;
+        }
+
+        String rs = Integer.toHexString((int) (R));
+        String gs = Integer.toHexString((int) (G));
+        String bs = Integer.toHexString((int) (B));
+
+        if (rs.length() == 1)
+            rs = "0" + rs;
+        if (gs.length() == 1)
+            gs = "0" + gs;
+        if (bs.length() == 1)
+            bs = "0" + bs;
+        return "[" + R + "," + G + "," + B + "]";
     }
 
     private JSONObject executeAPIVolume(View source) throws AvarioException {
@@ -1767,8 +2139,8 @@ public class Dial extends FrameLayout {
 
         progress = this.arc.getValue();
         directive = this.arc == source ? "set"
-                  : progress > 0 ? "on"
-                  : "off";
+                : progress > 0 ? "on"
+                : "off";
 
         specJSON = this.getRequestSpec(directive);
 
@@ -1789,7 +2161,7 @@ public class Dial extends FrameLayout {
         String directive;
         int value;
 
-        value = this.arc.getValue() > 0 ? (int)Constants.MAX_VALUE_NUMBER : 0;
+        value = this.arc.getValue() > 0 ? (int) Constants.MAX_VALUE_NUMBER : 0;
         directive = value > 0 ? "on" : "off";
 
         if (directive.equals(this.getStateSwitch()))
@@ -1811,18 +2183,17 @@ public class Dial extends FrameLayout {
         boolean stop;
 
         try {
-            stop = (Boolean)source.getTag(R.id.tag__cover__stop);
-        }
-        catch (NullPointerException exception) {
+            stop = (Boolean) source.getTag(R.id.tag__cover__stop);
+        } catch (NullPointerException exception) {
             stop = false;
         }
 
         directive = this.arc == source ? "set"
-                    : stop ? "stop"
-                    : source.getId() == R.id.cover__open ? "open" : "close";
+                : stop ? "stop"
+                : source.getId() == R.id.cover__open ? "open" : "close";
 
         if ((!directive.equals("set") || !directive.equals("stop")) &&
-            directive.equals(this.getStateCover()))
+                directive.equals(this.getStateCover()))
             return null;
 
         JSONObject specJSON = this.getRequestSpec(directive);
@@ -1852,42 +2223,40 @@ public class Dial extends FrameLayout {
 
         String directive;
         JSONObject entityJSON,
-                   specJSON;
+                specJSON;
 
         try {
             entityJSON = this.entities.get(0);
-        }
-        catch (IndexOutOfBoundsException exception) {
+        } catch (IndexOutOfBoundsException exception) {
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                new String[] {
-                    String.format("dial entity @ index 0")
-                }
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new String[]{
+                            String.format("dial entity @ index 0")
+                    }
             );
         }
 
         directive = sourceId == R.id.dpad__up ? "up"
-                  : sourceId == R.id.dpad__down ? "down"
-                  : sourceId == R.id.dpad__left ? "left"
-                  : sourceId == R.id.dpad__right ? "right"
-                  : "select";
+                : sourceId == R.id.dpad__down ? "down"
+                : sourceId == R.id.dpad__left ? "left"
+                : sourceId == R.id.dpad__right ? "right"
+                : "select";
 
         try {
             specJSON = new JSONObject(
-                entityJSON
-                    .getJSONObject("controls")
-                    .getJSONObject(directive)
-                    .toString()
+                    entityJSON
+                            .getJSONObject("controls")
+                            .getJSONObject(directive)
+                            .toString()
             );
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                new String[] {
-                    String.format("%s.controls.%s", entityJSON.optString("entity_id"), directive)
-                }
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new String[]{
+                            String.format("%s.controls.%s", entityJSON.optString("entity_id"), directive)
+                    }
             );
         }
 
@@ -1950,9 +2319,9 @@ public class Dial extends FrameLayout {
 
             if (this.repeat)
                 NagleTimers.reset(
-                    Dial.TIMER_ID,
-                    this,
-                    Dial.this.getNagleDelay()
+                        Dial.TIMER_ID,
+                        this,
+                        Dial.this.getNagleDelay()
                 );
             else
                 NagleTimers.invalidate(Dial.TIMER_ID);
@@ -1969,7 +2338,7 @@ public class Dial extends FrameLayout {
         public void onReceive(Context context, Intent intent) {
             Dial self = Dial.this;
 
-            if (self.dialJSON == null || self.entities ==  null)
+            if (self.dialJSON == null || self.entities == null)
                 return;
 
             StateArray states = StateArray.getInstance();
@@ -1978,8 +2347,8 @@ public class Dial extends FrameLayout {
 
             if (updatedId != null)
                 self.entitiesUpdated = self.entitiesUpdated != null
-                                     ? self.entitiesUpdated
-                                     : new ArrayList<String>();
+                        ? self.entitiesUpdated
+                        : new ArrayList<String>();
             else
                 self.entitiesUpdated = null;
 
@@ -1997,18 +2366,18 @@ public class Dial extends FrameLayout {
                     // refetch from StateArray
                     if (updatedId == null || entityId.equals(updatedId))
                         entities.add(self.category == Category.ENTITY
-                                     ? states.getEntity(entityId)
-                                     : states.getMediaEntity(entityId));
-                    // entity is not updated
+                                ? states.getEntity(entityId)
+                                : states.getMediaEntity(entityId));
+                        // entity is not updated
                     else
                         entities.add(entityJSON);
+                } catch (AvarioException ignored) {
                 }
-                catch (AvarioException ignored) {}
             }
 
             // when all devices has had received their first MQTT update, kill timer
             if (self.expectsMQTT &&
-                (self.entitiesUpdated == null || self.entitiesUpdated.size() == self.entities.size())) {
+                    (self.entitiesUpdated == null || self.entitiesUpdated.size() == self.entities.size())) {
                 APITimers.unlock(Dial.TIMER_ID);
                 APITimers.invalidate(Dial.TIMER_ID);
             }
@@ -2018,14 +2387,14 @@ public class Dial extends FrameLayout {
             //      StateArray.FROM_MQTT
             //      StateArray.FROM_TIMER
             from = from == StateArray.FROM_MQTT
-                 ? Dial.SOURCE_MQTT
-                 : Dial.SOURCE_TIME;
+                    ? Dial.SOURCE_MQTT
+                    : Dial.SOURCE_TIME;
 
             // conditions ("IT" being setup -> computeValue):
-                // updatedId == null? DO IT
-                // from MQTT and mqttId != null and entitiesId != null && entitiesId.contains(updatedId) ? DO IT
+            // updatedId == null? DO IT
+            // from MQTT and mqttId != null and entitiesId != null && entitiesId.contains(updatedId) ? DO IT
             if (updatedId == null
-                || self.entitiesId != null && self.entitiesId.contains(updatedId)) {
+                    || self.entitiesId != null && self.entitiesId.contains(updatedId)) {
                 self.setup(entities, self.category);
                 self.computeValue(from);
             }
@@ -2106,13 +2475,13 @@ public class Dial extends FrameLayout {
                     }
 
                     self.holdRunnable
-                        .setSource(view)
-                        .setRepeat(true);
+                            .setSource(view)
+                            .setRepeat(true);
 
                     NagleTimers.reset(
-                        Dial.TIMER_ID,
-                        self.holdRunnable,
-                        self.getNagleDelay()
+                            Dial.TIMER_ID,
+                            self.holdRunnable,
+                            self.getNagleDelay()
                     );
 
                     break;
@@ -2123,9 +2492,9 @@ public class Dial extends FrameLayout {
             }
 
             AssetUtil.toDrawable(
-                self.getContext(),
-                assetId,
-                new AssetUtil.BackgroundCallback(self.arc)
+                    self.getContext(),
+                    assetId,
+                    new AssetUtil.BackgroundCallback(self.arc)
             );
 
             return false;
@@ -2153,6 +2522,12 @@ public class Dial extends FrameLayout {
 
                 case COVER:
                     proceed = this.handleCover(view);
+                    break;
+                case COLOUR:
+                    this.handleLight();
+                    break;
+                case SATURATION:
+                    this.handleLight();
                     break;
             }
 
@@ -2191,23 +2566,20 @@ public class Dial extends FrameLayout {
             if (view == self.coverOpenTV) {
                 other = self.coverCloseTV;
                 value = self.arc.getMax();
-            }
-            else {
+            } else {
                 other = self.coverOpenTV;
                 value = 0;
             }
 
             try {
-                stop = (Boolean)view.getTag(R.id.tag__cover__stop);
-            }
-            catch (NullPointerException exception) {
+                stop = (Boolean) view.getTag(R.id.tag__cover__stop);
+            } catch (NullPointerException exception) {
                 stop = false;
             }
 
             try {
-                handle = stop || !(Boolean)other.getTag(R.id.tag__cover__stop);
-            }
-            catch (NullPointerException exception) {
+                handle = stop || !(Boolean) other.getTag(R.id.tag__cover__stop);
+            } catch (NullPointerException exception) {
                 handle = true;
             }
 
@@ -2231,9 +2603,11 @@ public class Dial extends FrameLayout {
         }
 
         @Override
-        public void onFailure(AvarioException exception) {}
+        public void onFailure(AvarioException exception) {
+        }
 
         @Override
-        public void onCancel() {}
+        public void onCancel() {
+        }
     }
 }

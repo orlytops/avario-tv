@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <item type="id" name="tag__cover__stop"/>
-    <item type="id" name="tag__notifbtn__data"/>
-    <item type="id" name="dialbtn__swap"/>
+    <item name="tag__cover__stop" type="id" />
+    <item name="tag__notifbtn__data" type="id" />
+    <item name="dialbtn__swap" type="id" />
+    <item name="dialbtn__colour" type="id" />
+    <item name="dialbtn__brightness" type="id" />
+    <item name="dialbtn__saturation" type="id" />
 </resources>
