@@ -25,15 +25,15 @@ public class AssetUtil {
 
         if (PlatformUtil.isLollipopOrNewer())
             drawable = context
-                .getResources()
-                .getDrawable(
-                    com.avariohome.avario.R.drawable.ic__placeholder,
-                    context.getTheme()
-                );
+                    .getResources()
+                    .getDrawable(
+                            com.avariohome.avario.R.drawable.ic__placeholder,
+                            context.getTheme()
+                    );
         else
             drawable = context
-                .getResources()
-                .getDrawable(com.avariohome.avario.R.drawable.ic__placeholder);
+                    .getResources()
+                    .getDrawable(com.avariohome.avario.R.drawable.ic__placeholder);
 
         return drawable;
     }
@@ -50,9 +50,9 @@ public class AssetUtil {
 
     public static DrawableLoader toDrawable(Context context, int assetId, DrawableLoader.Callback callback) {
         return AssetUtil.toDrawable(
-            context,
-            AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId)),
-            callback
+                context,
+                AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId)),
+                callback
         );
     }
 
@@ -67,8 +67,8 @@ public class AssetUtil {
 
     public static Drawable toDrawable(Context context, int assetId) {
         return AssetUtil.toDrawable(
-            context,
-            AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId))
+                context,
+                AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId))
         );
     }
 
@@ -80,8 +80,7 @@ public class AssetUtil {
 
         try {
             return task.getDrawable(task.get());
-        }
-        catch (CancellationException | ExecutionException | InterruptedException exception) {
+        } catch (CancellationException | ExecutionException | InterruptedException exception) {
             return task.getDrawable(null);
         }
     }
@@ -119,7 +118,8 @@ public class AssetUtil {
         }
 
         @Override
-        public void onCancel() {}
+        public void onCancel() {
+        }
     }
 
     public static class BackgroundCallback implements DrawableLoader.Callback {
@@ -135,9 +135,11 @@ public class AssetUtil {
         }
 
         @Override
-        public void onFailure(AvarioException exception) {}
+        public void onFailure(AvarioException exception) {
+        }
 
         @Override
-        public void onCancel() {}
+        public void onCancel() {
+        }
     }
 }

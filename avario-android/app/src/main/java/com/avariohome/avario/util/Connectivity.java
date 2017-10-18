@@ -1,12 +1,9 @@
 package com.avariohome.avario.util;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;

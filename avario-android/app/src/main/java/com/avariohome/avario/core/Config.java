@@ -31,6 +31,7 @@ public class Config {
     private static final String PREFKEY_BOOTSTRAP = "setting__bootstrap";
     private static final String PREFKEY_HOLD_SECONDS = "setting__hold_seconds";
     private static final String PREFKEY_LIGHT_ALGO = "algo_light";
+    private static final String PREFKEY_IS_KIOSK = "is_kiosk";
 
     private static Config instance = null;
 
@@ -106,6 +107,10 @@ public class Config {
 
     public String getPassword() {
         return this.fetchString(PREFKEY_PASSWORD);
+    }
+
+    public boolean isKiosk() {
+        return this.fetchBoolean(PREFKEY_IS_KIOSK);
     }
 
     public String getAssetRoot() {
@@ -229,6 +234,11 @@ public class Config {
     public void setPassword(String password) {
         this.prefs.edit().putString(PREFKEY_PASSWORD, password).commit();
     }
+
+    public void setIsKiosk(boolean isKiosk) {
+        this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, isKiosk).commit();
+    }
+
 
     public void clear() {
         this.prefs.edit()

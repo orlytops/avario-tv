@@ -10,10 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.widget.Toast;
 
-import com.avariohome.avario.R;
-import com.avariohome.avario.service.DeviceAdminReceiver;
+import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.service.FloatingViewService;
 
 /**
@@ -35,7 +33,7 @@ public class KioskActivity extends Activity {
         mDevicePolicyManager = (DevicePolicyManager)
                 getSystemService(Context.DEVICE_POLICY_SERVICE);
 
-        mAdminComponentName = DeviceAdminReceiver.getComponentName(this);
+        mAdminComponentName = AvarioReceiver.getComponentName(this);
         mPackageManager = this.getPackageManager();
         //call this to uninstall application
         //mDevicePolicyManager.clearDeviceOwnerApp("com.avariohome.avario");
@@ -53,14 +51,11 @@ public class KioskActivity extends Activity {
             finish();
             stopService(new Intent(getApplicationContext(), FloatingViewService.class));
 
-            //mDevicePolicyManager.clearDeviceOwnerApp("com.avariohome.avario");
         } else {
-            Intent intent = new Intent(getApplicationContext(),
+            Intent intent = new Intent(KioskActivity.this,
                     BootActivity.class);
             startActivity(intent);
-            Toast.makeText(getApplicationContext(),
-                    R.string.not_lock_whitelisted, Toast.LENGTH_SHORT)
-                    .show();
+            finish();
         }
     }
 }

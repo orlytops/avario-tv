@@ -104,12 +104,20 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
+        <CheckBox
+            android:id="@+id/check_kiosk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/setting__password"
+            android:layout_marginTop="10dp"
+            android:text="Kiosk Mode" />
+
         <TextView
             android:id="@+id/text_connection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_below="@+id/text_version"/>
+            android:layout_below="@+id/text_version" />
 
         <!-- Working Message -->
         <LinearLayout

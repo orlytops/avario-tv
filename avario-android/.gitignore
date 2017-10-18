@@ -5,9 +5,7 @@
 /.idea/workspace.xml
 /.idea/libraries
 .DS_Store
-/build/android-profile
-/build/generated
-/build/intermediates
+/build
 /captures
 .externalNativeBuild
 

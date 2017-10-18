@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.Uri;
 import android.net.http.SslError;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -42,7 +41,6 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
@@ -66,15 +64,13 @@ import com.avariohome.avario.fragment.NotifListDialogFragment;
 import com.avariohome.avario.fragment.NotificationDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
-import com.avariohome.avario.service.DeviceAdminReceiver;
-import com.avariohome.avario.service.FloatingViewService;
+import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.widget.DevicesList;
-import com.avariohome.avario.widget.DialButtonBar;
 import com.avariohome.avario.widget.ElementsBar;
 import com.avariohome.avario.widget.MediaList;
 import com.avariohome.avario.widget.MediaSourcesList;
@@ -161,6 +157,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity__main);
 
+
         this.handler = Application.mainHandler;
 
         this.mqttListener = new MqttConnectionListener();
@@ -188,18 +185,20 @@ public class MainActivity extends BaseActivity {
         this.activeModeIB.performClick();
         this.isBluetoothAvailable();
         this.checkNotifications();
-
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(this.bluetoothReceiver, filter);
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onResume() {
         super.onResume();
-
-        this.visible = true;
-        this.startInactivityCountdown();
 
         MqttManager manager = MqttManager.getInstance();
 
@@ -216,21 +215,20 @@ public class MainActivity extends BaseActivity {
             this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
         }
 
+        if (BluetoothScanner.getInstance().isEnabled())
+            BluetoothScanner.getInstance().scanLeDevice(true);
+
         Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(Subscriber<? super Object> subscriber) {
                 if (BluetoothScanner.getInstance().isEnabled())
                     BluetoothScanner.getInstance().scanLeDevice(true);
-                mAdminComponentName = DeviceAdminReceiver.getComponentName(MainActivity.this);
+                mAdminComponentName = AvarioReceiver.getComponentName(MainActivity.this);
                 mDevicePolicyManager = (DevicePolicyManager) getSystemService(
                         Context.DEVICE_POLICY_SERVICE);
                 mPackageManager = getPackageManager();
                 if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
-                    //setDefaultCosuPolicies(true);
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "Not Device owner", Toast.LENGTH_SHORT)
-                            .show();
+                    setDefaultCosuPolicies(true);
                 }
 
                 subscriber.onNext(new Object());
@@ -261,17 +259,18 @@ public class MainActivity extends BaseActivity {
                                     try {
                                         if (am.getLockTaskModeState() ==
                                                 ActivityManager.LOCK_TASK_MODE_NONE) {
-                                            //startLockTask();
+                                            startLockTask();
+                                            Config config = Config.getInstance();
+                                            config.setIsKiosk(true);
+
                                         }
                                     } catch (Exception exception) {
                                     }
                                 }
-                            }, 500);
+                            }, 100);
                         }
                     }
                 });
-
-        stopService(new Intent(getApplicationContext(), FloatingViewService.class));
 
         // add stored algo from shared preferences.
         Light.addAllAlgo(Config.getInstance().getLightAlgo());
@@ -290,6 +289,11 @@ public class MainActivity extends BaseActivity {
 
         // Store algo to be use later when app restarts.
         Config.getInstance().setLightAlgo(Light.getInstance().algos);
+    }
+
+
+    @Override
+    public void onBackPressed() {
     }
 
     @Override
@@ -1067,6 +1071,8 @@ public class MainActivity extends BaseActivity {
                     .getInstance()
                     .getCurrentState(this.stateListener);
         } catch (AvarioException exception) {
+            Log.d("Exception here", "Exception" + exception.getMessage());
+            Log.d("Exception: ", exception.getMessage());
             PlatformUtil
                     .getErrorToast(this, exception)
                     .show();
@@ -1076,7 +1082,10 @@ public class MainActivity extends BaseActivity {
     private void connectMQTT(String message) {
         Connectivity.identifyConnection(getApplicationContext());
         this.showBusyDialog(message);
-        super.connectMQTT(this.mqttListener, false);
+        super.connectMQTT(new MqttConnectionListener(), false);
+
+        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(this.bluetoothReceiver, filter);
     }
 
     /*
@@ -1337,26 +1346,33 @@ public class MainActivity extends BaseActivity {
                     .getLaunchIntentForPackage(appId);
 
             if (intent != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(self)) {
+                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(self)) {
                     Intent intentPackage = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                             Uri.parse("package:" + getPackageName()));
                     startActivityForResult(intentPackage, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
                 } else {
 
-                    ActivityManager am = (ActivityManager) getSystemService(
-                            Context.ACTIVITY_SERVICE);
 
-                    if (am.getLockTaskModeState() ==
-                            ActivityManager.LOCK_TASK_MODE_LOCKED) {
-                        stopLockTask();
-                    }
+                }*/
+                final ActivityManager am = (ActivityManager) getSystemService(
+                        Context.ACTIVITY_SERVICE);
 
-//                    setDefaultCosuPolicies(false);
-                    startService(new Intent(getApplicationContext(), FloatingViewService.class));
-                    self.startActivity(intent);
+                DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Activity.DEVICE_POLICY_SERVICE);
+                if (am.getLockTaskModeState() ==
+                        ActivityManager.LOCK_TASK_MODE_LOCKED) {
+                    stopLockTask();
+                    Config config = Config.getInstance();
+                    config.setIsKiosk(false);
+                }
+                self.startActivity(intent);
+                if (devicePolicyManager.isDeviceOwnerApp(getPackageName())) {
+                    devicePolicyManager.setLockTaskPackages(mAdminComponentName, new String[]{appId});
+                    Config config = Config.getInstance();
+                    config.setIsKiosk(false);
                 }
             } else if (URLUtil.isValidUrl(appId)) {
                 loadWebView(appId);
+                drawer.closeDrawers();
 
             } else {
                 String[] exceptionArgs = new String[]{name};
@@ -1471,9 +1487,28 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onSubscription(MqttConnection connection) {
             MainActivity self = MainActivity.this;
-
             self.showBusyDialog(null);
             self.fetchCurrentStates();
+
+            MqttManager manager = MqttManager.getInstance();
+
+            if (manager.isConnected()) {
+                manager
+                        .getConnection()
+                        .setListener(mqttListener);
+
+                loadFromStateArray();
+                fetchCurrentStates();
+
+                showBusyDialog(null);
+            } else if (!settingsOpened) {
+                connectMQTT(getString(R.string.message__mqtt__connecting));
+            }
+
+            if (BluetoothScanner.getInstance().isEnabled())
+                BluetoothScanner.getInstance().scanLeDevice(true);
+
+
         }
 
         @Override
