@@ -45,7 +45,7 @@ public class AssetUtil {
         url = String.format("%s%s", conf.getHttpDomain(), conf.getAssetRoot());
         url = String.format(url, context.getResources().getDisplayMetrics().density);
 
-        return "https://192.168.0.18:21443/local/assets/x2.0-new";
+        return url;
     }
 
     public static DrawableLoader toDrawable(Context context, int assetId, DrawableLoader.Callback callback) {
