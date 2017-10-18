@@ -55,6 +55,7 @@ import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
 import com.avariohome.avario.core.BluetoothScanner;
 import com.avariohome.avario.core.Config;
+import com.avariohome.avario.core.Light;
 import com.avariohome.avario.core.NagleTimers;
 import com.avariohome.avario.core.Notification;
 import com.avariohome.avario.core.NotificationArray;
@@ -73,6 +74,7 @@ import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.widget.DevicesList;
+import com.avariohome.avario.widget.DialButtonBar;
 import com.avariohome.avario.widget.ElementsBar;
 import com.avariohome.avario.widget.MediaList;
 import com.avariohome.avario.widget.MediaSourcesList;
@@ -271,6 +273,10 @@ public class MainActivity extends BaseActivity {
 
         stopService(new Intent(getApplicationContext(), FloatingViewService.class));
 
+        // add stored algo from shared preferences.
+        Light.addAllAlgo(Config.getInstance().getLightAlgo());
+        // delete algo stored to avoid redundancy.
+        Config.getInstance().deleteAlgo();
     }
 
     @Override
@@ -281,6 +287,9 @@ public class MainActivity extends BaseActivity {
         this.progressPD = null;
         this.visible = false;
         BluetoothScanner.getInstance().scanLeDevice(false);
+
+        // Store algo to be use later when app restarts.
+        Config.getInstance().setLightAlgo(Light.getInstance().algos);
     }
 
     @Override
@@ -829,10 +838,14 @@ public class MainActivity extends BaseActivity {
             DeviceAdapter adapter = this.devicesList.getAdapter();
             List<String> entityIds = new ArrayList<>();
 
-            for (Entity device : adapter.getSelected())
+            for (Entity device : adapter.getSelected()){
                 entityIds.add(device.id);
+            }
 
             this.dialFragment.setEntities(entityIds);
+
+            // initial click action on selected dial button.
+            this.dialFragment.click(Light.isPresentOnAlgoList(entityIds));
         }
     }
 

@@ -134,4 +134,14 @@ public class DialFragment extends Fragment {
 
         this.dial.initialize();
     }
+
+    /**
+     *
+     * @param entityId button entity id
+     */
+    public void click(String entityId){
+        if (entityId != null){
+            dialbtnBar.click(entityId);
+        }
+    }
 }
