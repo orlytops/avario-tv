@@ -53,6 +53,7 @@ import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.BlindAssetLoader;
 import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
+import com.avariohome.avario.util.Validator;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -91,6 +92,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private CheckBox secureCB;
     private CheckBox kioskCheck;
 
+    private Button clearAssetsB;
     private Button saveB;
     private Button dropB;
     private Button refreshB;
@@ -180,8 +182,10 @@ public class SettingsDialogFragment extends DialogFragment {
         this.secureCB = (CheckBox) view.findViewById(R.id.setting__ssl);
         versionText = (TextView) view.findViewById(R.id.text_version);
         kioskCheck = (CheckBox) view.findViewById(R.id.check_kiosk);
+        clearAssetsB = (Button) view.findViewById(R.id.btnClearAssets);
 
         kioskCheck.setChecked(config.isKiosk());
+        clearAssetsB.setOnClickListener(new ClickListener());
 
         mAdminComponentName = AvarioReceiver.getComponentName(getActivity());
         mDevicePolicyManager = (DevicePolicyManager) getActivity().getSystemService(
@@ -235,6 +239,7 @@ public class SettingsDialogFragment extends DialogFragment {
             this.usernameET.setText(this.config.getUsername());
             this.passwordET.setText(this.config.getPassword());
             this.secureCB.setChecked(this.config.isHttpSSL());
+            clearAssetsB.setVisibility(View.VISIBLE);
         }
         startKiosk();
         return view;
@@ -368,6 +373,8 @@ public class SettingsDialogFragment extends DialogFragment {
         this.saveB.setEnabled(enabled);
         this.dropB.setEnabled(enabled);
         this.refreshB.setEnabled(enabled);
+        this.clearAssetsB.setEnabled(enabled);
+        this.kioskCheck.setEnabled(enabled);
     }
 
     private void toggleWorking(boolean show) {
@@ -455,12 +462,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 password = this.passwordET.getText().toString();
         boolean secure = this.secureCB.isChecked();
 
-        if (host.isEmpty() || port.isEmpty() ||
-                username.isEmpty() ||
-                password.isEmpty()) {
-            Toast.makeText(this.getActivity(), R.string.setting__toast__empty, Toast.LENGTH_SHORT)
-                    .show();
-
+        if (!Validator.isValidHost(this.hostET) || !Validator.isValidPort(this.portET)) {
             this.toggleWorking(false);
             this.setEnabled(true);
             return;
@@ -634,15 +636,25 @@ public class SettingsDialogFragment extends DialogFragment {
         public void onClick(View view) {
             SettingsDialogFragment self = SettingsDialogFragment.this;
 
-            self.setEnabled(false);
-            self.toggleError(false, "");
+            if (view.getId() == self.positiveId) {
 
-            if (view.getId() == self.positiveId)
+                self.setEnabled(false);
+                self.toggleError(false, "");
                 self.saveChanges();
-            else if (view.getId() == self.negativeId)
+            } else if (view.getId() == self.negativeId) {
+
+                self.setEnabled(false);
+                self.toggleError(false, "");
                 self.dropChanges();
-            else
-                self.deleteCaches();
+            } else if(view.getId() == R.id.btnClearAssets){
+                self.deleteAssetCache(self.getActivity().getCacheDir());
+            }else {
+                if (config.isSet()) {
+                    self.setEnabled(false);
+                    self.toggleError(false, "");
+                    self.deleteCaches();
+                }
+            }
         }
     }
 

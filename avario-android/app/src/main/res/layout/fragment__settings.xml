@@ -7,7 +7,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:padding="@dimen/dialog__padding">
 
         <!-- Host IP Field -->
@@ -16,15 +16,15 @@
             android:layout_width="@dimen/settings__field__width"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/setting__host_ip"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:text="@string/setting__host" />
 
         <EditText
             android:id="@id/setting__host_ip"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_toRightOf="@id/setting__host_ip__label"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@id/setting__host_ip__label"
             android:hint="@string/setting__host__hint"
             android:inputType="text" />
 
@@ -34,7 +34,7 @@
             android:layout_width="@dimen/settings__field__width"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/setting__host_port"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_below="@id/setting__host_ip"
             android:text="@string/setting__port" />
 
@@ -43,10 +43,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/setting__host_ip"
-            android:layout_toLeftOf="@+id/setting__ssl"
-            android:layout_toRightOf="@id/setting__host_ip__label"
+            android:layout_toEndOf="@id/setting__host_ip__label"
+            android:layout_toStartOf="@+id/setting__ssl"
             android:digits="0123456789"
             android:hint="@string/setting__port__hint"
+            android:imeOptions="actionNext"
             android:inputType="number" />
 
         <CheckBox
@@ -54,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/setting__host_port"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_below="@id/setting__host_ip"
             android:text="@string/setting__ssl" />
 
@@ -63,7 +64,7 @@
             android:layout_width="@dimen/settings__field__width"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/setting__username"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_below="@id/setting__host_port"
             android:text="@string/setting__username" />
 
@@ -71,9 +72,11 @@
             android:id="@id/setting__username"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_below="@id/setting__host_port"
-            android:layout_toRightOf="@id/setting__host_ip__label" />
+            android:layout_toEndOf="@id/setting__host_ip__label"
+            android:imeOptions="actionNext"
+            android:inputType="text" />
 
 
         <!-- Password -->
@@ -81,7 +84,7 @@
             android:layout_width="@dimen/settings__field__width"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/setting__password"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_below="@id/setting__username"
             android:text="@string/setting__password" />
 
@@ -89,16 +92,17 @@
             android:id="@id/setting__password"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_below="@id/setting__username"
-            android:layout_toRightOf="@id/setting__host_ip__label"
+            android:layout_toEndOf="@id/setting__host_ip__label"
+            android:imeOptions="actionDone"
             android:inputType="textPassword" />
 
         <TextView
             android:id="@+id/text_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_below="@id/setting__password"
             android:layout_marginTop="20dp"
             android:textSize="18sp"
@@ -124,7 +128,7 @@
             android:id="@+id/working__holder"
             android:layout_width="wrap_content"
             android:layout_height="24dp"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_below="@id/setting__password"
             android:orientation="horizontal"
             android:visibility="invisible">
@@ -146,9 +150,21 @@
             android:id="@+id/error"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/working__holder"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/text_version"
             android:textColor="@color/red"
             android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnClearAssets"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/error"
+            android:background="@drawable/settings_dialog_button"
+            android:paddingEnd="10dp"
+            android:paddingStart="10dp"
+            android:visibility="gone"
+            android:text="@string/clear_assets" />
     </RelativeLayout>
 </ScrollView>

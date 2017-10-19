@@ -34,9 +34,9 @@
     <string name="setting__username">Username</string>
     <string name="setting__password">Password</string>
     <string name="setting__title">Settings</string>
-    <string name="setting__refresh">Refresh Caches</string>
+    <string name="setting__refresh">Get new Bootstrap</string>
     <string name="setting__save">Save</string>
-    <string name="setting__discard">Discard</string>
+    <string name="setting__discard">Cancel</string>
     <string name="setting__working">Working...%1$s</string>
     <string name="setting__toast__cleared">Cache cleared</string>
     <string name="setting__toast__empty">Please set all the settings correctly</string>
@@ -54,4 +54,5 @@
     <string name="error__0x00110">[0x00110] Invalid username / password combination when fetching bootstrap JSON</string>
     <string name="error__0x00120">[0x00120] Bootstrap JSON could not be parsed</string>
     <string name="error__0x00200">[0x00200] Asset "%s" could not be fetched</string>
+    <string name="clear_assets">Clear assets</string>
 </resources>
