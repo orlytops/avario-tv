@@ -99,7 +99,9 @@ public class BluetoothScanner {
             bluetoothAdapter.startLeScan(callback);
             startDelayTimer();
         } else {
-            this.handler.removeCallbacks(this.delayRunnable);
+            if (handler != null) {
+                this.handler.removeCallbacks(this.delayRunnable);
+            }
             bluetoothAdapter.stopLeScan(callback);
         }
     }

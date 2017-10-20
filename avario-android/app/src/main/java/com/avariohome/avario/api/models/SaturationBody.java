@@ -6,19 +6,19 @@ import com.google.gson.annotations.SerializedName;
  * Created by orly on 10/18/17.
  */
 
-public class ColorBody {
+public class SaturationBody {
 
     @SerializedName("entity_id")
     private String entityId;
 
-    @SerializedName("rgb_color")
-    private int[] rgbColor;
+    @SerializedName("white_value")
+    private int whiteValue;
 
     public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
 
-    public void setRgbColor(int[] rgbColor) {
-        this.rgbColor = rgbColor;
+    public void setWhiteValue(int whiteValue) {
+        this.whiteValue = whiteValue;
     }
 }

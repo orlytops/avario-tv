@@ -571,6 +571,13 @@ public class SeekArc extends View {
         mThumbYPos = (int) (mThumbRadius * Math.sin(Math.toRadians(angle)));
     }
 
+    public void setThumbPosition(int angle) {
+        angle = angle + mAngleOffset + mRotation + 180;
+        mThumbXPos = (int) (mThumbRadius * Math.cos(Math.toRadians(angle)));
+        mThumbYPos = (int) (mThumbRadius * Math.sin(Math.toRadians(angle)));
+        invalidate();
+    }
+
     private void updateProgressAngle(int progress) {
         if (progress == INVALID_PROGRESS_VALUE)
             return;
@@ -654,11 +661,12 @@ public class SeekArc extends View {
         this.mMax = mMax;
     }
 
-    public void setValue(int progress) {
+    public void setValue(int progress, boolean updateThumb) {
         updateProgressAngle(progress);
         updateDeltaAngle(progress);
-
-        updateThumbPosition();
+        if (updateThumb) {
+            updateThumbPosition();
+        }
         invalidate();
     }
 
@@ -859,6 +867,43 @@ public class SeekArc extends View {
         invalidate();
     }
 
+    public void setSaturation(float color) {
+        SweepGradient gradient;
+        Matrix matrix;
+
+        matrix = new Matrix();
+        matrix.preRotate((mStartAngle + (mAngleOffset - 5)) + mRotation,
+                mArcRect.centerX(),
+                mArcRect.centerY());
+        int[] colors = new int[10];
+
+        for (int index = 0; index < 10; index++) {
+            float saturation = index / 10;
+            Log.d("Saturation: ", Float.parseFloat(0 + "." + index) + "");
+            colors[index] = Color.HSVToColor(new float[]{color, Float.parseFloat(0 + "." + index), 1});
+        }
+
+        // compute for them positions for equal color distribution <3
+        float[] positions = new float[colors.length];
+        float last = mSweepAngle / 360f,
+                increments = last / (colors.length - 1);
+
+        for (int index = 0; index < positions.length; index++)
+            positions[index] = increments * index;
+
+        gradient = new SweepGradient(
+                mArcRect.centerX(),
+                mArcRect.centerY(),
+                colors,
+                positions
+        );
+        gradient.setLocalMatrix(matrix);
+
+        mProgressColors = colors;
+        mProgressPaint.setShader(gradient);
+        invalidate();
+    }
+
     public void setSeekColor(int color) {
         mProposedPaint.setColor(color);
         invalidate();
@@ -887,7 +932,6 @@ public class SeekArc extends View {
 
     public void setEnabled(boolean enabled) {
         this.mEnabled = enabled;
-        Log.d("Arc Enabled", enabled + "");
     }
 
     public void setContinuous(boolean continuous) {

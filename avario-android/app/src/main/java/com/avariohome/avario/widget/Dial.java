@@ -25,6 +25,7 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
 import com.avariohome.avario.api.models.ColorBody;
+import com.avariohome.avario.api.models.SaturationBody;
 import com.avariohome.avario.core.APITimers;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.Light;
@@ -40,6 +41,7 @@ import com.avariohome.avario.util.RefStringUtil;
 import com.google.gson.Gson;
 import com.triggertrap.seekarc.SeekArc;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -77,7 +79,8 @@ public class Dial extends FrameLayout {
         MEDIANS("dial.medians"), // media no-seek
         MEDIADPAD("dial.mediapad"),
         SATURATION("dial.saturation"),
-        COLOUR("dial.colour");
+        COLOUR("dial.colour"),
+        TEMPERATURE("dial.temprature");
 
         /**
          * Iterates through the available values to find a match. Should there be no
@@ -113,6 +116,8 @@ public class Dial extends FrameLayout {
     private static final String TAG = "Avario/Dial";
     private static final String TIMER_ID = "dial";
 
+    private int color;
+
     private SeekArc arc;
 
     // Switch type fields
@@ -123,6 +128,21 @@ public class Dial extends FrameLayout {
     private FrameLayout lightHolder;
     private ImageButton lightPowerIB;
     private TextView lightPercentTV;
+
+    // Colour type fields
+    private FrameLayout colourHolder;
+    private ImageButton colourPowerIB;
+    private TextView colourPercentTV;
+
+    // Saturation type fields
+    private FrameLayout saturationHolder;
+    private ImageButton saturationPowerIB;
+    private TextView saturationPercentTV;
+
+    // Temprature type fields
+    private FrameLayout tempratureHolder;
+    private ImageButton tempraturePowerIB;
+    private TextView tempraturePercentTV;
 
     // Volume type fields
     private FrameLayout volumeHolder;
@@ -167,6 +187,8 @@ public class Dial extends FrameLayout {
     private Handler mainHandler;
     private IdleRunnable idleRunnable;
     private HoldRunnable holdRunnable;
+
+    private boolean isLightsOn = false;
 
     public Dial(Context context) {
         this(context, null, 0);
@@ -219,6 +241,24 @@ public class Dial extends FrameLayout {
         this.lightPowerIB = (ImageButton) holder.findViewById(R.id.light__btn);
 
         this.lightPowerIB.setOnClickListener(clickListener);
+
+        holder = this.colourHolder = (FrameLayout) this.findViewById(R.id.acc__colour__holder);
+        this.colourPercentTV = (TextView) this.findViewById(R.id.colour__percent);
+        this.colourPowerIB = (ImageButton) holder.findViewById(R.id.colour__btn);
+
+        this.colourPowerIB.setOnClickListener(clickListener);
+
+        holder = this.saturationHolder = (FrameLayout) this.findViewById(R.id.acc__saturation__holder);
+        this.saturationPercentTV = (TextView) this.findViewById(R.id.saturation__percent);
+        this.saturationPowerIB = (ImageButton) holder.findViewById(R.id.saturation__btn);
+
+        this.saturationPowerIB.setOnClickListener(clickListener);
+
+        holder = this.tempratureHolder = (FrameLayout) this.findViewById(R.id.acc__temprature__holder);
+        this.tempraturePercentTV = (TextView) this.findViewById(R.id.tempreature__percent);
+        this.tempraturePowerIB = (ImageButton) holder.findViewById(R.id.temprature__btn);
+
+        this.tempraturePowerIB.setOnClickListener(clickListener);
 
         holder = this.volumeHolder = (FrameLayout) this.findViewById(R.id.acc__volume__holder);
         this.volumePercentTV = (TextView) holder.findViewById(R.id.volume__percent);
@@ -284,6 +324,24 @@ public class Dial extends FrameLayout {
         AssetUtil.toDrawable(
                 context, R.array.ic__dial__power,
                 new AssetUtil.ImageViewCallback(this.lightPowerIB)
+        );
+
+        // Colour Dial
+        AssetUtil.toDrawable(
+                context, R.array.ic__dial__power,
+                new AssetUtil.ImageViewCallback(this.colourPowerIB)
+        );
+
+        // Saturation Dial
+        AssetUtil.toDrawable(
+                context, R.array.ic__dial__power,
+                new AssetUtil.ImageViewCallback(this.saturationPowerIB)
+        );
+
+        // Temprature Dial
+        AssetUtil.toDrawable(
+                context, R.array.ic__dial__power,
+                new AssetUtil.ImageViewCallback(this.tempraturePowerIB)
         );
 
         // Volume Dial
@@ -422,7 +480,8 @@ public class Dial extends FrameLayout {
      * @return the state of the light whether or not it's "on" or "off"
      */
     private String getStateLight() {
-        if (this.type != Type.LIGHT)
+        if (this.type != Type.LIGHT && this.type != Type.COLOUR && this.type != Type.SATURATION
+                && this.type != Type.TEMPERATURE)
             return null;
 
         String state = this.entities.isEmpty()
@@ -501,7 +560,7 @@ public class Dial extends FrameLayout {
             this.arc.setEnabled(true);
         } else {
             this.arc.setEnabled(false);
-            this.arc.setValue(0);
+            this.arc.setValue(0, true);
 
             this.unrender();
             this.dialJSON = null;
@@ -581,6 +640,7 @@ public class Dial extends FrameLayout {
         String brightnessId;
         String colourId;
         String saturationId;
+        String tempratureId;
 
         switch (id) {
             case R.id.dialbtn__brightness:
@@ -645,6 +705,27 @@ public class Dial extends FrameLayout {
                 }
 
                 dialId = saturationId;
+                break;
+            case R.id.dialbtn__temprature:
+                try {
+                    tempratureId = entityJSON
+                            .getJSONObject("dials")
+                            .getJSONObject("temprature")
+                            .getString("dial_type");
+                } catch (JSONException exception) {
+                    String[] msgArgs = new String[]{String.format(
+                            "%s.dials.saturation.dial_type",
+                            entityJSON.optString("entity_id")
+                    )};
+
+                    throw new AvarioException(
+                            Constants.ERROR_STATE_MISSINGKEY,
+                            exception,
+                            msgArgs
+                    );
+                }
+
+                dialId = tempratureId;
                 break;
         }
         this.unrender();
@@ -712,6 +793,7 @@ public class Dial extends FrameLayout {
         StateArray states = StateArray.getInstance();
         String dialId = null,
                 type;
+        JSONObject dials = null;
 
         for (JSONObject entity : this.entities) {
             try {
@@ -726,8 +808,12 @@ public class Dial extends FrameLayout {
                     dialId = null;
                     break;
                 }
+
+                dials = entity
+                        .getJSONObject("dials");
+
             } catch (JSONException e) {
-                AvarioException exception = new AvarioException(
+                /*AvarioException exception = new AvarioException(
                         Constants.ERROR_STATE_MISSINGKEY, e,
                         new Object[]{
                                 String.format("%s.dial.dial_type", entity.optString("entity_id"))
@@ -736,15 +822,14 @@ public class Dial extends FrameLayout {
 
                 PlatformUtil
                         .getErrorToast(this.getContext(), exception)
-                        .show();
+                        .show();*/
             }
         }
 
         // check if the dial still needs to adapt or stay put
         try {
             dialId = dialId == null ? Type.SWITCH.getId() : dialId;
-
-            if (this.dialJSON.optString("entity_id").equals(dialId) || this.dialJSON.optString("entity_id").equals("dial.colour"))
+            if (this.dialJSON.optString("entity_id").equals(dialId) || dials != null)
                 return;
         } catch (NullPointerException ignored) {
         }
@@ -932,7 +1017,10 @@ public class Dial extends FrameLayout {
                 this.unrenderColour();
                 break;
             case SATURATION:
-                this.unrenderLight();
+                this.unrenderSaturation();
+                break;
+            case TEMPERATURE:
+                this.unrenderTemprature();
                 break;
         }
     }
@@ -972,7 +1060,20 @@ public class Dial extends FrameLayout {
     }
 
     private void unrenderColour() {
-        this.lightHolder.setVisibility(View.GONE);
+        this.colourHolder.setVisibility(View.GONE);
+        arc.setStartAngle(30);
+        arc.setSweepAngle(300);
+    }
+
+
+    private void unrenderSaturation() {
+        this.saturationHolder.setVisibility(View.GONE);
+        arc.setStartAngle(30);
+        arc.setSweepAngle(300);
+    }
+
+    private void unrenderTemprature() {
+        this.tempratureHolder.setVisibility(View.GONE);
         arc.setStartAngle(30);
         arc.setSweepAngle(300);
     }
@@ -1022,7 +1123,10 @@ public class Dial extends FrameLayout {
                 this.renderColour();
                 break;
             case SATURATION:
-                this.renderLight();
+                this.renderSaturation();
+                break;
+            case TEMPERATURE:
+                this.renderTemprature();
                 break;
         }
 
@@ -1128,10 +1232,125 @@ public class Dial extends FrameLayout {
         arc.setSeekColor(getResources().getColor(R.color.trasnparent));
         arc.setStartAngle(0);
         arc.setSweepAngle(360);
-        arc.setValue(360);
+        arc.setValue(360, true);
         arc.setHue();
         arc.setProgress(360);
-        lightHolder.setVisibility(View.VISIBLE);
+        colourHolder.setVisibility(View.VISIBLE);
+    }
+
+
+    private void renderSaturation() {
+        final Context context = this.getContext();
+        JSONArray rgbArray = null;
+        int[] rgb = new int[3];
+
+        Log.d(TAG, "Rendering light..");
+        Log.d(TAG, "Entities: " + entitiesId);
+
+        AssetUtil.toDrawable(
+                context,
+                R.array.bg__dial__top__button,
+                new AssetUtil.BackgroundCallback(this.arc)
+        );
+
+        AssetUtil.toDrawable(
+                context,
+                R.array.ic__dial__dimple,
+                new ArcThumbCallback(this.arc)
+        );
+
+        this.arc.setMax(255); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
+        try {
+            rgbArray = this.entities.get(0)
+                    .getJSONObject("new_state")
+                    .getJSONObject("attributes")
+                    .getJSONArray("rgb_color");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        arc.setSeekColor(getResources().getColor(R.color.trasnparent));
+        arc.setStartAngle(30);
+        arc.setSweepAngle(300);
+        arc.setValue(300, true);
+        if (rgbArray != null) {
+
+            rgb = new int[rgbArray.length()];
+
+            for (int i = 0; i < rgbArray.length(); i++) {
+                rgb[i] = rgbArray.optInt(i);
+            }
+
+            float[] hsvColor = new float[3];
+            Color.RGBToHSV(rgb[0], rgb[1], rgb[2], hsvColor);
+
+            arc.setSaturation(hsvColor[0]);
+            //arc.setProgressColor(Color.HSVToColor(hsvColor), getResources().getColor(R.color.white));
+        } else {
+            float[] hsvColor = new float[3];
+            Color.RGBToHSV(255, 0, 0, hsvColor);
+            arc.setSaturation(hsvColor[0]);
+            //arc.setProgressColor(Color.HSVToColor(hsvColor), getResources().getColor(R.color.white));
+        }
+        arc.setProgress(100);
+        saturationHolder.setVisibility(View.VISIBLE);
+    }
+
+    private void renderTemprature() {
+        final Context context = this.getContext();
+        JSONArray rgbArray = null;
+        int[] rgb = new int[3];
+
+        Log.d(TAG, "Rendering light..");
+        Log.d(TAG, "Entities: " + entitiesId);
+
+        AssetUtil.toDrawable(
+                context,
+                R.array.bg__dial__top__button,
+                new AssetUtil.BackgroundCallback(this.arc)
+        );
+
+        AssetUtil.toDrawable(
+                context,
+                R.array.ic__dial__dimple,
+                new ArcThumbCallback(this.arc)
+        );
+
+        this.arc.setMax(255); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
+        try {
+            rgbArray = this.entities.get(0)
+                    .getJSONObject("new_state")
+                    .getJSONObject("attributes")
+                    .getJSONArray("rgb_color");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        arc.setSeekColor(getResources().getColor(R.color.trasnparent));
+        arc.setStartAngle(30);
+        arc.setSweepAngle(300);
+        arc.setValue(300, true);
+        if (rgbArray != null) {
+
+            rgb = new int[rgbArray.length()];
+
+            for (int i = 0; i < rgbArray.length(); i++) {
+                rgb[i] = rgbArray.optInt(i);
+            }
+
+            float[] hsvColor = new float[3];
+            Color.RGBToHSV(rgb[0], rgb[1], rgb[2], hsvColor);
+
+            arc.setSaturation(hsvColor[0]);
+            //arc.setProgressColor(Color.HSVToColor(hsvColor), getResources().getColor(R.color.white));
+        } else {
+            float[] hsvColor = new float[3];
+            Color.RGBToHSV(255, 0, 0, hsvColor);
+            arc.setSaturation(hsvColor[0]);
+            //arc.setProgressColor(Color.HSVToColor(hsvColor), getResources().getColor(R.color.white));
+        }
+        arc.setProgress(100);
+        saturationHolder.setVisibility(View.VISIBLE);
     }
 
     private void renderVolume() {
@@ -1313,7 +1532,7 @@ public class Dial extends FrameLayout {
 
         this.arc.setEnabled(false);
         this.arc.setMax(0);
-        this.arc.setValue(0);
+        this.arc.setValue(0, true);
         /*this.arc.setProgressColor(
                 context.getResources().getColor(R.color.dial__color1),
                 context.getResources().getColor(R.color.dial__color2),
@@ -1346,7 +1565,7 @@ public class Dial extends FrameLayout {
 
         this.arc.setEnabled(false);
         this.arc.setMax(1);
-        this.arc.setValue(0);
+        this.arc.setValue(0, true);
         this.mediadpadHolder.setVisibility(View.VISIBLE);
 
         /*this.arc.setProgressColor(
@@ -1401,12 +1620,16 @@ public class Dial extends FrameLayout {
                 this.coverPercentTV.setVisibility(View.VISIBLE);
                 break;
             case COLOUR:
-                this.lightPowerIB.setVisibility(View.GONE);
-                this.lightPercentTV.setVisibility(View.VISIBLE);
+                this.colourPowerIB.setVisibility(View.GONE);
+                this.colourPercentTV.setVisibility(View.VISIBLE);
                 break;
             case SATURATION:
-                this.lightPowerIB.setVisibility(View.GONE);
-                this.lightPercentTV.setVisibility(View.VISIBLE);
+                this.saturationPowerIB.setVisibility(View.GONE);
+                this.saturationPercentTV.setVisibility(View.VISIBLE);
+                break;
+            case TEMPERATURE:
+                this.tempraturePowerIB.setVisibility(View.GONE);
+                this.tempraturePercentTV.setVisibility(View.VISIBLE);
                 break;
             default:
         }
@@ -1441,12 +1664,12 @@ public class Dial extends FrameLayout {
                 break;
 
             case COLOUR:
-                this.lightPowerIB.setVisibility(View.VISIBLE);
-                this.lightPercentTV.setVisibility(View.GONE);
+                this.colourPowerIB.setVisibility(View.VISIBLE);
+                this.colourPercentTV.setVisibility(View.GONE);
 
             case SATURATION:
-                this.lightPowerIB.setVisibility(View.VISIBLE);
-                this.lightPercentTV.setVisibility(View.GONE);
+                this.saturationPowerIB.setVisibility(View.VISIBLE);
+                this.saturationPercentTV.setVisibility(View.GONE);
         }
     }
 
@@ -1456,16 +1679,16 @@ public class Dial extends FrameLayout {
      * @param value  the value of the dial
      * @param source whether or not this is called from an MQTT update
      */
-    private void updateDial(int value, int source) {
+    private void updateDial(int value, int source, boolean updateThumb) {
         if (source == Dial.SOURCE_MQTT)
             if (this.entitiesUpdated == null
                     || this.entitiesUpdated.size() == this.entities.size()
                     || !this.expectsMQTT)
-                this.arc.setValue(value);
+                this.arc.setValue(value, updateThumb);
             else
                 this.arc.setProgress(value);
         else
-            this.arc.setValue(value);
+            this.arc.setValue(value, updateThumb);
     }
 
     private void refreshControls(int value, boolean fromUser) {
@@ -1492,10 +1715,13 @@ public class Dial extends FrameLayout {
                 this.refreshCover(value, units);
                 break;
             case COLOUR:
-                this.refreshLight(value, fromUser, units);
+                this.refreshColour(value, fromUser, units);
                 break;
             case SATURATION:
-                this.refreshLight(value, fromUser, units);
+                this.refreshSaturation(value, fromUser, units);
+                break;
+            case TEMPERATURE:
+                this.refreshTemprature(value, fromUser, units);
                 break;
             case MEDIASEEK:
             case MEDIANS:
@@ -1518,6 +1744,34 @@ public class Dial extends FrameLayout {
                 value,
                 units
         ));
+    }
+
+    private void refreshColour(int value, boolean fromUser, String units) {
+        if (fromUser)
+            this.progressPrev = value;
+
+        this.colourPowerIB.setActivated(true);
+        this.colourPercentTV.setText(this.getResources().getString(
+                R.string.dial__powervalue,
+                value,
+                units
+        ));
+    }
+
+    private void refreshSaturation(int value, boolean fromUser, String units) {
+        if (fromUser)
+            this.progressPrev = value;
+
+        this.saturationPowerIB.setActivated(true);
+        this.saturationPercentTV.setText(value + "");
+    }
+
+    private void refreshTemprature(int value, boolean fromUser, String units) {
+        if (fromUser)
+            this.progressPrev = value;
+
+        this.tempraturePowerIB.setActivated(true);
+        this.tempraturePercentTV.setText(value + "");
     }
 
     private void refreshThermo(int value, boolean fromUser, String units) {
@@ -1660,10 +1914,13 @@ public class Dial extends FrameLayout {
                 this.computeValueMediaNoSeek(source);
                 break;
             case COLOUR:
-                //this.computeValueLight(source);
+                this.computeValueColour(source);
                 break;
             case SATURATION:
-                this.computeValueLight(source);
+                this.computeValueSaturation(source);
+                break;
+            case TEMPERATURE:
+                this.computeValueTemprature(source);
                 break;
         }
     }
@@ -1675,7 +1932,7 @@ public class Dial extends FrameLayout {
         if (source == Dial.SOURCE_USER)
             this.progressPrev = valueArc;
 
-        this.updateDial(valueArc, source);
+        this.updateDial(valueArc, source, true);
         this.refreshControls(valueArc, false);
     }
 
@@ -1695,8 +1952,70 @@ public class Dial extends FrameLayout {
             return;
         }
 
-        this.updateDial(volume, source);
+        this.updateDial(volume, source, true);
         this.refreshControls(volume, false);
+    }
+
+    private void computeValueColour(int source) {
+        JSONArray value;
+        int[] rgb;
+        float[] hsv = new float[3];
+        try {
+            value = this.entities.get(0)
+                    .getJSONObject("new_state")
+                    .getJSONObject("attributes")
+                    .getJSONArray("rgb_color");
+        } catch (JSONException | IndexOutOfBoundsException exception) {
+            return;
+        }
+
+        rgb = new int[value.length()];
+
+        for (int i = 0; i < value.length(); i++) {
+            rgb[i] = value.optInt(i);
+        }
+
+        Color.RGBToHSV(rgb[0], rgb[1], rgb[2], hsv);
+
+        int hue = (int) hsv[0];
+        Log.d("Hue", hue + "");
+        this.updateDial(360, source, false);
+        this.arc.setThumbPosition(hue);
+        this.refreshControls(hue, false);
+    }
+
+    private void computeValueSaturation(int source) {
+        int value;
+
+        try {
+            value = this.entities.get(0)
+                    .getJSONObject("new_state")
+                    .getJSONObject("attributes")
+                    .getInt("white_value");
+        } catch (JSONException | IndexOutOfBoundsException exception) {
+            return;
+        }
+
+        this.updateDial(255, source, false);
+        this.arc.setThumbPosition(+30);
+        this.refreshControls(value, false);
+    }
+
+    private void computeValueTemprature(int source) {
+        int value;
+
+        try {
+            value = this.entities.get(0)
+                    .getJSONObject("new_state")
+                    .getJSONObject("attributes")
+                    .getInt("color_temp");
+        } catch (JSONException | IndexOutOfBoundsException exception) {
+            return;
+        }
+
+        this.updateDial(255, source, false);
+        this.arc.setThumbPosition(value);
+        this.refreshControls(value, false);
     }
 
     private void computeValueThermo(int source) {
@@ -1776,7 +2095,7 @@ public class Dial extends FrameLayout {
         if (source == Dial.SOURCE_USER)
             this.progressPrev = valueArc;
 
-        this.updateDial(valueArc, source);
+        this.updateDial(valueArc, source, true);
         this.refreshControls(valueArc, false);
     }
 
@@ -1808,7 +2127,7 @@ public class Dial extends FrameLayout {
             valueArc = valueArc / this.entities.size();
         }
 
-        this.updateDial(valueArc, source);
+        this.updateDial(valueArc, source, true);
         this.refreshControls(valueArc, false);
     }
 
@@ -1828,7 +2147,7 @@ public class Dial extends FrameLayout {
 
         this.arc.setMax(this.getMediaDuration());
 
-        this.updateDial(valueArc, source);
+        this.updateDial(valueArc, source, true);
         this.refreshControls(valueCtrl, false);
     }
 
@@ -1939,6 +2258,36 @@ public class Dial extends FrameLayout {
         }
     }
 
+    private void processRequestSpec(JSONObject specJSON, int value) throws AvarioException {
+        if (!APIClient.isValidRequestSpec(specJSON))
+            throw new AvarioException(
+                    Constants.ERROR_STATE_API_OBJECTS,
+                    null,
+                    new Object[]{this.dialJSON.optString("entity_id"), 0}
+            );
+
+        try {
+            // payload processing
+            Matcher matcher = RefStringUtil.extractMarkers(specJSON.getString("payload"), null);
+            Map<String, Object> mapping;
+
+            mapping = new HashMap<>();
+            mapping.put("entity_ids", this.entitiesId);
+            mapping.put("rgb_color", value);
+
+
+            Gson gson = new Gson();
+            SaturationBody saturationBody = new SaturationBody();
+            saturationBody.setEntityId(this.entitiesId);
+            saturationBody.setWhiteValue(value);
+
+            String jsonBody = gson.toJson(saturationBody);
+
+            specJSON.put("payload", jsonBody);
+        } catch (JSONException ignored) {
+        }
+    }
+
     private void executeAPI(View source) {
         JSONObject specJSON;
 
@@ -1973,6 +2322,12 @@ public class Dial extends FrameLayout {
                     break;
                 case COLOUR:
                     specJSON = this.executeAPIColor(source);
+                    break;
+                case SATURATION:
+                    specJSON = this.executeAPISaturation(source);
+                    break;
+                case TEMPERATURE:
+                    specJSON = this.executeAPISaturation(source);
                     break;
                 default:
                     specJSON = null;
@@ -2027,6 +2382,11 @@ public class Dial extends FrameLayout {
                         progress > 0 ? "on" : "off"
         );
         Log.d("specJson: ", specJSON.toString());
+        if (this.arc != source) {
+            isLightsOn = !(progress > 0);
+        } else {
+            isLightsOn = true;
+        }
 
         // TODO: 10/17/17 this is where brightness gets calculated John notes
         this.processRequestSpec(
@@ -2039,97 +2399,132 @@ public class Dial extends FrameLayout {
 
     private JSONObject executeAPIColor(View source) throws AvarioException {
         String directive;
-        int progress;
+        int progress = 0;
 
+        directive = this.arc == source
+                ? "set"
+                : getStateLight().equals("on") ? "off" : "on";
+
+        Log.d("State light: ", this.getStateLight());
+        if (!directive.equals("set") && directive.equals(this.getStateLight()))
+            return null;
+
+        JSONObject specJSON = this.getRequestSpec(
+                this.arc == source ? "set" :
+                        getStateLight().equals("on") ? "off" : "on"
+        );
+        //for coloring
         int[] rgbint = new int[3];
         progress = this.arc.getValue();
         int colorInt = Color.HSVToColor(new float[]{progress, 1, 1});
+        color = colorInt;
         int red = Color.red(colorInt);
         int green = Color.green(colorInt);
         int blue = Color.blue(colorInt);
 
-        Log.d("RGB", "[" + red + "," + green + "," + blue + "]");
         rgbint[0] = red;
         rgbint[1] = green;
         rgbint[2] = blue;
-        String rgbString = "[" + red + "," + green + "," + blue + "]";
-        JSONObject specJSON = this.getRequestSpec("on");
         Log.d("specJson: ", specJSON.toString());
 
-        this.processRequestSpec(
-                specJSON, rgbint
-        );
+        if (getStateLight().equals("on")) {
+            arc.setThumbDrawable(null);
+        }
+
+        if (this.arc == source) {
+            this.processRequestSpec(specJSON, rgbint);
+        } else {
+            this.processRequestSpec(
+                    specJSON,
+                    String.valueOf(Math.round(progress * Constants.MAX_VALUE_NUMBER / 100f)),
+                    Light.getInstance().currentAlgo
+            );
+        }
 
         return specJSON;
     }
 
-    public static String hsvToRGB(float H, float S, float V) {
+    private JSONObject executeAPISaturation(View source) throws AvarioException {
+        String directive;
+        int progress = 0;
+        int[] rgb;
+        JSONArray rgbArray = null;
 
-        float R, G, B;
+        directive = this.arc == source
+                ? "set"
+                : getStateLight().equals("on") ? "off" : "on";
 
-        H /= 360f;
-        S /= 100f;
-        V /= 100f;
+        Log.d("State light: ", this.getStateLight());
+        if (!directive.equals("set") && directive.equals(this.getStateLight()))
+            return null;
 
-        if (S == 0) {
-            R = V * 255;
-            G = V * 255;
-            B = V * 255;
-        } else {
-            float var_h = H * 6;
-            if (var_h == 6)
-                var_h = 0; // H must be < 1
-            int var_i = (int) Math.floor((double) var_h); // Or ... var_i =
-            // floor( var_h )
-            float var_1 = V * (1 - S);
-            float var_2 = V * (1 - S * (var_h - var_i));
-            float var_3 = V * (1 - S * (1 - (var_h - var_i)));
-
-            float var_r;
-            float var_g;
-            float var_b;
-            if (var_i == 0) {
-                var_r = V;
-                var_g = var_3;
-                var_b = var_1;
-            } else if (var_i == 1) {
-                var_r = var_2;
-                var_g = V;
-                var_b = var_1;
-            } else if (var_i == 2) {
-                var_r = var_1;
-                var_g = V;
-                var_b = var_3;
-            } else if (var_i == 3) {
-                var_r = var_1;
-                var_g = var_2;
-                var_b = V;
-            } else if (var_i == 4) {
-                var_r = var_3;
-                var_g = var_1;
-                var_b = V;
-            } else {
-                var_r = V;
-                var_g = var_1;
-                var_b = var_2;
-            }
-
-            R = var_r * 255; // RGB results from 0 to 255
-            G = var_g * 255;
-            B = var_b * 255;
+        JSONObject specJSON = this.getRequestSpec(
+                this.arc == source ? "set" :
+                        getStateLight().equals("on") ? "off" : "on"
+        );
+        Log.d("Action: ", this.arc == source ? "set" :
+                getStateLight().equals("on") ? "off" : "on");
+        Log.d("entities", entities + " ");
+        try {
+            rgbArray = this.entities.get(0)
+                    .getJSONObject("new_state")
+                    .getJSONObject("attributes")
+                    .getJSONArray("rgb_color");
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
-        String rs = Integer.toHexString((int) (R));
-        String gs = Integer.toHexString((int) (G));
-        String bs = Integer.toHexString((int) (B));
+        if (rgbArray != null) {
 
-        if (rs.length() == 1)
-            rs = "0" + rs;
-        if (gs.length() == 1)
-            gs = "0" + gs;
-        if (bs.length() == 1)
-            bs = "0" + bs;
-        return "[" + R + "," + G + "," + B + "]";
+            rgb = new int[rgbArray.length()];
+
+            for (int i = 0; i < rgbArray.length(); i++) {
+                rgb[i] = rgbArray.optInt(i);
+            }
+
+            float[] hsvColor = new float[3];
+
+
+            Color.RGBToHSV(rgb[0], rgb[1], rgb[2], hsvColor);
+
+            //for coloring
+            int[] rgbint = new int[3];
+        /*float saturation = (float) (progress * 0.01);
+        Log.d("saturation: ", color + " " + hsvColor[0] + " " + saturation + "");
+        int colorInt = Color.HSVToColor(new float[]{hsvColor[0], saturation, 1});
+        int red = Color.red(colorInt);
+        int green = Color.green(colorInt);
+        int blue = Color.blue(colorInt);
+
+        rgbint[0] = red;
+        rgbint[1] = green;
+        rgbint[2] = blue;
+        Log.d("specJson: ", specJSON.toString());*/
+
+
+        } else {
+
+            float[] hsvColor = new float[3];
+            Color.RGBToHSV(255, 0, 0, hsvColor);
+        }
+
+        progress = this.arc.getValue();
+        int value = (255 * progress) / 100;
+        if (getStateLight().equals("on")) {
+            arc.setThumbDrawable(null);
+        }
+
+        if (this.arc == source) {
+            this.processRequestSpec(specJSON, value);
+        } else {
+            this.processRequestSpec(
+                    specJSON,
+                    String.valueOf(Math.round(value * Constants.MAX_VALUE_NUMBER / 100f)),
+                    Light.getInstance().currentAlgo
+            );
+        }
+
+        return specJSON;
     }
 
     private JSONObject executeAPIVolume(View source) throws AvarioException {
@@ -2527,6 +2922,9 @@ public class Dial extends FrameLayout {
                     this.handleLight();
                     break;
                 case SATURATION:
+                    this.handleLight();
+                    break;
+                case TEMPERATURE:
                     this.handleLight();
                     break;
             }

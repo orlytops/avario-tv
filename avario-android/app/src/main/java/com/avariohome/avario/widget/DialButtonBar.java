@@ -114,15 +114,10 @@ public class DialButtonBar extends LinearLayout {
         for (JSONObject entityJSON : entityJSONs) {
             try {
 
-                try {
-                    JSONObject dials = entityJSON.getJSONObject("dials");
-                    if (dials != null) {
-                        this.setupEntityMedia(entityJSON);
-                    } else {
-                        this.setupEntity(entityJSON);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if (entityJSON.has("dials")) {
+                    this.setupEntityMedia(entityJSON);
+                } else {
+                    this.setupEntity(entityJSON);
                 }
             } catch (AvarioException exception) {
                 PlatformUtil
@@ -328,6 +323,9 @@ public class DialButtonBar extends LinearLayout {
                 break;
             case "brightness":
                 id = R.id.dialbtn__brightness;
+                break;
+            case "temprature":
+                id = R.id.dialbtn__temprature;
                 break;
         }
 
@@ -685,6 +683,9 @@ public class DialButtonBar extends LinearLayout {
                     this.swapDial(source.getId());
                     return true;
                 case R.id.dialbtn__brightness:
+                    this.swapDial(source.getId());
+                    return true;
+                case R.id.dialbtn__temprature:
                     this.swapDial(source.getId());
                     return true;
             }
