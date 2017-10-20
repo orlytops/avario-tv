@@ -24,4 +24,5 @@ R
 
     <dimen name="home_button_size">48dp</dimen>
     <dimen name="mode_button_size">48dp</dimen>
+    <dimen name="custom_settings_button">10dp</dimen>
 </resources>

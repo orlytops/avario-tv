@@ -44,28 +44,23 @@ public class Application extends android.app.Application {
     /**
      * Tries to start the worker thread just in case it was killed off before
      */
-    public static void startWorker(final Activity activity) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED){
-                    // Clear any instance of tickerRunnable to avoid duplicate
-                    // and initialize to make sure ticker is running as intended.
-                    Application.workHandler.removeCallbacks(Application.tickerRunnable);
-                    Application.tickerRunnable = null;
-                    Application.tickerRunnable = new TickerRunnable(activity, Application.workHandler);
-                    Application.tickerRunnable.tick();
-                    return;
-                }
-                Application.worker = new WorkerThread();
-                Application.worker.start();
+    public static void startWorker(Context context) {
+        if (Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED){
+            // Clear any instance of tickerRunnable to avoid duplicate
+            // and initialize to make sure ticker is running as intended.
+            Application.workHandler.removeCallbacks(Application.tickerRunnable);
+            Application.tickerRunnable = null;
+            Application.tickerRunnable = new TickerRunnable(context, Application.workHandler);
+            Application.tickerRunnable.tick();
+            return;
+        }
+        Application.worker = new WorkerThread();
+        Application.worker.start();
 
-                Application.workHandler = Application.worker.getHandler();
+        Application.workHandler = Application.worker.getHandler();
 
-                Application.tickerRunnable = new TickerRunnable(activity, Application.workHandler);
-                Application.tickerRunnable.tick();
-            }
-        });
+        Application.tickerRunnable = new TickerRunnable(context, Application.workHandler);
+        Application.tickerRunnable.tick();
     }
 
     @Override
@@ -74,8 +69,7 @@ public class Application extends android.app.Application {
 
         VolleyLog.setTag("AvarioVolley");
 
-        // TODO: 10/12/17 startWorker might have crash causing ticker to not run
-//        Application.startWorker((Activity) getApplicationContext());
+        Application.startWorker(getApplicationContext());
 
         Application.mainHandler = new Handler(Looper.getMainLooper());
 

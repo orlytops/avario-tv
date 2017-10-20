@@ -715,40 +715,40 @@ public class DialButtonBar extends LinearLayout {
 
         private void handle(String type) {
             DialButtonBar self = DialButtonBar.this;
-
             DialButtonEntity buttonEntity = self.buttons.get(this.source);
-            JSONObject buttonJSON = buttonEntity.buttonJSON,
-                       requestJSON;
-
-            try {
-                requestJSON = this.getRequestSpec(buttonJSON, type);
-
-                if (requestJSON == null)
-                    return;
-
-                this.processRequestSpec(requestJSON, buttonEntity);
+            if (buttonEntity != null && buttonEntity.buttonJSON != null) {
+                JSONObject buttonJSON = buttonEntity.buttonJSON,
+                        requestJSON;
 
                 try {
-                    Light.updateAlgo(buttonEntity.entitiesId,
-                            buttonJSON.getJSONObject("controls")
-                                    .getJSONObject("api")
-                                    .getJSONObject("clk")
-                                    .getString("payload"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                    requestJSON = this.getRequestSpec(buttonJSON, type);
 
-                updateStates();
-//                NagleTimers.reset(
-//                    DialButtonBar.TIMER_ID,
-//                    new NagleRunnable(buttonJSON, requestJSON),
-//                    EntityUtil.getNagleDelay(buttonEntity.buttonJSON)
-//                );
-            }
-            catch (AvarioException exception) {
-                PlatformUtil
-                    .getErrorToast(self.getContext(), exception)
-                    .show();
+                    if (requestJSON == null)
+                        return;
+
+                    this.processRequestSpec(requestJSON, buttonEntity);
+
+                    try {
+                        Light.updateAlgo(buttonEntity.entitiesId,
+                                buttonJSON.getJSONObject("controls")
+                                        .getJSONObject("api")
+                                        .getJSONObject("clk")
+                                        .getString("payload"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    updateStates();
+                    //                NagleTimers.reset(
+                    //                    DialButtonBar.TIMER_ID,
+                    //                    new NagleRunnable(buttonJSON, requestJSON),
+                    //                    EntityUtil.getNagleDelay(buttonEntity.buttonJSON)
+                    //                );
+                } catch (AvarioException exception) {
+                    PlatformUtil
+                            .getErrorToast(self.getContext(), exception)
+                            .show();
+                }
             }
         }
 

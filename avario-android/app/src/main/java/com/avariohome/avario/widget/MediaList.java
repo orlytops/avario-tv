@@ -264,7 +264,6 @@ public class MediaList extends RecyclerView {
             String entityId = intent.getStringExtra("entity_id");
             StateArray states = StateArray.getInstance();
 
-            //// TODO: 10/12/17 This is were entity id gets receive when sending media commands John notes
             int length = adapter.getItemCount();
 
             if (entityId == null) {
@@ -300,7 +299,6 @@ public class MediaList extends RecyclerView {
     private class TickerReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // TODO: 10/12/17 This handles the ticker for media John notes
             MediaAdapter adapter = MediaList.this.getAdapter();
 
             adapter.notifyItemRangeChanged(0, adapter.getItemCount(), MediaAdapter.BIND_SEEK);

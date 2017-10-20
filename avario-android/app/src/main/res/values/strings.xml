@@ -34,7 +34,7 @@
     <string name="setting__username">Username</string>
     <string name="setting__password">Password</string>
     <string name="setting__title">Settings</string>
-    <string name="setting__refresh">Get new Bootstrap</string>
+    <string name="setting_get_new_bootstrap">Get new Bootstrap</string>
     <string name="setting__save">Save</string>
     <string name="setting__discard">Cancel</string>
     <string name="setting__working">Working...%1$s</string>
@@ -54,5 +54,7 @@
     <string name="error__0x00110">[0x00110] Invalid username / password combination when fetching bootstrap JSON</string>
     <string name="error__0x00120">[0x00120] Bootstrap JSON could not be parsed</string>
     <string name="error__0x00200">[0x00200] Asset "%s" could not be fetched</string>
-    <string name="clear_assets">Clear assets</string>
+    <string name="delete_assets">Delete assets</string>
+    <string name="kiosk_mode">Kiosk Mode</string>
+    <string name="download_assets">Download Assets</string>
 </resources>

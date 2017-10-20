@@ -33,6 +33,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -92,14 +93,11 @@ public class SettingsDialogFragment extends DialogFragment {
     private CheckBox secureCB;
     private CheckBox kioskCheck;
 
-    private Button clearAssetsB;
-    private Button saveB;
-    private Button dropB;
-    private Button refreshB;
+    private Button clearAssetsB, getAssetsB, saveB, cancelB, getBootstrapB;
     private Button enableUninstallButton;
-    private TextView workingTV;
-    private TextView errorTV;
-    private TextView versionText;
+    private TextView workingTV, errorTV, versionText, bootstrapSource;
+
+    private RelativeLayout relativeLayoutBootStrap, relativeLayoutCache;
 
     private BatchAssetLoaderTask task;
     private MqttConnection.Listener mqttListener;
@@ -135,10 +133,10 @@ public class SettingsDialogFragment extends DialogFragment {
                 .setTitle(R.string.setting__title)
                 .setView(this.setupViews(LayoutInflater.from(this.getActivity()), null));
 
-        builder
-                .setPositiveButton(R.string.setting__save, null)
-                .setNegativeButton(R.string.setting__discard, null)
-                .setNeutralButton(R.string.setting__refresh, null);
+//        builder
+//                .setPositiveButton(R.string.setting__save, null)
+//                .setNegativeButton(R.string.setting__discard, null)
+//                .setNeutralButton(R.string.setting_get_new_bootstrap, null);
 
         dialog = builder.create();
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -183,9 +181,21 @@ public class SettingsDialogFragment extends DialogFragment {
         versionText = (TextView) view.findViewById(R.id.text_version);
         kioskCheck = (CheckBox) view.findViewById(R.id.check_kiosk);
         clearAssetsB = (Button) view.findViewById(R.id.btnClearAssets);
+        saveB = (Button) view.findViewById(R.id.btnSave);
+        cancelB = (Button) view.findViewById(R.id.btnCancel);
+        getAssetsB = (Button) view.findViewById(R.id.btnDownloadAssets);
+        getBootstrapB = (Button) view.findViewById(R.id.btnDownloadBootstrap);
+        bootstrapSource = (TextView) view.findViewById(R.id.tvBootstrapSource);
+
+        relativeLayoutBootStrap = (RelativeLayout) view.findViewById(R.id.rlBootstrap);
+        relativeLayoutCache = (RelativeLayout) view.findViewById(R.id.rlCache);
 
         kioskCheck.setChecked(config.isKiosk());
         clearAssetsB.setOnClickListener(new ClickListener());
+        saveB.setOnClickListener(new ClickListener());
+        cancelB.setOnClickListener(new ClickListener());
+        getAssetsB.setOnClickListener(new ClickListener());
+        getBootstrapB.setOnClickListener(new ClickListener());
 
         mAdminComponentName = AvarioReceiver.getComponentName(getActivity());
         mDevicePolicyManager = (DevicePolicyManager) getActivity().getSystemService(
@@ -227,8 +237,8 @@ public class SettingsDialogFragment extends DialogFragment {
         try {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version = pInfo.versionName;
-            // versionText.setText("Version: avario_john_v" + version);
-            versionText.setText("Version: avario_orly_v" + version);
+            versionText.setText("Version: avario_john_v" + version);
+//            versionText.setText("Version: avario_orly_v" + version);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -240,6 +250,9 @@ public class SettingsDialogFragment extends DialogFragment {
             this.passwordET.setText(this.config.getPassword());
             this.secureCB.setChecked(this.config.isHttpSSL());
             clearAssetsB.setVisibility(View.VISIBLE);
+            relativeLayoutBootStrap.setVisibility(View.VISIBLE);
+            relativeLayoutCache.setVisibility(View.VISIBLE);
+            bootstrapSource.setText("Source: "+this.config.getHttpHost()+":"+this.config.getHttpPort());
         }
         startKiosk();
         return view;
@@ -293,7 +306,7 @@ public class SettingsDialogFragment extends DialogFragment {
                                                 config.setIsKiosk(true);
                                             }
                                         }
-                                    } catch (Exception exception) {
+                                    } catch (Exception ignore) {
                                     }
                                 }
                             }, 100);
@@ -371,10 +384,13 @@ public class SettingsDialogFragment extends DialogFragment {
         this.secureCB.setEnabled(enabled);
 
         this.saveB.setEnabled(enabled);
-        this.dropB.setEnabled(enabled);
-        this.refreshB.setEnabled(enabled);
+        this.cancelB.setEnabled(enabled);
+        this.getBootstrapB.setEnabled(enabled);
         this.clearAssetsB.setEnabled(enabled);
         this.kioskCheck.setEnabled(enabled);
+
+        this.relativeLayoutCache.setEnabled(enabled);
+        this.relativeLayoutBootStrap.setEnabled(enabled);
     }
 
     private void toggleWorking(boolean show) {
@@ -399,14 +415,9 @@ public class SettingsDialogFragment extends DialogFragment {
         this.errorTV.setText(message);
     }
 
-    private void deleteCaches() {
+    private void reloadBootstrap() {
         this.unsubscribeFCM();
-        this.deleteAssetCache(this.getActivity().getCacheDir());
         this.deleteBootstrapCache();
-
-        Toast
-                .makeText(this.getActivity(), R.string.setting__toast__cleared, Toast.LENGTH_SHORT)
-                .show();
 
         this.config.setResourcesFetched(false);
 
@@ -418,7 +429,7 @@ public class SettingsDialogFragment extends DialogFragment {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void deleteAssetCache(File dir) {
+    private boolean deleteAssetCache(File dir) {
         Log.i(TAG, "deleting asset cache...");
 
         if (dir != null && dir.isDirectory()) {
@@ -427,9 +438,11 @@ public class SettingsDialogFragment extends DialogFragment {
             for (String child : children)
                 deleteAssetCache(new File(dir, child));
 
-            dir.delete();
-        } else if (dir != null && dir.isFile())
-            dir.delete();
+            return dir.delete();
+        } else if (dir != null && dir.isFile()) {
+            return dir.delete();
+        }
+        return false;
     }
 
     private void deleteBootstrapCache() {
@@ -437,18 +450,13 @@ public class SettingsDialogFragment extends DialogFragment {
         StateArray.getInstance().delete();
     }
 
-    private void dropChanges() {
+    private void cancelChanges() {
         Log.i(TAG, "Cancelling new changes...");
+        this.dismiss();
+        this.config.restore();
 
         this.applySnapshot();
         this.setEnabled(true);
-
-        if (this.config.isSet() && this.config.isResourcesFetched())
-            this.dismiss();
-        else
-            Toast
-                    .makeText(this.getActivity(), R.string.setting__toast__empty, Toast.LENGTH_SHORT)
-                    .show();
     }
 
     private void saveChanges() {
@@ -470,13 +478,21 @@ public class SettingsDialogFragment extends DialogFragment {
 
         host = host.replaceAll("^.+?://", "");
 
-        if (!this.config.isResourcesFetched()
-                || !manager.isConnected()
-                || !host.equals(this.config.getHttpHost())
-                || !port.equals(this.config.getHttpPort())
-                || !username.equals(this.config.getUsername())
-                || !password.equals(this.config.getPassword())
-                || secure != this.config.isHttpSSL()) {
+        boolean isResourceFetched = !this.config.isResourcesFetched();
+        boolean isConnected = !manager.isConnected();
+        boolean isHostEqual = !host.equals(this.config.getHttpHost());
+        boolean isPortEqual = !port.equals(this.config.getHttpPort());
+        boolean isUsernameEqual = !username.equals(this.config.getUsername());
+        boolean isPasswordEqual = !password.equals(this.config.getPassword());
+        boolean isSecure = secure != this.config.isHttpSSL();
+
+        if (isResourceFetched
+                || isConnected
+                || isHostEqual
+                || isPortEqual
+                || isUsernameEqual
+                || isPasswordEqual
+                || isSecure) {
 
             this.config.setHttpHost(host);
             this.config.setHttpPort(port);
@@ -489,7 +505,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 this.toggleWorking(true);
                 this.loadBootstrap();
             } else
-                this.deleteCaches();
+                this.reloadBootstrap();
         } else {
             this.toggleWorking(false);
             this.setEnabled(true);
@@ -592,7 +608,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
             for (int index = 0, length = topics.length(); index < length; index++)
                 fcm.unsubscribeFromTopic(topics.getString(index));
-        } catch (JSONException exception) {
+        } catch (JSONException ignore) {
         }
     }
 
@@ -609,25 +625,25 @@ public class SettingsDialogFragment extends DialogFragment {
     private class DialogListener implements DialogInterface.OnShowListener {
         @Override
         public void onShow(DialogInterface dialog) {
-            SettingsDialogFragment self = SettingsDialogFragment.this;
-            ClickListener listener = new ClickListener();
-            AlertDialog alert = (AlertDialog) dialog;
-            Button button;
-
-            button = alert.getButton(AlertDialog.BUTTON_POSITIVE);
-            button.setId(self.positiveId);
-            button.setOnClickListener(listener);
-            self.saveB = button;
-
-            button = alert.getButton(AlertDialog.BUTTON_NEGATIVE);
-            button.setId(self.negativeId);
-            button.setOnClickListener(listener);
-            self.dropB = button;
-
-            button = alert.getButton(AlertDialog.BUTTON_NEUTRAL);
-            button.setId(self.neutralId);
-            button.setOnClickListener(listener);
-            self.refreshB = button;
+//            SettingsDialogFragment self = SettingsDialogFragment.this;
+//            ClickListener listener = new ClickListener();
+//            AlertDialog alert = (AlertDialog) dialog;
+//            Button button;
+//
+//            button = alert.getButton(AlertDialog.BUTTON_POSITIVE);
+//            button.setId(self.positiveId);
+//            button.setOnClickListener(listener);
+//            self.saveB = button;
+//
+//            button = alert.getButton(AlertDialog.BUTTON_NEGATIVE);
+//            button.setId(self.negativeId);
+//            button.setOnClickListener(listener);
+//            self.dropB = button;
+//
+//            button = alert.getButton(AlertDialog.BUTTON_NEUTRAL);
+//            button.setId(self.neutralId);
+//            button.setOnClickListener(listener);
+//            self.refreshB = button;
         }
     }
 
@@ -636,23 +652,31 @@ public class SettingsDialogFragment extends DialogFragment {
         public void onClick(View view) {
             SettingsDialogFragment self = SettingsDialogFragment.this;
 
-            if (view.getId() == self.positiveId) {
-
+            if (view.getId() == R.id.btnSave) {
                 self.setEnabled(false);
                 self.toggleError(false, "");
                 self.saveChanges();
-            } else if (view.getId() == self.negativeId) {
-
+            } else if (view.getId() == R.id.btnCancel) {
                 self.setEnabled(false);
                 self.toggleError(false, "");
-                self.dropChanges();
-            } else if(view.getId() == R.id.btnClearAssets){
-                self.deleteAssetCache(self.getActivity().getCacheDir());
-            }else {
+                self.cancelChanges();
+            } else if (view.getId() == R.id.btnClearAssets) {
+                Toast.makeText(self.getActivity(),
+                        self.deleteAssetCache(self.getActivity().getCacheDir())
+                                ? "All assets deleted." : "Failed to delete assets.", Toast.LENGTH_LONG).show();
+            } else if (view.getId() == R.id.btnDownloadAssets) {
                 if (config.isSet()) {
                     self.setEnabled(false);
                     self.toggleError(false, "");
-                    self.deleteCaches();
+                    self.toggleWorking(true);
+                    self.deleteAssetCache(self.getActivity().getCacheDir());
+                    self.loadAssets();
+                }
+            } else if(view.getId() == R.id.btnDownloadBootstrap) {
+                if (config.isSet()) {
+                    self.setEnabled(false);
+                    self.toggleError(false, "");
+                    self.reloadBootstrap();
                 }
             }
         }
@@ -671,7 +695,8 @@ public class SettingsDialogFragment extends DialogFragment {
             Connectivity.identifyConnection(getActivity());
 
             self.sendFCMToken();
-            self.loadAssets();
+            self.connectMQTT();
+//            self.loadAssets();
         }
 
         @Override
@@ -709,8 +734,6 @@ public class SettingsDialogFragment extends DialogFragment {
             SettingsDialogFragment self = SettingsDialogFragment.this;
 
             try {
-                self.applySnapshot();
-
                 self.toggleWorking(false);
                 self.setEnabled(true);
             } catch (NullPointerException exception) {
@@ -722,14 +745,14 @@ public class SettingsDialogFragment extends DialogFragment {
         protected void onPostExecute(Void result) {
             SettingsDialogFragment self = SettingsDialogFragment.this;
 
-            if (this.exception == null)
-                self.connectMQTT();
-            else {
-                self.applySnapshot();
-
+            if (this.exception != null) {
                 self.toggleWorking(false);
                 self.toggleError(true, this.exception);
                 self.setEnabled(true);
+            } else {
+                self.toggleWorking(false);
+                self.setEnabled(true);
+                Toast.makeText(getContext(), "Assets downloaded", Toast.LENGTH_SHORT).show();
             }
         }
     }
