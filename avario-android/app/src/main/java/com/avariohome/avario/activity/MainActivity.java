@@ -62,6 +62,7 @@ import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.fragment.DialFragment;
 import com.avariohome.avario.fragment.NotifListDialogFragment;
 import com.avariohome.avario.fragment.NotificationDialogFragment;
+import com.avariohome.avario.fragment.SettingsDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.service.AvarioReceiver;
@@ -345,9 +346,12 @@ public class MainActivity extends BaseActivity {
 //                .setAction(FCMIntentService.ACTION_REFRESH)
 //        );
 
+        IntentFilter notificationIntentFilter = new IntentFilter();
+        notificationIntentFilter.addAction( Constants.BROADCAST_NOTIF);
+        notificationIntentFilter.addAction( Constants.BROADCAST_BOOTSTRAP_CHANGED);
         LocalBroadcastManager
                 .getInstance(this)
-                .registerReceiver(new NotificationReceiver(), new IntentFilter(Constants.BROADCAST_NOTIF));
+                .registerReceiver(new NotificationReceiver(), notificationIntentFilter);
 
         this.initFCMTopics();
     }
@@ -1640,13 +1644,21 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             MainActivity self = MainActivity.this;
-            Notification notification = intent.getParcelableExtra("notification");
+            String action = intent.getAction();
+            if (action.equals(Constants.BROADCAST_BOOTSTRAP_CHANGED)){
+                android.util.Log.v("BootstrapChange", "Updating bootstrap");
+                StateArray.getInstance().delete();
+                finish();
+                startActivity(new Intent(MainActivity.this, BootActivity.class));
+            } else {
+                Notification notification = intent.getParcelableExtra("notification");
 
-            if (self.settingsOpened)
-                return;
+                if (self.settingsOpened)
+                    return;
 
-            if (!self.isNotifListVisible())
-                self.showNotifDialog(notification);
+                if (!self.isNotifListVisible())
+                    self.showNotifDialog(notification);
+            }
         }
     }
 

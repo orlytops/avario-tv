@@ -669,7 +669,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 self.cancelChanges();
             } else if (view.getId() == R.id.btnClearAssets) {
                 self.setEnabled(false);
-                if (isFileEmpty(self.getActivity().getCacheDir())){
+                if (!isFileEmpty(self.getActivity().getCacheDir())){
                     Toast.makeText(self.getActivity(),
                             self.deleteAssetCache(self.getActivity().getCacheDir())
                                     ? "All assets deleted." : "Failed to delete assets.", Toast.LENGTH_SHORT).show();
@@ -695,7 +695,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
     private boolean isFileEmpty(File file){
         File[] content = file.listFiles();
-        return content.length > 0;
+        return content.length == 0;
     }
 
     private void setScrollViewFocus(final int focus) {

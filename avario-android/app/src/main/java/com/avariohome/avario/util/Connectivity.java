@@ -15,6 +15,7 @@ public class Connectivity {
     private static volatile Connectivity instance;
     public String[] lanMac;
     private Boolean isLan = false;
+    public String myMacAddress = "";
 
     private Connectivity() {
 

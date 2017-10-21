@@ -154,6 +154,36 @@ public class StateArray {
         return this;
     }
 
+    /**
+     * Parse {"event_type": "bootstrap_changed","event_data": {"tablet_id": "00:11:22:333:44:55"}} payload
+     * @param payloadJSON
+     */
+    public StateArray broadcastBootstrapChange(JSONObject payloadJSON){
+        try {
+            String tableId = payloadJSON.getJSONObject("event_data").
+                    getString("tablet_id");
+            String deviceId = PlatformUtil.getTabletId();
+            android.util.Log.v("BootstrapChange", "Found " + tableId + "comparing to " + deviceId);
+            if (tableId.equals(deviceId)) {
+                android.util.Log.v("BootstrapChange", "Sending broadcast locally");
+                this.handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Intent intent = new Intent()
+                                .setAction(Constants.BROADCAST_BOOTSTRAP_CHANGED);
+
+                        Log.d(TAG, "Broadcasting bootstrap change!");
+                        StateArray.this.broadcaster.sendBroadcast(intent);
+                    }
+                });
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
     public StateArray setData(JSONObject data) {
         this.data = data;
         this.dirty = true;

@@ -1,8 +1,12 @@
 package com.avariohome.avario.mqtt;
 
+import android.util.Log;
+
 import com.avariohome.avario.Constants;
+import com.avariohome.avario.activity.MainActivity;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
+import com.avariohome.avario.util.Connectivity;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
@@ -34,17 +38,20 @@ class MqttMessageParser implements Runnable {
         }
 
         // TODO will become more complicated. Should probably refactor..?
-        if (type.equals(Constants.MQTT_EVENT_TYPE_STATE_CHANGED))
-            try {
-                states.broadcastChanges(states.updateFromMQTT(payloadJSON), StateArray.FROM_MQTT);
-            }
-            catch (AvarioException ignored) {}
-        else if (type.equals(Constants.MQTT_EVENT_TYPE_ROOM_CHANGED))
-            states.broadcastRoomChange(payloadJSON);
-        else if (type.equals(Constants.MQTT_EVENT_TYPE_BOOTSTRAP_CHANGED))
-            this.parseBootstrapChanged(payloadJSON);
-    }
-
-    private void parseBootstrapChanged(JSONObject payloadJSON) {
+        switch (type) {
+            case Constants.MQTT_EVENT_TYPE_STATE_CHANGED:
+                try {
+                    states.broadcastChanges(states.updateFromMQTT(payloadJSON), StateArray.FROM_MQTT);
+                } catch (AvarioException ignored) {
+                }
+                break;
+            case Constants.MQTT_EVENT_TYPE_ROOM_CHANGED:
+                states.broadcastRoomChange(payloadJSON);
+                break;
+            case Constants.MQTT_EVENT_TYPE_BOOTSTRAP_CHANGED:
+                Log.v("BootstrapChange", "received event data " + payloadJSON);
+                states.broadcastBootstrapChange(payloadJSON);
+                break;
+        }
     }
 }
