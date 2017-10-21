@@ -1520,6 +1520,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous, MqttConnection.Status current) {
+
         }
     }
 

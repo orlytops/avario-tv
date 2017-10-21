@@ -16,6 +16,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Path;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -436,6 +437,8 @@ public class SettingsDialogFragment extends DialogFragment {
         if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();
 
+            Log.i(TAG, "Length " + children.length);
+
             for (String child : children)
                 deleteAssetCache(new File(dir, child));
 
@@ -665,9 +668,13 @@ public class SettingsDialogFragment extends DialogFragment {
                 self.toggleError(false, "");
                 self.cancelChanges();
             } else if (view.getId() == R.id.btnClearAssets) {
-                Toast.makeText(self.getActivity(),
-                        self.deleteAssetCache(self.getActivity().getCacheDir())
-                                ? "All assets deleted." : "Failed to delete assets.", Toast.LENGTH_LONG).show();
+                self.setEnabled(false);
+                if (isFileEmpty(self.getActivity().getCacheDir())){
+                    Toast.makeText(self.getActivity(),
+                            self.deleteAssetCache(self.getActivity().getCacheDir())
+                                    ? "All assets deleted." : "Failed to delete assets.", Toast.LENGTH_SHORT).show();
+                }
+                self.setEnabled(true);
             } else if (view.getId() == R.id.btnDownloadAssets) {
                 if (config.isSet()) {
                     self.setEnabled(false);
@@ -684,6 +691,11 @@ public class SettingsDialogFragment extends DialogFragment {
                 }
             }
         }
+    }
+
+    private boolean isFileEmpty(File file){
+        File[] content = file.listFiles();
+        return content.length > 0;
     }
 
     private void setScrollViewFocus(final int focus) {
