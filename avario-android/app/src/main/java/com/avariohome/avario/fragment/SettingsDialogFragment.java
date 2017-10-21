@@ -455,10 +455,12 @@ public class SettingsDialogFragment extends DialogFragment {
 
     private void cancelChanges() {
         Log.i(TAG, "Cancelling new changes...");
-        this.dismiss();
-        this.config.restore();
+        if (this.config.getHttpHost() != null && this.config.getHttpPort() != null){
+            this.dismiss();
+            this.config.restore();
 
-        this.applySnapshot();
+            this.applySnapshot();
+        }
         this.setEnabled(true);
     }
 
@@ -473,14 +475,9 @@ public class SettingsDialogFragment extends DialogFragment {
                 password = this.passwordET.getText().toString();
         boolean secure = this.secureCB.isChecked();
 
-        if (!Validator.isValidHost(this.hostET)
-                || !Validator.isValidPort(this.portET)
-                || (this.config.isSet()
-                && username.equals(this.config.getUsername())
-                && password.equals(this.config.getPassword()))) {
+        if (!Validator.isValidHost(this.hostET) || !Validator.isValidPort(this.portET)) {
             this.toggleWorking(false);
             this.setEnabled(true);
-            this.dismiss();
             return;
         }
 
