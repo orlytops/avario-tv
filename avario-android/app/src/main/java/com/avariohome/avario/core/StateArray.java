@@ -164,7 +164,7 @@ public class StateArray {
                     getString("tablet_id");
             String deviceId = PlatformUtil.getTabletId();
             android.util.Log.v("BootstrapChange", "Found " + tableId + "comparing to " + deviceId);
-            if (tableId.equals(deviceId)) {
+            if (tableId.equalsIgnoreCase(deviceId)) {
                 android.util.Log.v("BootstrapChange", "Sending broadcast locally");
                 this.handler.post(new Runnable() {
                     @Override

@@ -46,6 +46,7 @@ class MqttMessageParser implements Runnable {
                 }
                 break;
             case Constants.MQTT_EVENT_TYPE_ROOM_CHANGED:
+                Log.v("BootstrapChange", "received event data " + payloadJSON);
                 states.broadcastRoomChange(payloadJSON);
                 break;
             case Constants.MQTT_EVENT_TYPE_BOOTSTRAP_CHANGED:

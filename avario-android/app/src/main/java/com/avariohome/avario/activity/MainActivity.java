@@ -41,7 +41,9 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
 import com.android.volley.TimeoutError;
@@ -62,7 +64,6 @@ import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.fragment.DialFragment;
 import com.avariohome.avario.fragment.NotifListDialogFragment;
 import com.avariohome.avario.fragment.NotificationDialogFragment;
-import com.avariohome.avario.fragment.SettingsDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.service.AvarioReceiver;
@@ -169,7 +170,7 @@ public class MainActivity extends BaseActivity {
         this.settingsRunnable = new Runnable() {
             @Override
             public void run() {
-                MainActivity.this.showSettingsDialog();
+                MainActivity.this.showSettingsDialog(false);
             }
         };
 
@@ -991,7 +992,7 @@ public class MainActivity extends BaseActivity {
         adapter.notifyItemRangeInserted(oldSize, newSize);
     }
 
-    private void showSettingsDialog() {
+    private void showSettingsDialog(boolean silent) {
         // stop listening to the MQTT object when opening the settings dialog
         MqttManager
                 .getInstance()
@@ -1635,6 +1636,31 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private class BootstrapListener extends APIClient.BootstrapListener {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.i(TAG, "Bootstrap received!");
+
+            try {
+                StateArray
+                        .getInstance()
+                        .setData(response)
+                        .save();
+            } catch (AvarioException e) {
+                e.printStackTrace();
+            }
+            connectMQTT(getString(R.string.message__mqtt__connecting));
+            Toast.makeText(MainActivity.this,
+                    getString(R.string.message_new_bootstrap),
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+
+        }
+    }
+
     /*
      ***********************************************************************************************
      * Receivers
@@ -1646,10 +1672,9 @@ public class MainActivity extends BaseActivity {
             MainActivity self = MainActivity.this;
             String action = intent.getAction();
             if (action.equals(Constants.BROADCAST_BOOTSTRAP_CHANGED)){
-                android.util.Log.v("BootstrapChange", "Updating bootstrap");
-                StateArray.getInstance().delete();
-                finish();
-                startActivity(new Intent(MainActivity.this, BootActivity.class));
+                APIClient
+                        .getInstance(getApplicationContext())
+                        .getBootstrapJSON(new BootstrapListener());
             } else {
                 Notification notification = intent.getParcelableExtra("notification");
 
@@ -1680,8 +1705,6 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
-
-    ;
 
     /*
      ***********************************************************************************************

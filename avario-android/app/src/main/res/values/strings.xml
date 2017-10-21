@@ -57,4 +57,5 @@
     <string name="delete_assets">Delete assets</string>
     <string name="kiosk_mode">Kiosk Mode</string>
     <string name="download_assets">Download Assets</string>
+    <string name="message_new_bootstrap">Bootstrap updated</string>
 </resources>
