@@ -1051,17 +1051,16 @@ public class StateArray {
      * Persistence
      ***********************************************************************************************
      */
-    public void delete() {
+    public boolean delete() {
         File file = this.getFile();
-
-        if (!file.exists())
-            return;
-
         try {
-            file.delete();
+            if (file != null) {
+                return !file.exists() || file.delete();
+            }
         } catch (SecurityException exception) {
             Log.d(TAG, "Error occurred", exception);
         }
+        return false;
     }
 
     public StateArray save() throws AvarioException {

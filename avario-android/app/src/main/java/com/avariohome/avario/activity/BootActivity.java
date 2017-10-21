@@ -231,8 +231,9 @@ public class BootActivity extends BaseActivity {
         lock.disableKeyguard();
         //TOD: lockescreen should be romve during reboot
         Config config = Config.getInstance();
-
-        if (config.isSet() && config.isResourcesFetched())
+        boolean isConfigSet = config.isSet();
+//        boolean isConfigFetched = config.isResourcesFetched();
+        if (isConfigSet)
             this.loadBootstrap();
         else
             this.showSettingsDialog(this.settingsListener);

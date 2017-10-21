@@ -83,14 +83,10 @@ public class Config {
 
     public boolean isSet() {
         String httpHost = this.getHttpHost(),
-                username = this.getUsername(),
-                password = this.getPassword(),
                 httpPort = this.getHttpPort();
 
         return (httpHost != null && httpHost.length() > 0)
-                && (httpPort != null && httpPort.length() > 0)
-                && (username != null && username.length() > 0)
-                && (password != null && password.length() > 0);
+                && (httpPort != null && httpPort.length() > 0);
     }
 
     public boolean isResourcesFetched() {
@@ -226,10 +222,9 @@ public class Config {
         return seconds;
     }
 
-    public void setResourcesFetched(boolean fetched) {
+    public void setBootstrapFetched(boolean fetched) {
         this.prefs.edit().putBoolean(PREFKEY_RES_FETCHED, fetched).apply();
     }
-
 
     public void setHttpHost(String httpHost) {
         this.prefs.edit().putString(PREFKEY_HTTP_HOST, httpHost).apply();
@@ -257,18 +252,28 @@ public class Config {
 
     public void restore(){
         this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, tempIsKiosk).apply();
-        this.prefs.edit().putString(PREFKEY_PASSWORD, temppassword).apply();
-        this.prefs.edit().putString(PREFKEY_USERNAME, tempUsername).apply();
         this.prefs.edit().putBoolean(PREFKEY_HTTP_SSL, tempSSL).apply();
+        this.prefs.edit().putBoolean(PREFKEY_RES_FETCHED, tempFetched).apply();
         this.prefs.edit().putString(PREFKEY_HTTP_PORT, tempHttpPort).apply();
         this.prefs.edit().putString(PREFKEY_HTTP_HOST, tempHttpHost).apply();
-        this.prefs.edit().putBoolean(PREFKEY_RES_FETCHED, tempFetched).apply();
+        this.prefs.edit().putString(PREFKEY_PASSWORD, temppassword).apply();
+        this.prefs.edit().putString(PREFKEY_USERNAME, tempUsername).apply();
     }
 
     public void clear() {
         this.prefs.edit()
                 .clear()
                 .apply();
+    }
+
+    public void apply(){
+        tempIsKiosk = fetchBoolean(PREFKEY_IS_KIOSK);
+        tempSSL = fetchBoolean(PREFKEY_HTTP_SSL);
+        tempFetched = fetchBoolean(PREFKEY_RES_FETCHED);
+        tempHttpPort = fetchString(PREFKEY_HTTP_PORT);
+        tempHttpHost = fetchString(PREFKEY_HTTP_HOST);
+        temppassword = fetchString(PREFKEY_PASSWORD);
+        tempUsername = fetchString(PREFKEY_USERNAME);
     }
 
     private boolean fetchBoolean(String key) {

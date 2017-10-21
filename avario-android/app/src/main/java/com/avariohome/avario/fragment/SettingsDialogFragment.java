@@ -34,6 +34,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -97,6 +98,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private Button enableUninstallButton;
     private TextView workingTV, errorTV, versionText, bootstrapSource;
 
+    private ScrollView mainScrollView;
     private RelativeLayout relativeLayoutBootStrap, relativeLayoutCache;
 
     private BatchAssetLoaderTask task;
@@ -148,13 +150,15 @@ public class SettingsDialogFragment extends DialogFragment {
     @Override
     public void onPause() {
         super.onPause();
-
+        android.util.Log.v("DialogSettings", "OnPause");
         if (this.task != null)
             this.task.cancel(true);
     }
 
     @Override
     public void onDetach() {
+        android.util.Log.v("DialogSettings", "OnDetach");
+        this.config.restore();
         if (this.listener != null)
             this.listener.onDialogDetached();
 
@@ -167,6 +171,8 @@ public class SettingsDialogFragment extends DialogFragment {
 
         this.config = Config.getInstance(view.getContext());
         this.setupSnapshot();
+
+        this.mainScrollView = (ScrollView) view.findViewById(R.id.svMain);
 
         this.workingRL = (LinearLayout) view.findViewById(R.id.working__holder);
         this.workingTV = (TextView) this.workingRL.findViewById(R.id.working__label);
@@ -416,11 +422,6 @@ public class SettingsDialogFragment extends DialogFragment {
     }
 
     private void reloadBootstrap() {
-        this.unsubscribeFCM();
-        this.deleteBootstrapCache();
-
-        this.config.setResourcesFetched(false);
-
         if (this.config.isSet()) {
             this.toggleWorking(true);
             this.loadBootstrap();
@@ -447,7 +448,9 @@ public class SettingsDialogFragment extends DialogFragment {
 
     private void deleteBootstrapCache() {
         Log.i(TAG, "deleting bootstrap...");
-        StateArray.getInstance().delete();
+        if (StateArray.getInstance().delete()) {
+            this.config.setBootstrapFetched(false);
+        }
     }
 
     private void cancelChanges() {
@@ -470,15 +473,20 @@ public class SettingsDialogFragment extends DialogFragment {
                 password = this.passwordET.getText().toString();
         boolean secure = this.secureCB.isChecked();
 
-        if (!Validator.isValidHost(this.hostET) || !Validator.isValidPort(this.portET)) {
+        if (!Validator.isValidHost(this.hostET)
+                || !Validator.isValidPort(this.portET)
+                || (this.config.isSet()
+                && username.equals(this.config.getUsername())
+                && password.equals(this.config.getPassword()))) {
             this.toggleWorking(false);
             this.setEnabled(true);
+            this.dismiss();
             return;
         }
 
         host = host.replaceAll("^.+?://", "");
 
-        boolean isResourceFetched = !this.config.isResourcesFetched();
+//        boolean isResourceFetched = !this.config.isResourcesFetched();
         boolean isConnected = !manager.isConnected();
         boolean isHostEqual = !host.equals(this.config.getHttpHost());
         boolean isPortEqual = !port.equals(this.config.getHttpPort());
@@ -486,8 +494,8 @@ public class SettingsDialogFragment extends DialogFragment {
         boolean isPasswordEqual = !password.equals(this.config.getPassword());
         boolean isSecure = secure != this.config.isHttpSSL();
 
-        if (isResourceFetched
-                || isConnected
+        if (/*isResourceFetched
+                || */isConnected
                 || isHostEqual
                 || isPortEqual
                 || isUsernameEqual
@@ -500,8 +508,8 @@ public class SettingsDialogFragment extends DialogFragment {
             this.config.setUsername(username);
             this.config.setPassword(password);
 
+            setScrollViewFocus(ScrollView.FOCUS_DOWN);
             if (this.snapshot.initial) {
-                this.config.setResourcesFetched(false);
                 this.toggleWorking(true);
                 this.loadBootstrap();
             } else
@@ -651,7 +659,6 @@ public class SettingsDialogFragment extends DialogFragment {
         @Override
         public void onClick(View view) {
             SettingsDialogFragment self = SettingsDialogFragment.this;
-
             if (view.getId() == R.id.btnSave) {
                 self.setEnabled(false);
                 self.toggleError(false, "");
@@ -682,6 +689,15 @@ public class SettingsDialogFragment extends DialogFragment {
         }
     }
 
+    private void setScrollViewFocus(final int focus) {
+        mainScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mainScrollView.fullScroll(focus);
+            }
+        });
+    }
+
     private class BootstrapListener extends APIClient.BootstrapListener {
         @Override
         public void onResponse(JSONObject response) {
@@ -689,14 +705,15 @@ public class SettingsDialogFragment extends DialogFragment {
 
             Log.i(TAG, "Bootstrap received!");
 
+            self.unsubscribeFCM();
+            self.deleteBootstrapCache();
             StateArray
                     .getInstance()
                     .setData(response);
             Connectivity.identifyConnection(getActivity());
-
+            self.config.setBootstrapFetched(true);
             self.sendFCMToken();
             self.connectMQTT();
-//            self.loadAssets();
         }
 
         @Override
@@ -710,8 +727,8 @@ public class SettingsDialogFragment extends DialogFragment {
                     error
             );
 
+            self.config.restore();
             self.applySnapshot();
-
             self.toggleWorking(false);
             self.toggleError(true, exception);
             self.setEnabled(true);
@@ -798,6 +815,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
             try {
                 states.save();
+                self.config.apply();
             } catch (AvarioException exception) {
                 self.toggleError(true, exception);
             }
@@ -806,7 +824,6 @@ public class SettingsDialogFragment extends DialogFragment {
 
             self.toggleWorking(false);
             self.setEnabled(true);
-            self.config.setResourcesFetched(true);
 
             if (self.listener != null)
                 self.listener.onSettingsChange();
