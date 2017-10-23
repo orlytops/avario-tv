@@ -59,7 +59,8 @@ public class DialButtonBar extends LinearLayout {
 
     private static final int VISIBILITY_ALONE = 1; // show only if it is a single entity
     private static final int VISIBILITY_GROUP = 2; // show only if it is a group of entities
-    private static final int VISIBILITY_EITHER = VISIBILITY_ALONE | VISIBILITY_GROUP; // show always
+    private static final int VISIBILITY_LIGHTS = 3; // show only if it is a group of entities
+    private static final int VISIBILITY_EITHER = VISIBILITY_ALONE | VISIBILITY_GROUP | VISIBILITY_LIGHTS; // show always
 
     private Map<ImageButton, DialButtonEntity> buttons;
     private Map<JSONObject, DialButtonEntity> entities;
@@ -137,9 +138,11 @@ public class DialButtonBar extends LinearLayout {
             Log.d("Visibility: ", visibility + "");
             if (visibility == DialButtonBar.VISIBILITY_EITHER ||
                     visibility == DialButtonBar.VISIBILITY_ALONE && size == 1 ||
-                    visibility == DialButtonBar.VISIBILITY_GROUP && size > 1) {
+                    visibility == DialButtonBar.VISIBILITY_GROUP && size > 1 ||
+                    visibility == DialButtonBar.VISIBILITY_LIGHTS && size == 1) {
                 this.setupButton(buttonEntity);
-                Log.d("button", "into the button");
+                Log.d("button", "into the button visibility: " + visibility);
+                Log.d("button", "into the button size: " + size);
             } else {
                 iterator.remove();
             }

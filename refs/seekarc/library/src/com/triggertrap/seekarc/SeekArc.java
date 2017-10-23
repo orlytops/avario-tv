@@ -578,6 +578,24 @@ public class SeekArc extends View {
         invalidate();
     }
 
+    public void updateThumbPositionCustom(int progress) {
+        //updateProgressAngle(progress);
+        updateDeltaAngle(progress);
+        float sweep;
+        int angle;
+
+        if (mContinuous)
+            sweep = mProgressSweep;
+        else
+            sweep = mDragging ? mProposedSweep : mProgressSweep;
+
+        angle = (int) (mStartAngle + sweep + mRotation - mAngleOffset);
+
+        mThumbXPos = (int) (mThumbRadius * Math.cos(Math.toRadians(angle)));
+        mThumbYPos = (int) (mThumbRadius * Math.sin(Math.toRadians(angle)));
+        invalidate();
+    }
+
     private void updateProgressAngle(int progress) {
         if (progress == INVALID_PROGRESS_VALUE)
             return;
