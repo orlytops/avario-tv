@@ -794,10 +794,14 @@ public class Dial extends FrameLayout {
     }
 
     private void adapt() {
+        JSONObject entityJSON;
         StateArray states = StateArray.getInstance();
-        String dialId = null,
-                type;
+        String dialId = null;
+        String type;
         JSONObject dials = null;
+
+        entityJSON = this.entities.get(0);
+        type = entityJSON.optString("default_dial", null);
 
         for (JSONObject entity : this.entities) {
             try {
@@ -1195,8 +1199,8 @@ public class Dial extends FrameLayout {
         );
 
         this.arc.setMax(100); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
-
-
+        arc.setStartAngle(30);
+        arc.setSweepAngle(300);
         String arcColourStart = "";
         String arcColourMid = "";
         String arcColourEnd = "";
@@ -1925,7 +1929,7 @@ public class Dial extends FrameLayout {
 
         if (source == Dial.SOURCE_USER)
             this.progressPrev = valueArc;
-
+        Log.d("Switch", valueArc + " " + state.equals("off"));
         this.updateDial(valueArc, source, true);
         this.refreshControls(valueArc, false);
     }
@@ -2316,7 +2320,7 @@ public class Dial extends FrameLayout {
 
     private void executeAPI(View source) {
         JSONObject specJSON;
-
+        Log.d("Type api", this.type.toString());
         try {
             switch (this.type) {
                 case SWITCH:

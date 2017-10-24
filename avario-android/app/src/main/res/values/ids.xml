@@ -4,6 +4,7 @@
     <item name="tag__cover__stop" type="id" />
     <item name="tag__notifbtn__data" type="id" />
     <item name="dialbtn__swap" type="id" />
+    <item name="dialbtn__switch" type="id" />
     <item name="dialbtn__colour" type="id" />
     <item name="dialbtn__brightness" type="id" />
     <item name="dialbtn__saturation" type="id" />

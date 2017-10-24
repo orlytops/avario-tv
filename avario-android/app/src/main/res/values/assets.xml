@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- An XML resource that lists all the icons being used -->
-<!--
+<!-- An XML resource that lists all the icons being used --><!--
     The strings must be in the following order for states:
 
     activated
@@ -193,6 +192,10 @@
     <!-- Dial Button -->
     <string-array name="bg__dialbtn">
         <item>/dial-under/bg__circle__white.png</item>
+    </string-array>
+
+    <string-array name="ic__switch">
+        <item>/dial-under/ic__switch.png</item>
     </string-array>
 
     <string-array name="ic__dialbtn__bulb">
