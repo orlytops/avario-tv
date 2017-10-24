@@ -216,7 +216,7 @@ public class MainActivity extends BaseActivity {
             fetchCurrentStates();
 
             this.showBusyDialog(null);
-        } else if (!this.settingsOpened) {
+        } else if (!this.settingsOpened && !StateArray.getInstance().isDataEmpty()) {
             this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
         }
 

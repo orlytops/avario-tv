@@ -1173,4 +1173,7 @@ public class StateArray {
         return file;
     }
 
+    public boolean isDataEmpty(){
+        return data == null;
+    }
 }
