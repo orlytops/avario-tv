@@ -89,6 +89,7 @@ public class BootActivity extends BaseActivity {
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        android.util.Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity__boot);
         mDevicePolicyManager = (DevicePolicyManager)
@@ -178,6 +179,7 @@ public class BootActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        android.util.Log.v(TAG, "onStart");
     }
 
     @Override
@@ -193,6 +195,7 @@ public class BootActivity extends BaseActivity {
             countDownTimer.cancel();
         }
         timerIsStarted = false;
+        android.util.Log.v(TAG, "onStop");
     }
 
     @Override
@@ -202,12 +205,14 @@ public class BootActivity extends BaseActivity {
             countDownTimer.cancel();
         }
         timerIsStarted = false;
+        android.util.Log.v(TAG, "onPause");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
+        android.util.Log.v(TAG, "onResume");
         if (alert11 != null && alert11.isShowing()) {
             alert11.hide();
         }

@@ -5,8 +5,10 @@ package com.avariohome.avario.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.SystemUpdatePolicy;
@@ -72,6 +74,7 @@ import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
+import com.avariohome.avario.util.SystemUtil;
 import com.avariohome.avario.widget.DevicesList;
 import com.avariohome.avario.widget.ElementsBar;
 import com.avariohome.avario.widget.MediaList;
@@ -1648,10 +1651,14 @@ public class MainActivity extends BaseActivity {
             } catch (AvarioException e) {
                 e.printStackTrace();
             }
-            connectMQTT(getString(R.string.message__mqtt__connecting));
-            Toast.makeText(MainActivity.this,
-                    getString(R.string.message_new_bootstrap),
-                    Toast.LENGTH_SHORT).show();
+            if (StateArray.getInstance().tempReboot){
+                SystemUtil.rebootApp(MainActivity.this);
+            } else {
+                connectMQTT(getString(R.string.message__mqtt__connecting));
+                Toast.makeText(MainActivity.this,
+                        getString(R.string.message_new_bootstrap),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override
@@ -1670,8 +1677,8 @@ public class MainActivity extends BaseActivity {
         public void onReceive(Context context, Intent intent) {
             MainActivity self = MainActivity.this;
             String action = intent.getAction();
-            if (action.equals(Constants.BROADCAST_BOOTSTRAP_CHANGED)){
-                StateArray.getInstance().tempFileName = intent.getStringExtra("bs_name");
+            if (action.equals(Constants.BROADCAST_BOOTSTRAP_CHANGED)) {
+                StateArray.getInstance().tempReboot = intent.getBooleanExtra("reboot", false);
                 APIClient
                         .getInstance(getApplicationContext())
                         .getBootstrapJSON(new BootstrapListener(), intent.getStringExtra("bs_name"));

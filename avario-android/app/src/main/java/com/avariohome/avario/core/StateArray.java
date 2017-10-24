@@ -77,7 +77,7 @@ public class StateArray {
     private boolean dirty;
     private boolean refreshing;
 
-    public String tempFileName = null;
+    public boolean tempReboot = false;
 
     private StateArray(Context context) {
         this.broadcaster = LocalBroadcastManager.getInstance(context);
@@ -863,7 +863,7 @@ public class StateArray {
                             .getJSONObject("wan")
                             .getJSONObject("mqtt");
 
-        } catch (NullPointerException | JSONException exception) {
+        } catch (JSONException | NullPointerException exception) {
             throw new AvarioException(
                     Constants.ERROR_STATE_MISSINGKEY,
                     exception,
@@ -899,12 +899,8 @@ public class StateArray {
                     .getJSONObject("settings")
                     .getJSONObject("connectivity")
                     .getJSONArray("lanMac");
-        } catch (NullPointerException | JSONException ex) {
-            throw new AvarioException(
-                    Constants.ERROR_STATE_MISSINGKEY,
-                    ex,
-                    new Object[]{"settings.connectivity"}
-            );
+        } catch (NullPointerException | JSONException ignore) {
+            return null;
         }
     }
 
@@ -1165,20 +1161,16 @@ public class StateArray {
     }
 
     private File getFile() {
-        if (tempFileName == null) {
-            tempFileName = this.context.getString(R.string.app__url__bootstrap);
-        }
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
             return null;
 
         File file = new File(this.context.getExternalFilesDir(null),
-                tempFileName.substring(tempFileName.lastIndexOf("/")+1)),
+                this.context.getString(R.string.app__path__bootstrap)),
                 dirs = file.getParentFile();
 
         if (!dirs.exists())
             dirs.mkdirs();
-
-        tempFileName = null;
         return file;
     }
+
 }
