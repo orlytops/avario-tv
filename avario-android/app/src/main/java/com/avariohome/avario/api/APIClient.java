@@ -213,13 +213,19 @@ public class APIClient {
         }
     }
 
-    public void getBootstrapJSON(BootstrapListener listener) {
+    public void getBootstrapJSON(BootstrapListener listener, String path) {
         final Config config = Config.getInstance();
         JsonObjectRequest request;
 
+        if (path == null || path.isEmpty()){
+            path = config.getBootstrapURL();
+        }
+
+        Config.getInstance().setBootstrap(path);
+
         request = new JsonObjectRequest(
                 Request.Method.GET,
-                config.getBootstrapURL(),
+                path,
                 null,
                 listener,
                 listener

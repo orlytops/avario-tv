@@ -1640,7 +1640,6 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onResponse(JSONObject response) {
             Log.i(TAG, "Bootstrap received!");
-
             try {
                 StateArray
                         .getInstance()
@@ -1672,9 +1671,10 @@ public class MainActivity extends BaseActivity {
             MainActivity self = MainActivity.this;
             String action = intent.getAction();
             if (action.equals(Constants.BROADCAST_BOOTSTRAP_CHANGED)){
+                StateArray.getInstance().tempFileName = intent.getStringExtra("bs_name");
                 APIClient
                         .getInstance(getApplicationContext())
-                        .getBootstrapJSON(new BootstrapListener());
+                        .getBootstrapJSON(new BootstrapListener(), intent.getStringExtra("bs_name"));
             } else {
                 Notification notification = intent.getParcelableExtra("notification");
 

@@ -46,6 +46,7 @@ public class Config {
     private boolean tempIsKiosk;
     private String tempUsername;
     private String temppassword;
+    private String tempBootstrap;
 
     public static Config getInstance() {
         return Config.instance;
@@ -79,6 +80,7 @@ public class Config {
         tempIsKiosk = fetchBoolean(PREFKEY_IS_KIOSK);
         tempUsername = fetchString(PREFKEY_USERNAME);
         temppassword = fetchString(PREFKEY_PASSWORD);
+        tempBootstrap = fetchString(PREFKEY_BOOTSTRAP);
     }
 
     public boolean isSet() {
@@ -250,6 +252,10 @@ public class Config {
         this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, isKiosk).apply();
     }
 
+    public void setBootstrap(String bootstrap){
+        this.prefs.edit().putString(PREFKEY_BOOTSTRAP, bootstrap).apply();
+    }
+
     public void restore(){
         this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, tempIsKiosk).apply();
         this.prefs.edit().putBoolean(PREFKEY_HTTP_SSL, tempSSL).apply();
@@ -258,6 +264,7 @@ public class Config {
         this.prefs.edit().putString(PREFKEY_HTTP_HOST, tempHttpHost).apply();
         this.prefs.edit().putString(PREFKEY_PASSWORD, temppassword).apply();
         this.prefs.edit().putString(PREFKEY_USERNAME, tempUsername).apply();
+        this.prefs.edit().putString(PREFKEY_BOOTSTRAP, tempBootstrap).apply();
     }
 
     public void clear() {
@@ -274,6 +281,7 @@ public class Config {
         tempHttpHost = fetchString(PREFKEY_HTTP_HOST);
         temppassword = fetchString(PREFKEY_PASSWORD);
         tempUsername = fetchString(PREFKEY_USERNAME);
+        tempBootstrap = fetchString(PREFKEY_BOOTSTRAP);
     }
 
     private boolean fetchBoolean(String key) {

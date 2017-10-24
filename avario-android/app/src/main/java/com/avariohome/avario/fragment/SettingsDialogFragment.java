@@ -527,7 +527,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
         APIClient
                 .getInstance(this.getActivity().getApplicationContext())
-                .getBootstrapJSON(new BootstrapListener());
+                .getBootstrapJSON(new BootstrapListener(), null);
     }
 
     private void loadAssets() {

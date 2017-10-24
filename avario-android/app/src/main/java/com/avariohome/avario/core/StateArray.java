@@ -3,6 +3,7 @@ package com.avariohome.avario.core;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -75,6 +76,8 @@ public class StateArray {
     private Handler handler;
     private boolean dirty;
     private boolean refreshing;
+
+    public String tempFileName = null;
 
     private StateArray(Context context) {
         this.broadcaster = LocalBroadcastManager.getInstance(context);
@@ -156,27 +159,37 @@ public class StateArray {
 
     /**
      * Parse {"event_type": "bootstrap_changed","event_data": {"tablet_id": "00:11:22:333:44:55"}} payload
+     *
      * @param payloadJSON
      */
-    public StateArray broadcastBootstrapChange(JSONObject payloadJSON){
+    public StateArray broadcastBootstrapChange(final JSONObject payloadJSON) {
         try {
-            String tableId = payloadJSON.getJSONObject("event_data").
-                    getString("tablet_id");
+            JSONArray tabletIdList = payloadJSON.getJSONObject("event_data").
+                    getJSONArray("tablet_id");
+
             String deviceId = PlatformUtil.getTabletId();
-            android.util.Log.v("BootstrapChange", "Found " + tableId + "comparing to " + deviceId);
-            if (tableId.equalsIgnoreCase(deviceId)) {
-                android.util.Log.v("BootstrapChange", "Sending broadcast locally");
-                this.handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        Intent intent = new Intent()
-                                .setAction(Constants.BROADCAST_BOOTSTRAP_CHANGED);
-
-                        Log.d(TAG, "Broadcasting bootstrap change!");
-                        StateArray.this.broadcaster.sendBroadcast(intent);
-                    }
-                });
+            for (int i = 0; i < tabletIdList.length(); i++) {
+                if (tabletIdList.get(i).toString().equalsIgnoreCase(deviceId)) {
+                    android.util.Log.v("BootstrapChange", "Sending broadcast locally");
+                    this.handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent()
+                                    .setAction(Constants.BROADCAST_BOOTSTRAP_CHANGED);
+                            try {
+                                intent.putExtra("bs_name", payloadJSON.getJSONObject("event_data")
+                                        .getString("bs_name"));
+                                intent.putExtra("reboot", payloadJSON.getJSONObject("event_data")
+                                        .getBoolean("reboot"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            Log.d(TAG, "Broadcasting bootstrap change!");
+                            StateArray.this.broadcaster.sendBroadcast(intent);
+                        }
+                    });
+                    break;
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -897,6 +910,7 @@ public class StateArray {
 
     /**
      * Choose default algo for selected device.
+     *
      * @param key default algo key
      * @return defalt algo value
      */
@@ -1151,15 +1165,20 @@ public class StateArray {
     }
 
     private File getFile() {
+        if (tempFileName == null) {
+            tempFileName = this.context.getString(R.string.app__url__bootstrap);
+        }
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
             return null;
 
-        File file = new File(this.context.getExternalFilesDir(null), this.context.getString(R.string.app__path__bootstrap)),
+        File file = new File(this.context.getExternalFilesDir(null),
+                tempFileName.substring(tempFileName.lastIndexOf("/")+1)),
                 dirs = file.getParentFile();
 
         if (!dirs.exists())
             dirs.mkdirs();
 
+        tempFileName = null;
         return file;
     }
 }
