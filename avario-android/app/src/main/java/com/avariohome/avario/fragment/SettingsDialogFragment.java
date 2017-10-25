@@ -688,6 +688,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 }
             } else if(view.getId() == R.id.btnDownloadBootstrap) {
                 if (config.isSet()) {
+                    Toast.makeText(self.getActivity(), "Getting new bootstrap", Toast.LENGTH_SHORT).show();
                     reboot = true;
                     self.setEnabled(false);
                     self.toggleError(false, "");
