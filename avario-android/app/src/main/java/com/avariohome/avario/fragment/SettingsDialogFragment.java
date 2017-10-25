@@ -183,6 +183,9 @@ public class SettingsDialogFragment extends DialogFragment {
 
         kioskCheck.setChecked(config.isKiosk());
 
+        //set View.VISIBLE on kiosk mode
+        kioskCheck.setVisibility(View.GONE);
+
         mAdminComponentName = AvarioReceiver.getComponentName(getActivity());
         mDevicePolicyManager = (DevicePolicyManager) getActivity().getSystemService(
                 Context.DEVICE_POLICY_SERVICE);

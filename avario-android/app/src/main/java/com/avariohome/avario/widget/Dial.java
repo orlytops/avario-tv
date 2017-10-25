@@ -744,7 +744,7 @@ public class Dial extends FrameLayout {
         this.render();
     }
 
-    public void setup(List<JSONObject> entities, Dial.Category category) {
+    public void setup(List<JSONObject> entities, Dial.Category category, boolean isFromMQTT) {
         String prevId = this.entitiesId;
 
         this.entities = entities;
@@ -764,10 +764,10 @@ public class Dial extends FrameLayout {
 
         switch (category) {
             case COLOUR:
-                this.adapt();
+                //this.adapt();
                 break;
             case ENTITY:
-                this.adapt();
+                this.adapt(isFromMQTT);
                 break;
 
             case MEDIA:
@@ -778,67 +778,102 @@ public class Dial extends FrameLayout {
                 this.adaptVolume();
                 break;
             case SATURATION:
-                this.adapt();
+                //this.adapt();
             case TEMPRATURE:
-                this.adapt();
+                //this.adapt();
                 break;
         }
     }
 
     public void setup(List<JSONObject> entities) {
-        this.setup(entities, Category.ENTITY);
+        this.setup(entities, Category.ENTITY, false);
     }
 
     public void initialize() {
         this.computeValue(Dial.SOURCE_SETUP);
     }
 
-    private void adapt() {
+    private void adapt(boolean isFromMQTT) {
         JSONObject entityJSON;
         StateArray states = StateArray.getInstance();
         String dialId = null;
         String type;
+        String defaultDial = null;
         JSONObject dials = null;
-
-        entityJSON = this.entities.get(0);
-        type = entityJSON.optString("default_dial", null);
+        Log.d("Category", category.toString() + " " + isFromMQTT);
 
         for (JSONObject entity : this.entities) {
-            try {
-                type = entity
-                        .getJSONObject("dial")
-                        .getString("dial_type");
 
-                if (dialId == null)
-                    dialId = type;
+            if (entity.has("dials")) {
+                try {
+                    defaultDial = entity.getString("default_dial");
+                    type = entity
+                            .getJSONObject("dials")
+                            .getJSONObject(defaultDial)
+                            .getString("dial_type");
 
-                else if (!dialId.equals(type)) {
-                    dialId = null;
-                    break;
+                    if (dialId == null)
+                        dialId = type;
+
+                    if (!dialId.equals(type)) {
+                        dialId = null;
+                        break;
+                    }
+                    if (entity.has("dials")) {
+                        dials = entity.getJSONObject("dials");
+                    }
+
+                } catch (JSONException e) {
+                    AvarioException exception = new AvarioException(
+                            Constants.ERROR_STATE_MISSINGKEY, e,
+                            new Object[]{
+                                    String.format("%s.dial.dial_type", entity.optString("entity_id"))
+                            }
+                    );
+
+                    PlatformUtil
+                            .getErrorToast(this.getContext(), exception)
+                            .show();
                 }
+            } else {
 
-                dials = entity
-                        .getJSONObject("dials");
 
-            } catch (JSONException e) {
-                /*AvarioException exception = new AvarioException(
-                        Constants.ERROR_STATE_MISSINGKEY, e,
-                        new Object[]{
-                                String.format("%s.dial.dial_type", entity.optString("entity_id"))
-                        }
-                );
+                try {
+                    type = entity
+                            .getJSONObject("dial")
+                            .getString("dial_type");
 
-                PlatformUtil
-                        .getErrorToast(this.getContext(), exception)
-                        .show();*/
+                    if (dialId == null)
+                        dialId = type;
+
+                    if (!dialId.equals(type)) {
+                        dialId = null;
+                        break;
+                    }
+
+                } catch (JSONException e) {
+                    AvarioException exception = new AvarioException(
+                            Constants.ERROR_STATE_MISSINGKEY, e,
+                            new Object[]{
+                                    String.format("%s.dials.dial_type", entity.optString("entity_id"))
+                            }
+                    );
+
+                    PlatformUtil
+                            .getErrorToast(this.getContext(), exception)
+                            .show();
+                }
             }
         }
 
         // check if the dial still needs to adapt or stay put
+        Log.d("Dial id", dialId);
         try {
+
             dialId = dialId == null ? Type.SWITCH.getId() : dialId;
-            if (this.dialJSON.optString("entity_id").equals(dialId) || dials != null)
+            if (isFromMQTT)
                 return;
+
         } catch (NullPointerException ignored) {
         }
 
@@ -1168,15 +1203,15 @@ public class Dial extends FrameLayout {
         String arcColourMid = "";
         String arcColourEnd = "";
 
-        JSONObject dial = entities.get(0).optJSONObject("dial");
-        Log.d("Dial: ", dial.toString());
-
-        arcColourStart = dial.optString("arc_colour_start");
-        arcColourEnd = dial.optString("arc_colour_end");
-        /*handled bootstrap colors*/
-        if (!arcColourStart.isEmpty())
-            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
-
+        if (!entities.isEmpty()) {
+            JSONObject dial = entities.get(0).optJSONObject("dial");
+            if (dial != null) {
+                arcColourStart = dial.optString("arc_colour_start");
+                arcColourEnd = dial.optString("arc_colour_end");
+                /*handled bootstrap colors*/
+                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            }
+        }
         this.switchHolder.setVisibility(View.VISIBLE);
     }
 
@@ -1205,15 +1240,29 @@ public class Dial extends FrameLayout {
         String arcColourMid = "";
         String arcColourEnd = "";
 
-        JSONObject dial = entities.get(0).optJSONObject("dial");
-        Log.d("Dial: ", dial.toString());
+        JSONObject dials = entities.get(0).optJSONObject("dials");
+        JSONObject dial = entities.get(0).optJSONObject("dials");
 
-        arcColourStart = dial.optString("arc_colour_start");
-        arcColourEnd = dial.optString("arc_colour_end");
-        //handled bootstrap colors
-        if (!arcColourStart.isEmpty())
-            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+        try {
+            if (dials != null) {
+                Log.d("With diaols: ", dials.toString());
 
+                arcColourStart = dials.getJSONObject("brightness").getString("arc_colour_start");
+                arcColourEnd = dials.getJSONObject("brightness").getString("arc_colour_end");
+                //handled bootstrap colors
+                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            } else if (dial != null) {
+                Log.d("Dial: ", dial.toString());
+
+                arcColourStart = dial.getString("arc_colour_start");
+                arcColourEnd = dial.getString("arc_colour_end");
+                //handled bootstrap colors
+                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         lightHolder.setVisibility(View.VISIBLE);
     }
 
@@ -1301,7 +1350,7 @@ public class Dial extends FrameLayout {
             //arc.setProgressColor(Color.HSVToColor(hsvColor), getResources().getColor(R.color.white));
         }
 
-        arc.setProgress(100);
+        arc.setProgress(255);
         saturationHolder.setVisibility(View.VISIBLE);
     }
 
@@ -1373,14 +1422,16 @@ public class Dial extends FrameLayout {
         String arcColourEnd = "";
 
         JSONObject dial = entities.get(0).optJSONObject("dial");
-        Log.d("Dial: ", dial.toString());
+        if (dial != null) {
+            Log.d("Dial: ", dial.toString());
 
-        arcColourStart = dial.optString("arc_colour_start");
-        arcColourEnd = dial.optString("arc_colour_end");
-        /*handled bootstrap colors*/
-        if (!arcColourStart.isEmpty())
-            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            arcColourStart = dial.optString("arc_colour_start");
+            arcColourEnd = dial.optString("arc_colour_end");
+            //handled bootstrap colors
+            if (!arcColourStart.isEmpty())
+                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
+        }
         this.volumeHolder.setVisibility(View.VISIBLE);
     }
 
@@ -1416,14 +1467,16 @@ public class Dial extends FrameLayout {
         String arcColourEnd = "";
 
         JSONObject dial = entities.get(0).optJSONObject("dial");
-        Log.d("Dial: ", dial.toString());
+        if (dial != null) {
+            Log.d("Dial: ", dial.toString());
 
-        arcColourStart = dial.optString("arc_colour_start");
-        arcColourEnd = dial.optString("arc_colour_end");
-        /*handled bootstrap colors*/
-        if (!arcColourStart.isEmpty())
-            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            arcColourStart = dial.optString("arc_colour_start");
+            arcColourEnd = dial.optString("arc_colour_end");
+            //handled bootstrap colors
+            if (!arcColourStart.isEmpty())
+                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
+        }
         this.thermoHolder.setVisibility(View.VISIBLE);
     }
 
@@ -1455,14 +1508,16 @@ public class Dial extends FrameLayout {
         String arcColourEnd = "";
 
         JSONObject dial = entities.get(0).optJSONObject("dial");
-        Log.d("Dial: ", dial.toString());
+        if (dial != null) {
+            Log.d("Dial: ", dial.toString());
 
-        arcColourStart = dial.optString("arc_colour_start");
-        arcColourEnd = dial.optString("arc_colour_end");
-        /*handled bootstrap colors*/
-        if (!arcColourStart.isEmpty())
-            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            arcColourStart = dial.optString("arc_colour_start");
+            arcColourEnd = dial.optString("arc_colour_end");
+            //handled bootstrap colors
+            if (!arcColourStart.isEmpty())
+                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
+        }
         this.coverHolder.setVisibility(View.VISIBLE);
     }
 
@@ -1498,12 +1553,16 @@ public class Dial extends FrameLayout {
         String arcColourEnd = "";
 
         JSONObject dial = entities.get(0).optJSONObject("dial");
-        Log.d("Dial: ", dial.toString());
+        if (dial != null) {
+            Log.d("Dial: ", dial.toString());
 
-        arcColourStart = dial.optString("arc_colour_start");
-        arcColourEnd = dial.optString("arc_colour_end");
-        if (!arcColourStart.isEmpty())
-            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            arcColourStart = dial.optString("arc_colour_start");
+            arcColourEnd = dial.optString("arc_colour_end");
+            //handled bootstrap colors
+            if (!arcColourStart.isEmpty())
+                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+
+        }
         this.mediaseekHolder.setVisibility(View.VISIBLE);
     }
 
@@ -1533,13 +1592,17 @@ public class Dial extends FrameLayout {
         String arcColourStart = "";
         String arcColourMid = "";
         String arcColourEnd = "";
+        JSONObject dial = entities.get(0).optJSONObject("dial");
+        if (dial != null) {
+            Log.d("Dial: ", dial.toString());
 
-        arcColourStart = dialJSON.optString("arc_colour_start");
-        arcColourEnd = dialJSON.optString("arc_colour_end");
-        /*handled bootstrap colors*/
-        if (!arcColourStart.isEmpty())
-            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            arcColourStart = dial.optString("arc_colour_start");
+            arcColourEnd = dial.optString("arc_colour_end");
+            //handled bootstrap colors
+            if (!arcColourStart.isEmpty())
+                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
+        }
         this.mediaseekHolder.setVisibility(View.VISIBLE);
     }
 
@@ -1569,14 +1632,15 @@ public class Dial extends FrameLayout {
         String arcColourEnd = "";
 
         JSONObject dial = entities.get(0).optJSONObject("dial");
-        if (dial == null) {
-            return;
+        if (dial != null) {
+            Log.d("Dial: ", dial.toString());
+
+            arcColourStart = dial.optString("arc_colour_start");
+            arcColourEnd = dial.optString("arc_colour_end");
+            //handled bootstrap colors
+            if (!arcColourStart.isEmpty())
+                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
         }
-        arcColourStart = dial.optString("arc_colour_start");
-        arcColourEnd = dial.optString("arc_colour_end");
-        /*handled bootstrap colors*/
-        if (!arcColourStart.isEmpty())
-            arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
     }
     // endregion
 
@@ -2840,7 +2904,7 @@ public class Dial extends FrameLayout {
             // from MQTT and mqttId != null and entitiesId != null && entitiesId.contains(updatedId) ? DO IT
             if (updatedId == null
                     || self.entitiesId != null && self.entitiesId.contains(updatedId)) {
-                self.setup(entities, self.category);
+                self.setup(entities, self.category, true);
                 self.computeValue(from);
             }
         }

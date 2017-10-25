@@ -110,7 +110,7 @@ public class DialFragment extends Fragment {
                 .show();
         }
 
-        this.dial.setup(entities, Dial.Category.MEDIA);
+        this.dial.setup(entities, Dial.Category.MEDIA, false);
         this.dialbtnBar.setup(entities, true);
 
         this.dial.initialize();
@@ -129,7 +129,7 @@ public class DialFragment extends Fragment {
                 .show();
         }
 
-        this.dial.setup(entities, Dial.Category.VOLUME);
+        this.dial.setup(entities, Dial.Category.VOLUME, false);
         this.dialbtnBar.setup(entities, true);
 
         this.dial.initialize();
