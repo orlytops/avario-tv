@@ -40,7 +40,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.checkPlayServices();
 
-        // TODO: 10/12/17 startWorker might have crash causing ticker to not run John notes
         Application.startWorker(BaseActivity.this);
     }
 

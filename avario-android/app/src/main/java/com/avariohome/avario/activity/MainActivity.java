@@ -5,8 +5,10 @@ package com.avariohome.avario.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.SystemUpdatePolicy;
@@ -41,7 +43,9 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
 import com.android.volley.TimeoutError;
@@ -70,6 +74,7 @@ import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
+import com.avariohome.avario.util.SystemUtil;
 import com.avariohome.avario.widget.DevicesList;
 import com.avariohome.avario.widget.ElementsBar;
 import com.avariohome.avario.widget.MediaList;
@@ -168,7 +173,7 @@ public class MainActivity extends BaseActivity {
         this.settingsRunnable = new Runnable() {
             @Override
             public void run() {
-                MainActivity.this.showSettingsDialog();
+                MainActivity.this.showSettingsDialog(false);
             }
         };
 
@@ -200,6 +205,7 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
+        this.visible = true;
         MqttManager manager = MqttManager.getInstance();
 
         if (manager.isConnected()) {
@@ -210,8 +216,9 @@ public class MainActivity extends BaseActivity {
             loadFromStateArray();
             fetchCurrentStates();
 
+            android.util.Log.v("ProgressDialog", "OnResume");
             this.showBusyDialog(null);
-        } else if (!this.settingsOpened) {
+        } else if (!this.settingsOpened && !StateArray.getInstance().isDataEmpty()) {
             this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
         }
 
@@ -345,9 +352,12 @@ public class MainActivity extends BaseActivity {
 //                .setAction(FCMIntentService.ACTION_REFRESH)
 //        );
 
+        IntentFilter notificationIntentFilter = new IntentFilter();
+        notificationIntentFilter.addAction( Constants.BROADCAST_NOTIF);
+        notificationIntentFilter.addAction( Constants.BROADCAST_BOOTSTRAP_CHANGED);
         LocalBroadcastManager
                 .getInstance(this)
-                .registerReceiver(new NotificationReceiver(), new IntentFilter(Constants.BROADCAST_NOTIF));
+                .registerReceiver(new NotificationReceiver(), notificationIntentFilter);
 
         this.initFCMTopics();
     }
@@ -987,7 +997,7 @@ public class MainActivity extends BaseActivity {
         adapter.notifyItemRangeInserted(oldSize, newSize);
     }
 
-    private void showSettingsDialog() {
+    private void showSettingsDialog(boolean silent) {
         // stop listening to the MQTT object when opening the settings dialog
         MqttManager
                 .getInstance()
@@ -1031,6 +1041,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showBusyDialog(String message) {
+        android.util.Log.v("ProgressDialog", "Showing dialog");
         if (!this.visible)
             return;
 
@@ -1052,7 +1063,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void hideBusyDialog() {
-        if (!this.visible || this.progressPD == null)
+        if (this.progressPD == null)
             return;
 
         try {
@@ -1440,10 +1451,12 @@ public class MainActivity extends BaseActivity {
     private class MqttConnectionListener implements MqttConnection.Listener {
         @Override
         public void onConnection(MqttConnection connection, boolean reconnection) {
+            android.util.Log.v("ProgressDialog", "onConnection");
         }
 
         @Override
         public void onConnectionFailed(MqttConnection connection, AvarioException exception) {
+            android.util.Log.v("ProgressDialog", "onConnectionFailed");
             // when connection fails, continue connecting to MQTT and show errors
             MainActivity self = MainActivity.this;
             String message;
@@ -1466,6 +1479,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onDisconnection(MqttConnection connection, AvarioException exception) {
+            android.util.Log.v("ProgressDialog", "onDisconnection");
             MainActivity self = MainActivity.this;
 
             if (exception == null || self.settingsOpened)
@@ -1486,6 +1500,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onSubscription(MqttConnection connection) {
+            android.util.Log.v("ProgressDialog", "onSubscription");
             MainActivity self = MainActivity.this;
             self.showBusyDialog(null);
             self.fetchCurrentStates();
@@ -1513,6 +1528,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onSubscriptionError(MqttConnection connection, AvarioException exception) {
+            android.util.Log.v("ProgressDialog", "onSubscriptionError");
             PlatformUtil
                     .getErrorToast(MainActivity.this, exception)
                     .show();
@@ -1520,6 +1536,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous, MqttConnection.Status current) {
+            android.util.Log.v("ProgressDialog", "onStatusChanged");
         }
     }
 
@@ -1630,6 +1647,33 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private class BootstrapListener extends APIClient.BootstrapListener {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.i(TAG, "Bootstrap received!");
+            try {
+                StateArray
+                        .getInstance()
+                        .setData(response)
+                        .save();
+            } catch (AvarioException e) {
+                e.printStackTrace();
+            }
+            if (StateArray.getInstance().tempReboot){
+                SystemUtil.rebootApp(MainActivity.this);
+            } else {
+                Toast.makeText(MainActivity.this,
+                        getString(R.string.message_new_bootstrap),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+
+        }
+    }
+
     /*
      ***********************************************************************************************
      * Receivers
@@ -1639,13 +1683,21 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             MainActivity self = MainActivity.this;
-            Notification notification = intent.getParcelableExtra("notification");
+            String action = intent.getAction();
+            if (action.equals(Constants.BROADCAST_BOOTSTRAP_CHANGED)) {
+                StateArray.getInstance().tempReboot = intent.getBooleanExtra("reboot", false);
+                APIClient
+                        .getInstance(getApplicationContext())
+                        .getBootstrapJSON(new BootstrapListener(), intent.getStringExtra("bs_name"));
+            } else {
+                Notification notification = intent.getParcelableExtra("notification");
 
-            if (self.settingsOpened)
-                return;
+                if (self.settingsOpened)
+                    return;
 
-            if (!self.isNotifListVisible())
-                self.showNotifDialog(notification);
+                if (!self.isNotifListVisible())
+                    self.showNotifDialog(notification);
+            }
         }
     }
 
@@ -1667,8 +1719,6 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
-
-    ;
 
     /*
      ***********************************************************************************************

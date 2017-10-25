@@ -2474,7 +2474,6 @@ public class Dial extends FrameLayout {
             isLightsOn = true;
         }
 
-        // TODO: 10/17/17 this is where brightness gets calculated John notes
         this.processRequestSpec(
                 specJSON,
                 String.valueOf(Math.round(progress * Constants.MAX_VALUE_NUMBER / 100f)),

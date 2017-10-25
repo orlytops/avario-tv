@@ -88,5 +88,6 @@ public interface Constants {
     String BROADCAST_MEDIA = "com.avariohome.avario.MEDIA";
     String BROADCAST_STATE_CHANGED = "com.avariohome.avario.STATE_CHANGE";
     String BROADCAST_ROOM_CHANGED = "com.avariohome.avario.ROOM_CHANGED";
+    String BROADCAST_BOOTSTRAP_CHANGED = "com.avariohome.avario.BOOTSTRAP_CHANGED";
     String LOGTAG_EMERGENCY = "Avario/Emergency";
 }

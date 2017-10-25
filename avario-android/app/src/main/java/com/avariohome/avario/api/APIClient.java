@@ -13,6 +13,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.avariohome.avario.BuildConfig;
 import com.avariohome.avario.Constants;
+import com.avariohome.avario.R;
 import com.avariohome.avario.core.APITimers;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
@@ -213,13 +214,21 @@ public class APIClient {
         }
     }
 
-    public void getBootstrapJSON(BootstrapListener listener) {
+    public void getBootstrapJSON(BootstrapListener listener, String path) {
         final Config config = Config.getInstance();
         JsonObjectRequest request;
 
+        if (path == null || path.isEmpty()) {
+            path = config.getBootstrapURL();
+        } else {
+            path = String.format("%s%s",
+                    config.getHttpDomain(),
+                    path);
+        }
+
         request = new JsonObjectRequest(
                 Request.Method.GET,
-                config.getBootstrapURL(),
+                path,
                 null,
                 listener,
                 listener

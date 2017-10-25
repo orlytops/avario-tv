@@ -945,7 +945,6 @@ public class DialButtonBar extends LinearLayout {
 
         private void handle(String type) {
             DialButtonBar self = DialButtonBar.this;
-
             DialButtonEntity buttonEntity = self.buttons.get(this.source);
             if (buttonEntity == null) {
                 return;
@@ -953,23 +952,23 @@ public class DialButtonBar extends LinearLayout {
             JSONObject buttonJSON = buttonEntity.buttonJSON,
                     requestJSON;
 
-            try {
-                requestJSON = this.getRequestSpec(buttonJSON, type);
-
-                if (requestJSON == null)
-                    return;
-
-                this.processRequestSpec(requestJSON, buttonEntity);
-
                 try {
-                    Light.updateAlgo(buttonEntity.entitiesId,
-                            buttonJSON.getJSONObject("controls")
-                                    .getJSONObject("api")
-                                    .getJSONObject("clk")
-                                    .getString("payload"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                    requestJSON = this.getRequestSpec(buttonJSON, type);
+
+                    if (requestJSON == null)
+                        return;
+
+                    this.processRequestSpec(requestJSON, buttonEntity);
+
+                    try {
+                        Light.updateAlgo(buttonEntity.entitiesId,
+                                buttonJSON.getJSONObject("controls")
+                                        .getJSONObject("api")
+                                        .getJSONObject("clk")
+                                        .getString("payload"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
                 updateStates();
 //                NagleTimers.reset(

@@ -15,6 +15,7 @@ public class Connectivity {
     private static volatile Connectivity instance;
     public String[] lanMac;
     private Boolean isLan = false;
+    public String myMacAddress = "";
 
     private Connectivity() {
 
@@ -56,11 +57,13 @@ public class Connectivity {
         boolean result = false;
         try {
             lanMacList = StateArray.getInstance().getLanMacList();
-            String accessPointMac = Connectivity.getAccessPointMac(context);
-            for (int i = 0; i < lanMacList.length(); i++) {
-                if (accessPointMac.equals(lanMacList.getString(i))) {
-                    result = true;
-                    break;
+            if (lanMacList != null) {
+                String accessPointMac = Connectivity.getAccessPointMac(context);
+                for (int i = 0; i < lanMacList.length(); i++) {
+                    if (accessPointMac.equals(lanMacList.getString(i))) {
+                        result = true;
+                        break;
+                    }
                 }
             }
         } catch (AvarioException | JSONException | NullPointerException e) {

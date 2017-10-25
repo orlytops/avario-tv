@@ -8,12 +8,14 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.util.Log;
 
 import com.avariohome.avario.bus.WifiChange;
 import com.avariohome.avario.bus.WifiConnected;
+import com.avariohome.avario.util.Connectivity;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -84,9 +86,10 @@ public class WifiReceiver extends BroadcastReceiver {
             }
             ConnectivityManager conMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo netInfo = conMan.getActiveNetworkInfo();
-            if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI)
+            if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI){
                 Log.d("WifiReceiver", "Have Wifi Connection");
-            else
+                Connectivity.getInstance().myMacAddress = Connectivity.getMacAddress(context);
+            } else
                 Log.d("WifiReceiver", "Don't have Wifi Connection");
 
             int supl_error = intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, -1);

@@ -1,131 +1,250 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/svMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="@dimen/dialog__padding">
 
-        <!-- Host IP Field -->
-        <TextView
-            android:id="@+id/setting__host_ip__label"
-            android:layout_width="@dimen/settings__field__width"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvConnectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Connection"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <!-- Host IP Field -->
+            <TextView
+                android:id="@+id/setting__host_ip__label"
+                android:layout_width="@dimen/settings__field__width"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/setting__host_ip"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/tvConnectionTitle"
+                android:text="@string/setting__host" />
+
+            <EditText
+                android:id="@id/setting__host_ip"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/tvConnectionTitle"
+                android:layout_toEndOf="@id/setting__host_ip__label"
+                android:hint="@string/setting__host__hint"
+                android:inputType="text" />
+
+
+            <!-- Port / SSL -->
+            <TextView
+                android:layout_width="@dimen/settings__field__width"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/setting__host_port"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/setting__host_ip"
+                android:text="@string/setting__port" />
+
+            <EditText
+                android:id="@id/setting__host_port"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/setting__host_ip"
+                android:layout_toEndOf="@id/setting__host_ip__label"
+                android:layout_toStartOf="@+id/setting__ssl"
+                android:digits="0123456789"
+                android:hint="@string/setting__port__hint"
+                android:imeOptions="actionNext"
+                android:inputType="number" />
+
+            <CheckBox
+                android:id="@id/setting__ssl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/setting__host_port"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/setting__host_ip"
+                android:text="@string/setting__ssl" />
+
+            <!-- Username -->
+            <TextView
+                android:layout_width="@dimen/settings__field__width"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/setting__username"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/setting__host_port"
+                android:text="@string/setting__username" />
+
+            <EditText
+                android:id="@id/setting__username"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/setting__host_port"
+                android:layout_toEndOf="@id/setting__host_ip__label"
+                android:hint=""
+                android:imeOptions="actionNext"
+                android:inputType="text" />
+
+
+            <!-- Password -->
+            <TextView
+                android:layout_width="@dimen/settings__field__width"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/setting__password"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/setting__username"
+                android:text="@string/setting__password" />
+
+            <EditText
+                android:id="@id/setting__password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/setting__username"
+                android:layout_toEndOf="@id/setting__host_ip__label"
+                android:hint=""
+                android:imeOptions="actionDone"
+                android:inputType="textPassword" />
+
+            <CheckBox
+                android:id="@+id/check_kiosk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/setting__password"
+                android:text="@string/kiosk_mode" />
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/check_kiosk"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/settings_dialog_button"
+                android:paddingEnd="@dimen/custom_settings_button"
+                android:paddingStart="@dimen/custom_settings_button"
+                android:textColor="@color/dial__color3"
+                android:text="@string/setting__save" />
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/check_kiosk"
+                android:layout_toStartOf="@+id/btnSave"
+                android:background="@drawable/settings_dialog_button"
+                android:paddingEnd="@dimen/custom_settings_button"
+                android:paddingStart="@dimen/custom_settings_button"
+                android:textColor="@color/dial__color3"
+                android:text="@string/setting__discard" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlBootstrap"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/setting__host_ip"
-            android:layout_alignParentLeft="true"
-            android:text="@string/setting__host" />
+            android:visibility="gone">
 
-        <EditText
-            android:id="@id/setting__host_ip"
-            android:layout_width="0dp"
+            <View
+                android:id="@+id/vBootstrapBorder"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/black__60" />
+
+            <TextView
+                android:id="@+id/tvBootstrapTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/vBootstrapBorder"
+                android:text="Bootstrap"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvBootstrapSource"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvBootstrapTitle"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:text="Source: " />
+
+            <Button
+                android:id="@+id/btnDownloadBootstrap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvBootstrapSource"
+                android:background="@drawable/settings_dialog_button"
+                android:paddingEnd="@dimen/custom_settings_button"
+                android:paddingStart="@dimen/custom_settings_button"
+                android:textColor="@color/dial__color3"
+                android:text="@string/setting_get_new_bootstrap" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlCache"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_toRightOf="@id/setting__host_ip__label"
-            android:hint="@string/setting__host__hint"
-            android:inputType="text" />
+            android:visibility="gone">
 
+            <View
+                android:id="@+id/vCacheBorder"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/black__60" />
 
-        <!-- Port / SSL -->
-        <TextView
-            android:layout_width="@dimen/settings__field__width"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/setting__host_port"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/setting__host_ip"
-            android:text="@string/setting__port" />
+            <TextView
+                android:id="@+id/tvCacheTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/vCacheBorder"
+                android:text="Cache"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-        <EditText
-            android:id="@id/setting__host_port"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/setting__host_ip"
-            android:layout_toLeftOf="@+id/setting__ssl"
-            android:layout_toRightOf="@id/setting__host_ip__label"
-            android:digits="0123456789"
-            android:hint="@string/setting__port__hint"
-            android:inputType="number" />
+            <Button
+                android:id="@+id/btnDownloadAssets"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/tvCacheTitle"
+                android:background="@drawable/settings_dialog_button"
+                android:paddingEnd="@dimen/custom_settings_button"
+                android:paddingStart="@dimen/custom_settings_button"
+                android:textColor="@color/dial__color3"
+                android:text="@string/download_assets" />
 
-        <CheckBox
-            android:id="@id/setting__ssl"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/setting__host_port"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/setting__host_ip"
-            android:text="@string/setting__ssl" />
-
-        <!-- Username -->
-        <TextView
-            android:layout_width="@dimen/settings__field__width"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/setting__username"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/setting__host_port"
-            android:text="@string/setting__username" />
-
-        <EditText
-            android:id="@id/setting__username"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/setting__host_port"
-            android:layout_toRightOf="@id/setting__host_ip__label" />
-
-
-        <!-- Password -->
-        <TextView
-            android:layout_width="@dimen/settings__field__width"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/setting__password"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/setting__username"
-            android:text="@string/setting__password" />
-
-        <EditText
-            android:id="@id/setting__password"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/setting__username"
-            android:layout_toRightOf="@id/setting__host_ip__label"
-            android:inputType="textPassword" />
-
-        <TextView
-            android:id="@+id/text_version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/setting__password"
-            android:layout_marginTop="20dp"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <CheckBox
-            android:id="@+id/check_kiosk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/setting__password"
-            android:layout_marginTop="10dp"
-            android:text="Kiosk Mode" />
-
-        <TextView
-            android:id="@+id/text_connection"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/text_version" />
+            <Button
+                android:id="@+id/btnClearAssets"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/tvCacheTitle"
+                android:background="@drawable/settings_dialog_button"
+                android:paddingEnd="@dimen/custom_settings_button"
+                android:paddingStart="@dimen/custom_settings_button"
+                android:textColor="@color/dial__color3"
+                android:text="@string/delete_assets" />
+        </RelativeLayout>
 
         <!-- Working Message -->
         <LinearLayout
             android:id="@+id/working__holder"
             android:layout_width="wrap_content"
             android:layout_height="24dp"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/setting__password"
+            android:layout_gravity="end"
             android:orientation="horizontal"
             android:visibility="invisible">
 
@@ -143,12 +262,27 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/text_connection"
+            android:layout_width="wrap_content"
+            android:layout_gravity="end"
+            android:layout_height="wrap_content" />
+
+        <TextView
             android:id="@+id/error"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/working__holder"
+            android:layout_gravity="end"
             android:textColor="@color/red"
             android:visibility="gone" />
-    </RelativeLayout>
+
+        <TextView
+            android:id="@+id/text_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="end"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:focusable="true"/>
+    </LinearLayout>
 </ScrollView>

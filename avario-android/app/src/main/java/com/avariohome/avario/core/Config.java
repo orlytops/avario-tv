@@ -39,6 +39,15 @@ public class Config {
     private StateArray state;
     private SharedPreferences prefs;
 
+    private String tempHttpHost;
+    private String tempHttpPort;
+    private boolean tempSSL;
+    private boolean tempFetched;
+    private boolean tempIsKiosk;
+    private String tempUsername;
+    private String temppassword;
+    private String tempBootstrap;
+
     public static Config getInstance() {
         return Config.instance;
     }
@@ -63,18 +72,23 @@ public class Config {
         this.context = context;
         this.state = StateArray.getInstance();
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        tempHttpHost = fetchString(PREFKEY_HTTP_HOST);
+        tempHttpPort = fetchString(PREFKEY_HTTP_PORT);
+        tempSSL = fetchBoolean(PREFKEY_HTTP_SSL);
+        tempFetched = fetchBoolean(PREFKEY_RES_FETCHED);
+        tempIsKiosk = fetchBoolean(PREFKEY_IS_KIOSK);
+        tempUsername = fetchString(PREFKEY_USERNAME);
+        temppassword = fetchString(PREFKEY_PASSWORD);
+        tempBootstrap = fetchString(PREFKEY_BOOTSTRAP);
     }
 
     public boolean isSet() {
         String httpHost = this.getHttpHost(),
-                username = this.getUsername(),
-                password = this.getPassword(),
                 httpPort = this.getHttpPort();
 
         return (httpHost != null && httpHost.length() > 0)
-                && (httpPort != null && httpPort.length() > 0)
-                && (username != null && username.length() > 0)
-                && (password != null && password.length() > 0);
+                && (httpPort != null && httpPort.length() > 0);
     }
 
     public boolean isResourcesFetched() {
@@ -210,40 +224,64 @@ public class Config {
         return seconds;
     }
 
-    public void setResourcesFetched(boolean fetched) {
-        this.prefs.edit().putBoolean(PREFKEY_RES_FETCHED, fetched).commit();
+    public void setBootstrapFetched(boolean fetched) {
+        this.prefs.edit().putBoolean(PREFKEY_RES_FETCHED, fetched).apply();
     }
 
-
     public void setHttpHost(String httpHost) {
-        this.prefs.edit().putString(PREFKEY_HTTP_HOST, httpHost).commit();
+        this.prefs.edit().putString(PREFKEY_HTTP_HOST, httpHost).apply();
     }
 
     public void setHttpPort(String httpPort) {
-        this.prefs.edit().putString(PREFKEY_HTTP_PORT, httpPort).commit();
+        this.prefs.edit().putString(PREFKEY_HTTP_PORT, httpPort).apply();
     }
 
     public void setHttpSSL(boolean ssl) {
-        this.prefs.edit().putBoolean(PREFKEY_HTTP_SSL, ssl).commit();
+        this.prefs.edit().putBoolean(PREFKEY_HTTP_SSL, ssl).apply();
     }
 
     public void setUsername(String username) {
-        this.prefs.edit().putString(PREFKEY_USERNAME, username).commit();
+        this.prefs.edit().putString(PREFKEY_USERNAME, username).apply();
     }
 
     public void setPassword(String password) {
-        this.prefs.edit().putString(PREFKEY_PASSWORD, password).commit();
+        this.prefs.edit().putString(PREFKEY_PASSWORD, password).apply();
     }
 
     public void setIsKiosk(boolean isKiosk) {
-        this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, isKiosk).commit();
+        this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, isKiosk).apply();
     }
 
+    public void setBootstrap(String bootstrap){
+        this.prefs.edit().putString(PREFKEY_BOOTSTRAP, bootstrap).apply();
+    }
+
+    public void restore(){
+        this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, tempIsKiosk).apply();
+        this.prefs.edit().putBoolean(PREFKEY_HTTP_SSL, tempSSL).apply();
+        this.prefs.edit().putBoolean(PREFKEY_RES_FETCHED, tempFetched).apply();
+        this.prefs.edit().putString(PREFKEY_HTTP_PORT, tempHttpPort).apply();
+        this.prefs.edit().putString(PREFKEY_HTTP_HOST, tempHttpHost).apply();
+        this.prefs.edit().putString(PREFKEY_PASSWORD, temppassword).apply();
+        this.prefs.edit().putString(PREFKEY_USERNAME, tempUsername).apply();
+        this.prefs.edit().putString(PREFKEY_BOOTSTRAP, tempBootstrap).apply();
+    }
 
     public void clear() {
         this.prefs.edit()
                 .clear()
-                .commit();
+                .apply();
+    }
+
+    public void apply(){
+        tempIsKiosk = fetchBoolean(PREFKEY_IS_KIOSK);
+        tempSSL = fetchBoolean(PREFKEY_HTTP_SSL);
+        tempFetched = fetchBoolean(PREFKEY_RES_FETCHED);
+        tempHttpPort = fetchString(PREFKEY_HTTP_PORT);
+        tempHttpHost = fetchString(PREFKEY_HTTP_HOST);
+        temppassword = fetchString(PREFKEY_PASSWORD);
+        tempUsername = fetchString(PREFKEY_USERNAME);
+        tempBootstrap = fetchString(PREFKEY_BOOTSTRAP);
     }
 
     private boolean fetchBoolean(String key) {

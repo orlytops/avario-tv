@@ -3,6 +3,7 @@ package com.avariohome.avario.core;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -75,6 +76,8 @@ public class StateArray {
     private Handler handler;
     private boolean dirty;
     private boolean refreshing;
+
+    public boolean tempReboot = false;
 
     private StateArray(Context context) {
         this.broadcaster = LocalBroadcastManager.getInstance(context);
@@ -151,6 +154,46 @@ public class StateArray {
             }
         });
 
+        return this;
+    }
+
+    /**
+     * Parse {"event_type": "bootstrap_changed","event_data": {"tablet_id": "00:11:22:333:44:55"}} payload
+     *
+     * @param payloadJSON
+     */
+    public StateArray broadcastBootstrapChange(final JSONObject payloadJSON) {
+        try {
+            JSONArray tabletIdList = payloadJSON.getJSONObject("event_data").
+                    getJSONArray("tablet_id");
+
+            String deviceId = PlatformUtil.getTabletId();
+            for (int i = 0; i < tabletIdList.length(); i++) {
+                if (tabletIdList.get(i).toString().equalsIgnoreCase(deviceId)) {
+                    android.util.Log.v("BootstrapChange", "Sending broadcast locally");
+                    this.handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent()
+                                    .setAction(Constants.BROADCAST_BOOTSTRAP_CHANGED);
+                            try {
+                                intent.putExtra("bs_name", payloadJSON.getJSONObject("event_data")
+                                        .getString("bs_name"));
+                                intent.putExtra("reboot", payloadJSON.getJSONObject("event_data")
+                                        .getBoolean("reboot"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            Log.d(TAG, "Broadcasting bootstrap change!");
+                            StateArray.this.broadcaster.sendBroadcast(intent);
+                        }
+                    });
+                    break;
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return this;
     }
 
@@ -820,7 +863,7 @@ public class StateArray {
                             .getJSONObject("wan")
                             .getJSONObject("mqtt");
 
-        } catch (NullPointerException | JSONException exception) {
+        } catch (JSONException | NullPointerException exception) {
             throw new AvarioException(
                     Constants.ERROR_STATE_MISSINGKEY,
                     exception,
@@ -856,17 +899,14 @@ public class StateArray {
                     .getJSONObject("settings")
                     .getJSONObject("connectivity")
                     .getJSONArray("lanMac");
-        } catch (NullPointerException | JSONException ex) {
-            throw new AvarioException(
-                    Constants.ERROR_STATE_MISSINGKEY,
-                    ex,
-                    new Object[]{"settings.connectivity"}
-            );
+        } catch (NullPointerException | JSONException ignore) {
+            return null;
         }
     }
 
     /**
      * Choose default algo for selected device.
+     *
      * @param key default algo key
      * @return defalt algo value
      */
@@ -1051,17 +1091,16 @@ public class StateArray {
      * Persistence
      ***********************************************************************************************
      */
-    public void delete() {
+    public boolean delete() {
         File file = this.getFile();
-
-        if (!file.exists())
-            return;
-
         try {
-            file.delete();
+            if (file != null) {
+                return !file.exists() || file.delete();
+            }
         } catch (SecurityException exception) {
             Log.d(TAG, "Error occurred", exception);
         }
+        return false;
     }
 
     public StateArray save() throws AvarioException {
@@ -1125,12 +1164,16 @@ public class StateArray {
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
             return null;
 
-        File file = new File(this.context.getExternalFilesDir(null), this.context.getString(R.string.app__path__bootstrap)),
+        File file = new File(this.context.getExternalFilesDir(null),
+                this.context.getString(R.string.app__path__bootstrap)),
                 dirs = file.getParentFile();
 
         if (!dirs.exists())
             dirs.mkdirs();
-
         return file;
+    }
+
+    public boolean isDataEmpty(){
+        return data == null;
     }
 }
