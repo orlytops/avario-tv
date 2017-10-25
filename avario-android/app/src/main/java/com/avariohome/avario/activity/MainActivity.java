@@ -205,6 +205,7 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
+        this.visible = true;
         MqttManager manager = MqttManager.getInstance();
 
         if (manager.isConnected()) {
@@ -215,6 +216,7 @@ public class MainActivity extends BaseActivity {
             loadFromStateArray();
             fetchCurrentStates();
 
+            android.util.Log.v("ProgressDialog", "OnResume");
             this.showBusyDialog(null);
         } else if (!this.settingsOpened && !StateArray.getInstance().isDataEmpty()) {
             this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
@@ -1039,6 +1041,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showBusyDialog(String message) {
+        android.util.Log.v("ProgressDialog", "Showing dialog");
         if (!this.visible)
             return;
 
@@ -1060,7 +1063,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void hideBusyDialog() {
-        if (!this.visible || this.progressPD == null)
+        if (this.progressPD == null)
             return;
 
         try {
@@ -1448,10 +1451,12 @@ public class MainActivity extends BaseActivity {
     private class MqttConnectionListener implements MqttConnection.Listener {
         @Override
         public void onConnection(MqttConnection connection, boolean reconnection) {
+            android.util.Log.v("ProgressDialog", "onConnection");
         }
 
         @Override
         public void onConnectionFailed(MqttConnection connection, AvarioException exception) {
+            android.util.Log.v("ProgressDialog", "onConnectionFailed");
             // when connection fails, continue connecting to MQTT and show errors
             MainActivity self = MainActivity.this;
             String message;
@@ -1474,6 +1479,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onDisconnection(MqttConnection connection, AvarioException exception) {
+            android.util.Log.v("ProgressDialog", "onDisconnection");
             MainActivity self = MainActivity.this;
 
             if (exception == null || self.settingsOpened)
@@ -1494,6 +1500,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onSubscription(MqttConnection connection) {
+            android.util.Log.v("ProgressDialog", "onSubscription");
             MainActivity self = MainActivity.this;
             self.showBusyDialog(null);
             self.fetchCurrentStates();
@@ -1521,6 +1528,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onSubscriptionError(MqttConnection connection, AvarioException exception) {
+            android.util.Log.v("ProgressDialog", "onSubscriptionError");
             PlatformUtil
                     .getErrorToast(MainActivity.this, exception)
                     .show();
@@ -1528,7 +1536,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous, MqttConnection.Status current) {
-
+            android.util.Log.v("ProgressDialog", "onStatusChanged");
         }
     }
 
@@ -1654,7 +1662,6 @@ public class MainActivity extends BaseActivity {
             if (StateArray.getInstance().tempReboot){
                 SystemUtil.rebootApp(MainActivity.this);
             } else {
-                connectMQTT(getString(R.string.message__mqtt__connecting));
                 Toast.makeText(MainActivity.this,
                         getString(R.string.message_new_bootstrap),
                         Toast.LENGTH_SHORT).show();

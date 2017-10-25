@@ -56,6 +56,7 @@ import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.BlindAssetLoader;
 import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
+import com.avariohome.avario.util.SystemUtil;
 import com.avariohome.avario.util.Validator;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -115,6 +116,8 @@ public class SettingsDialogFragment extends DialogFragment {
     private ComponentName mAdminComponentName;
     private DevicePolicyManager mDevicePolicyManager;
     private PackageManager mPackageManager;
+
+    private boolean reboot = false;
 
     public SettingsDialogFragment() {
         super();
@@ -685,6 +688,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 }
             } else if(view.getId() == R.id.btnDownloadBootstrap) {
                 if (config.isSet()) {
+                    reboot = true;
                     self.setEnabled(false);
                     self.toggleError(false, "");
                     self.reloadBootstrap();
@@ -721,8 +725,17 @@ public class SettingsDialogFragment extends DialogFragment {
                     .setData(response);
             Connectivity.identifyConnection(getActivity());
             self.config.setBootstrapFetched(true);
-            self.sendFCMToken();
-            self.connectMQTT();
+            if (reboot){
+                try {
+                    StateArray.getInstance().save();
+                } catch (AvarioException e) {
+                    e.printStackTrace();
+                }
+                SystemUtil.rebootApp(self.getActivity());
+            } else {
+                self.sendFCMToken();
+                self.connectMQTT();
+            }
         }
 
         @Override
