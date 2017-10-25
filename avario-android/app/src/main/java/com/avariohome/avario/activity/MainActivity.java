@@ -842,7 +842,7 @@ public class MainActivity extends BaseActivity {
             DeviceAdapter adapter = this.devicesList.getAdapter();
             List<String> entityIds = new ArrayList<>();
 
-            for (Entity device : adapter.getSelected()){
+            for (Entity device : adapter.getSelected()) {
                 entityIds.add(device.id);
             }
 

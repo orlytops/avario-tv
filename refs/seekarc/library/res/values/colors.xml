@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   The MIT License (MIT)
   
   Copyright (c) 2013 Triggertrap Ltd
@@ -27,4 +26,5 @@
     <color name="progress_gray_dark">#FF383838</color>
     <color name="proposed_red">#FFCC6868</color>
     <color name="default_blue_light">#ff33b5e5</color>
+    <color name="trasnparent">#00FFFFFF</color>
 </resources>

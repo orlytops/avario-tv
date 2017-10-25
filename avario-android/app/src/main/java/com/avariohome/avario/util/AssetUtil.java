@@ -92,6 +92,8 @@ public class AssetUtil {
         for (int index = 0; index < urls.length; index++)
             output[index] = String.format("%s%s", root, urls[index]);
 
+        /*for (int index = 0; index < urls.length; index++)
+            Log.d("Output", output[index]);*/
         return output;
     }
 

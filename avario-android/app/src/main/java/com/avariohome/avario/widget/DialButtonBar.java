@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.BounceInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -23,13 +24,14 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
 import com.avariohome.avario.core.Light;
-import com.avariohome.avario.core.NagleTimers;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.util.RefStringUtil;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,9 +51,9 @@ import java.util.regex.Pattern;
 /**
  * Represents the widget that houses the dial buttons that are mapped to specific entities supporting
  * said button
- *
+ * <p>
  * TODO swap button may need to be changed to refer from the bootstrap
- *
+ * <p>
  * Created by aeroheart-c6 on 03/03/2017.
  */
 public class DialButtonBar extends LinearLayout {
@@ -60,7 +62,8 @@ public class DialButtonBar extends LinearLayout {
 
     private static final int VISIBILITY_ALONE = 1; // show only if it is a single entity
     private static final int VISIBILITY_GROUP = 2; // show only if it is a group of entities
-    private static final int VISIBILITY_EITHER = VISIBILITY_ALONE | VISIBILITY_GROUP; // show always
+    private static final int VISIBILITY_LIGHTS = 3; // show only if it is a group of entities
+    private static final int VISIBILITY_EITHER = VISIBILITY_ALONE | VISIBILITY_GROUP | VISIBILITY_LIGHTS; // show always
 
     private Map<ImageButton, DialButtonEntity> buttons;
     private Map<JSONObject, DialButtonEntity> entities;
@@ -85,8 +88,8 @@ public class DialButtonBar extends LinearLayout {
         LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this.getContext());
 
         manager.registerReceiver(
-            new StateReceiver(),
-            new IntentFilter(Constants.BROADCAST_STATE_CHANGED)
+                new StateReceiver(),
+                new IntentFilter(Constants.BROADCAST_STATE_CHANGED)
         );
     }
 
@@ -107,23 +110,41 @@ public class DialButtonBar extends LinearLayout {
      * @param mediaMode
      */
     public void setup(List<JSONObject> entityJSONs, boolean mediaMode) {
+        ArrayList<Boolean> shouldShowList = new ArrayList<>();
+        ArrayList<String> dialTypes = new ArrayList<>();
         this.removeAllViews();
         this.entities.clear();
         this.buttons.clear();
-
+        shouldShowList.clear();
         this.mediaMode = mediaMode;
 
         for (JSONObject entityJSON : entityJSONs) {
-            try {
-                if (this.mediaMode)
-                    this.setupEntityMedia(entityJSON);
-                else
-                    this.setupEntity(entityJSON);
+            if (entityJSON.has("dials")) {
+                shouldShowList.add(true);
+            } else {
+                shouldShowList.add(false);
             }
-            catch (AvarioException exception) {
+
+            try {
+                dialTypes.add(entityJSON.getJSONObject("dial")
+                        .getString("dial_type"));
+            } catch (JSONException exception) {
+
+            }
+        }
+
+        for (JSONObject entityJSON : entityJSONs) {
+            try {
+
+                if (mediaMode || (entityJSON.has("dials") && areAllTrue(shouldShowList))) {
+                    this.setupEntityMedia(entityJSON);
+                } else if (areSameTypes(dialTypes)) {
+                    this.setupEntity(entityJSON);
+                }
+            } catch (AvarioException exception) {
                 PlatformUtil
-                    .getErrorToast(this.getContext(), exception)
-                    .show();
+                        .getErrorToast(this.getContext(), exception)
+                        .show();
             }
         }
 
@@ -137,11 +158,43 @@ public class DialButtonBar extends LinearLayout {
             int visibility = buttonJSON.optInt("visibility", DialButtonBar.VISIBILITY_ALONE);
 
             if (visibility == DialButtonBar.VISIBILITY_EITHER ||
-                visibility == DialButtonBar.VISIBILITY_ALONE && size == 1 ||
-                visibility == DialButtonBar.VISIBILITY_GROUP && size > 1)
+                    visibility == DialButtonBar.VISIBILITY_ALONE && size == 1 ||
+                    visibility == DialButtonBar.VISIBILITY_GROUP && size > 1 ||
+                    (visibility == DialButtonBar.VISIBILITY_LIGHTS && size >= 1 && entityJSONs.size() == 1)) {
                 this.setupButton(buttonEntity);
-            else
+            } else {
                 iterator.remove();
+            }
+        }
+
+        if (areAllTrue(shouldShowList) && areSameTypes(dialTypes) && entityJSONs.size() > 1 && !mediaMode) {
+            ImageButton button;
+
+            button = this.generateButton();
+            button.setId(R.id.dialbtn__switch);
+
+            AssetUtil.toDrawable(
+                    this.getContext(),
+                    R.array.ic__switch,
+                    new AssetUtil.ImageViewCallback(button)
+            );
+
+            this.addView(button);
+            YoYo.with(Techniques.ZoomIn)
+                    .duration(700)
+                    .playOn(button);
+        }
+
+        if (areSameLightTypes(dialTypes) && entityJSONs.size() > 1 && !mediaMode && !areAllTrue(shouldShowList)) {
+            DialButtonBar self = DialButtonBar.this;
+            Dial dial = self.dialref.get();
+            try {
+                dial.changeDialType(R.id.dialbtn__brightness);
+                dial.initialize();
+            } catch (AvarioException e) {
+                e.printStackTrace();
+            }
+            dial.initialize();
         }
 
         // media mode: add the final button for swapping
@@ -152,12 +205,15 @@ public class DialButtonBar extends LinearLayout {
             button.setId(R.id.dialbtn__swap);
 
             AssetUtil.toDrawable(
-                this.getContext(),
-                R.array.ic__dialbtn__dpad,
-                new AssetUtil.ImageViewCallback(button)
+                    this.getContext(),
+                    R.array.ic__dialbtn__dpad,
+                    new AssetUtil.ImageViewCallback(button)
             );
 
             this.addView(button);
+            YoYo.with(Techniques.ZoomIn)
+                    .duration(700)
+                    .playOn(button);
         }
 
         // get reference to the `states` root object (algo state)
@@ -173,46 +229,69 @@ public class DialButtonBar extends LinearLayout {
             if (buttonJSON.has("radio")) {
                 try {
                     buttonEntity.stateJSON = StateArray
-                        .getInstance()
-                        .getDialButtonState(buttonJSON.optString("state_id"))
-                        .getJSONObject("states");
-                }
-                catch (AvarioException exception) {
+                            .getInstance()
+                            .getDialButtonState(buttonJSON.optString("state_id"))
+                            .getJSONObject("states");
+                } catch (AvarioException exception) {
                     PlatformUtil
-                        .getErrorToast(this.getContext(), exception)
-                        .show();
+                            .getErrorToast(this.getContext(), exception)
+                            .show();
+                } catch (JSONException ignored) {
                 }
-                catch (JSONException ignored) {}
             }
         }
 
         this.updateStates();
     }
 
+    private boolean areAllTrue(ArrayList<Boolean> array) {
+        for (boolean b : array)
+            if (!b) return false;
+        return true;
+    }
+
+    private boolean areSameTypes(ArrayList<String> array) {
+        for (int i = 0; i < array.size(); i++) {
+            if (i != 0 && !(array.get(i).equals(array.get(i - 1)))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean areSameLightTypes(ArrayList<String> array) {
+        for (int i = 0; i < array.size(); i++) {
+            Log.d("Light types", array.get(0));
+            if (!array.get(0).equals("dial.light")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void setupEntityMedia(JSONObject entityJSON) throws AvarioException {
         Dial dial = this.dialref.get();
         JSONObject dialspecsJSON,
-                   dialspecJSON;
+                dialspecJSON;
         Iterator<String> keys;
 
-        if (!this.mediaMode || dial == null)
+        if (dial == null)
             return;
 
         // Get dials instructions from the media player entity
         try {
             dialspecsJSON = entityJSON.getJSONObject("dials");
             keys = dialspecsJSON.keys();
-        }
-        catch (JSONException exception) {
-            String[] msgArgs = new String[] { String.format(
-                "%s.dials",
-                entityJSON.optString("entity_id")
-            ) };
+        } catch (JSONException exception) {
+            String[] msgArgs = new String[]{String.format(
+                    "%s.dials",
+                    entityJSON.optString("entity_id")
+            )};
 
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                msgArgs
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    msgArgs
             );
         }
 
@@ -221,25 +300,24 @@ public class DialButtonBar extends LinearLayout {
 
         while (keys.hasNext()) {
             String dialId = dial.getType().getId(),
-                   key = keys.next();
+                    key = keys.next();
 
             try {
                 dialspecJSON = dialspecsJSON.getJSONObject(key);
 
                 if (dialId.equals(dialspecJSON.getString("dial_type")))
                     break;
-            }
-            catch (JSONException exception) {
-                String[] msgArgs = new String[] { String.format(
-                    "%s.dials.%s.dial_type",
-                    entityJSON.optString("entity_id"),
-                    key
-                ) };
+            } catch (JSONException exception) {
+                String[] msgArgs = new String[]{String.format(
+                        "%s.dials.%s.dial_type",
+                        entityJSON.optString("entity_id"),
+                        key
+                )};
 
                 throw new AvarioException(
-                    Constants.ERROR_STATE_MISSINGKEY,
-                    exception,
-                    msgArgs
+                        Constants.ERROR_STATE_MISSINGKEY,
+                        exception,
+                        msgArgs
                 );
             }
         }
@@ -254,12 +332,11 @@ public class DialButtonBar extends LinearLayout {
     private void setupEntity(JSONObject entityJSON) throws AvarioException {
         try {
             this.setupFromSpec(entityJSON.getJSONObject("dial"), entityJSON);
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                new Object[] { String.format("%s.dial", entityJSON.optString("entity_id")) }
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{String.format("%s.dial", entityJSON.optString("entity_id"))}
             );
         }
 
@@ -286,24 +363,22 @@ public class DialButtonBar extends LinearLayout {
                     meta.buttonJSON = buttonJSON;
 
                     this.entities.put(buttonJSON, meta);
-                }
-                else
+                } else
                     meta = this.entities.get(buttonJSON);
 
                 meta.entityJSONs.add(entityJSON);
                 meta.stateRef = dialspecJSON.optString(property + "_state", null);
             }
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                new Object[] {
-                    String.format("%s.dial.%s",
-                        entityJSON.optString("entity_id"),
-                        property
-                    )
-                }
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{
+                            String.format("%s.dial.%s",
+                                    entityJSON.optString("entity_id"),
+                                    property
+                            )
+                    }
             );
         }
     }
@@ -317,8 +392,30 @@ public class DialButtonBar extends LinearLayout {
     private void setupButton(DialButtonEntity buttonEntity) {
         ImageButton button = this.generateButton();
 
+        int id = 0;
+
+        switch (buttonEntity.buttonJSON.optString("entity_id")) {
+            case "colour":
+                id = R.id.dialbtn__colour;
+                break;
+            case "saturation":
+                id = R.id.dialbtn__saturation;
+                break;
+            case "brightness":
+                id = R.id.dialbtn__brightness;
+                break;
+            case "temprature":
+                id = R.id.dialbtn__temprature;
+                break;
+        }
+
+        button.setId(id);
         this.buttons.put(button, buttonEntity);
         this.addView(button);
+        YoYo.with(Techniques.ZoomIn)
+                .interpolate(new BounceInterpolator())
+                .duration(500)
+                .playOn(button);
     }
 
     private ImageButton generateButton() {
@@ -328,12 +425,12 @@ public class DialButtonBar extends LinearLayout {
         LayoutParams params;
 
         params = new LayoutParams(
-            res.getDimensionPixelSize(R.dimen.dialbutton__width),
-            res.getDimensionPixelSize(R.dimen.dialbutton__height)
+                res.getDimensionPixelSize(R.dimen.dialbutton__width),
+                res.getDimensionPixelSize(R.dimen.dialbutton__height)
         );
         params.setMargins(
-            this.buttons.isEmpty() ? 0 : res.getDimensionPixelSize(R.dimen.dialbutton__margin__left),
-            0, 0, 0
+                this.buttons.isEmpty() ? 0 : res.getDimensionPixelSize(R.dimen.dialbutton__margin__left),
+                0, 0, 0
         );
 
         int padding = res.getDimensionPixelSize(R.dimen.dialbutton__padding);
@@ -345,9 +442,9 @@ public class DialButtonBar extends LinearLayout {
         button.setOnTouchListener(new TouchListener(button));
 
         AssetUtil.toDrawable(
-            this.getContext(),
-            R.array.bg__dialbtn,
-            new AssetUtil.BackgroundCallback(button)
+                this.getContext(),
+                R.array.bg__dialbtn,
+                new AssetUtil.BackgroundCallback(button)
         );
 
         return button;
@@ -357,11 +454,10 @@ public class DialButtonBar extends LinearLayout {
         try {
             for (ImageButton button : this.buttons.keySet())
                 this.updateButtonState(button);
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
         }
     }
 
@@ -379,21 +475,19 @@ public class DialButtonBar extends LinearLayout {
                 try {
                     level = Integer.parseInt(RefStringUtil.processRefs(buttonEntity.stateRef));
                     level = level % buttonJSON.getJSONArray("multi").length();
-                }
-                catch (NullPointerException | NumberFormatException exception) {
+                } catch (NullPointerException | NumberFormatException exception) {
                     level = 0;
                 }
 
                 iconsJSON = buttonJSON.getJSONArray("icon_par");
                 iconURL = iconsJSON.getString(level);
-            }
-            else if (buttonJSON.has("radio")) {
+            } else if (buttonJSON.has("radio")) {
                 String stateActive = buttonJSON.getString("active_state"),
-                       state = this.resolveRadioState(
-                           buttonJSON,
-                           buttonJSON.getString("state"),
-                           buttonEntity.entitiesId
-                       );
+                        state = this.resolveRadioState(
+                                buttonJSON,
+                                buttonJSON.getString("state"),
+                                buttonEntity.entitiesId
+                        );
 
                 /*iconURL = buttonJSON.getString(
                     state != null && state.equals(stateActive)
@@ -412,21 +506,19 @@ public class DialButtonBar extends LinearLayout {
                                 buttonEntity.entitiesId, stateActive)
                                 ? "icon_on"
                                 : "icon_off");
-            }
-            else
+            } else
                 iconURL = buttonJSON.getString("icon_off");
 
             AssetUtil.toDrawable(
-                this.getContext(),
-                AssetUtil.toAbsoluteURLs(this.getContext(), new String[] { iconURL }),
-                new AssetUtil.ImageViewCallback(button)
+                    this.getContext(),
+                    AssetUtil.toAbsoluteURLs(this.getContext(), new String[]{iconURL}),
+                    new AssetUtil.ImageViewCallback(button)
             );
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                new String[] { buttonJSON.optString("entity_id") }
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new String[]{buttonJSON.optString("entity_id")}
             );
         }
     }
@@ -442,8 +534,7 @@ public class DialButtonBar extends LinearLayout {
 
         try {
             stateJSON = states.getDialButtonStates();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             return null;
         }
 
@@ -452,17 +543,16 @@ public class DialButtonBar extends LinearLayout {
                 String key = keys.get(0);
 
                 mapping.put(
-                    key,
-                    RefStringUtil.resolveValue(stateJSON, key + "/" + PlatformUtil.hashMD5(id))
+                        key,
+                        RefStringUtil.resolveValue(stateJSON, key + "/" + PlatformUtil.hashMD5(id))
                 );
             }
 
             return RefStringUtil.replaceMarkers(matcher, mapping);
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             return keys.size() > 0
-                 ? this.registerRadioState(keys.get(0), id, btnspecJSON.optString("active_state"))
-                 : null;
+                    ? this.registerRadioState(keys.get(0), id, btnspecJSON.optString("active_state"))
+                    : null;
         }
     }
 
@@ -478,8 +568,7 @@ public class DialButtonBar extends LinearLayout {
 
         try {
             rootJSON = states.getDialButtonStates();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             return null;
         }
 
@@ -491,8 +580,8 @@ public class DialButtonBar extends LinearLayout {
 
             objectJSON.put(PlatformUtil.hashMD5(id), value);
             states.save();
+        } catch (AvarioException | JSONException exception) {
         }
-        catch (AvarioException | JSONException exception) {}
 
         return value;
     }
@@ -529,23 +618,22 @@ public class DialButtonBar extends LinearLayout {
                 DialButtonEntity meta = DialButtonBar.this.entities.get(this.buttonspecJSON);
 
                 APIClient
-                    .getInstance()
-                    .executeRequest(
-                        this.requestspecJSON,
-                        this.buttonspecJSON.optString("entity_id"),
-                        DialButtonBar.TIMER_ID,
-                        new APIListener(meta.entitiesId.split(","))
-                    );
+                        .getInstance()
+                        .executeRequest(
+                                this.requestspecJSON,
+                                this.buttonspecJSON.optString("entity_id"),
+                                DialButtonBar.TIMER_ID,
+                                new APIListener(meta.entitiesId.split(","))
+                        );
 
                 this.runRadioButton();
-            }
-            catch (final AvarioException exception) {
+            } catch (final AvarioException exception) {
                 Application.mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         PlatformUtil
-                            .getErrorToast(DialButtonBar.this.getContext(), exception)
-                            .show();
+                                .getErrorToast(DialButtonBar.this.getContext(), exception)
+                                .show();
                     }
                 });
             }
@@ -562,26 +650,25 @@ public class DialButtonBar extends LinearLayout {
                 List<String> keys = new ArrayList<>();
 
                 RefStringUtil.extractMarkers(
-                    this.buttonspecJSON.getString("state"),
-                    keys
+                        this.buttonspecJSON.getString("state"),
+                        keys
                 );
 
                 for (String key : keys)
                     self.registerRadioState(
-                        key,
-                        meta.entitiesId,
-                        this.buttonspecJSON.getString("active_state")
+                            key,
+                            meta.entitiesId,
+                            this.buttonspecJSON.getString("active_state")
                     );
-            }
-            catch (JSONException exception) {
+            } catch (JSONException exception) {
                 throw new AvarioException(
-                    Constants.ERROR_STATE_MISSINGKEY,
-                    exception,
-                    new String[] { String.format(
-                        "%s.%s,%s.%s",
-                        this.buttonspecJSON.optString("entity_id"), "active_state",
-                        this.buttonspecJSON.optString("entity_id"), "state"
-                    )}
+                        Constants.ERROR_STATE_MISSINGKEY,
+                        exception,
+                        new String[]{String.format(
+                                "%s.%s,%s.%s",
+                                this.buttonspecJSON.optString("entity_id"), "active_state",
+                                this.buttonspecJSON.optString("entity_id"), "state"
+                        )}
                 );
             }
         }
@@ -605,13 +692,12 @@ public class DialButtonBar extends LinearLayout {
                 DialButtonEntity buttonEntity = self.buttons.get(button);
                 List<JSONObject> entityJSONs;
                 JSONObject btnJSON,
-                           tmpJSON;
+                        tmpJSON;
 
                 try {
                     tmpJSON = buttonEntity.buttonJSON;
                     btnJSON = states.getDialButton(tmpJSON.optString("entity_id"));
-                }
-                catch (AvarioException ignored) {
+                } catch (AvarioException ignored) {
                     continue;
                 }
 
@@ -627,18 +713,17 @@ public class DialButtonBar extends LinearLayout {
                     for (JSONObject entityJSON : buttonEntity.entityJSONs)
                         try {
                             entityJSONs.add(states.getEntity(entityJSON.optString("entity_id")));
+                        } catch (AvarioException ignored) {
                         }
-                        catch (AvarioException ignored) {}
-                }
-                else {
+                } else {
                     for (JSONObject entityJSON : buttonEntity.entityJSONs) {
                         if (!extraId.equals(entityJSON.optString("entity_id")))
                             entityJSONs.add(entityJSON);
                         else
                             try {
                                 entityJSONs.add(states.getEntity(entityJSON.optString("entity_id")));
+                            } catch (AvarioException ignored) {
                             }
-                            catch (AvarioException ignored) {}
                     }
                 }
             }
@@ -668,11 +753,28 @@ public class DialButtonBar extends LinearLayout {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent event) {
-            if (this.source.getId() == R.id.dialbtn__swap) {
-                this.handleSwap();
-                return true;
+            Log.d("ID", source.getId() + "");
+            int id = this.source.getId();
+            switch (this.source.getId()) {
+                case R.id.dialbtn__swap:
+                    this.handleSwap();
+                    return true;
+                case R.id.dialbtn__switch:
+                    this.swapDialLights();
+                    return true;
+                case R.id.dialbtn__colour:
+                    this.swapDial(source.getId());
+                    return true;
+                case R.id.dialbtn__saturation:
+                    this.swapDial(source.getId());
+                    return true;
+                case R.id.dialbtn__brightness:
+                    this.swapDial(source.getId());
+                    return true;
+                case R.id.dialbtn__temprature:
+                    this.swapDial(source.getId());
+                    return true;
             }
-
             this.handle("clk");
             return super.onSingleTapConfirmed(event);
         }
@@ -704,12 +806,140 @@ public class DialButtonBar extends LinearLayout {
                 self.setup(dial.getEntities(), true);
 
                 dial.initialize();
-            }
-            catch (NullPointerException ignored) {}
-            catch (AvarioException exception) {
+            } catch (NullPointerException ignored) {
+            } catch (AvarioException exception) {
                 PlatformUtil
-                    .getErrorToast(DialButtonBar.this.getContext(), exception)
-                    .show();
+                        .getErrorToast(DialButtonBar.this.getContext(), exception)
+                        .show();
+            }
+        }
+
+        private void setUpSwapLights() {
+            DialButtonBar self = DialButtonBar.this;
+            Dial dial = self.dialref.get();
+            List<JSONObject> entityJSONs = dial.getEntities();
+            removeAllViews();
+            entities.clear();
+            if (!isDialAlgo()) {
+                buttons.clear();
+                for (JSONObject entityJSON : entityJSONs) {
+                    try {
+                        setupEntity(entityJSON);
+                    } catch (AvarioException exception) {
+                        PlatformUtil
+                                .getErrorToast(getContext(), exception)
+                                .show();
+                    }
+                }
+                // setup the buttons for rendering. remove as necessary
+                Iterator<JSONObject> iterator = entities.keySet().iterator();
+
+                while (iterator.hasNext()) {
+                    JSONObject buttonJSON = iterator.next();
+                    DialButtonEntity buttonEntity = entities.get(buttonJSON);
+                    setupButton(buttonEntity);
+                }
+                ImageButton button;
+
+                button = generateButton();
+                button.setId(R.id.dialbtn__switch);
+
+                AssetUtil.toDrawable(
+                        getContext(),
+                        R.array.ic__switch,
+                        new AssetUtil.ImageViewCallback(button)
+                );
+
+                addView(button);
+            } else {
+
+                switch (dial.getType()) {
+                    case LIGHT:
+                        swapDial(R.id.dialbtn__brightness);
+                        break;
+                    case COLOUR:
+                        swapDial(R.id.dialbtn__colour);
+                        break;
+                    case SATURATION:
+                        swapDial(R.id.dialbtn__saturation);
+                        break;
+                    case TEMPERATURE:
+                        swapDial(R.id.dialbtn__temprature);
+                        break;
+                }
+            }
+            for (ImageButton button : buttons.keySet()) {
+                DialButtonEntity buttonEntity;
+                JSONObject buttonJSON;
+
+                buttonEntity = buttons.get(button);
+                buttonEntity.entitiesId = EntityUtil.compileIds(buttonEntity.entityJSONs);
+
+                buttonJSON = buttonEntity.buttonJSON;
+
+                if (buttonJSON.has("radio")) {
+                    try {
+                        buttonEntity.stateJSON = StateArray
+                                .getInstance()
+                                .getDialButtonState(buttonJSON.optString("state_id"))
+                                .getJSONObject("states");
+                    } catch (AvarioException exception) {
+                        PlatformUtil
+                                .getErrorToast(getContext(), exception)
+                                .show();
+                    } catch (JSONException ignored) {
+                    }
+                }
+            }
+
+            updateStates();
+        }
+
+
+        private boolean isDialAlgo() {
+            for (Map.Entry<ImageButton, DialButtonEntity> item : buttons.entrySet()) {
+                if (item.getKey().getId() == R.id.dialbtn__colour ||
+                        item.getKey().getId() == R.id.dialbtn__brightness ||
+                        item.getKey().getId() == R.id.dialbtn__saturation ||
+                        item.getKey().getId() == R.id.dialbtn__temprature) {
+                    return false;
+                }
+
+            }
+            return true;
+        }
+
+        private void swapDial(int id) {
+            DialButtonBar self = DialButtonBar.this;
+            Dial dial = self.dialref.get();
+
+            try {
+                dial.changeDialType(id);
+                self.setup(dial.getEntities(), false);
+
+                dial.initialize();
+            } catch (NullPointerException ignored) {
+            } catch (AvarioException exception) {
+                PlatformUtil
+                        .getErrorToast(DialButtonBar.this.getContext(), exception)
+                        .show();
+            }
+        }
+
+        private void swapDialLights() {
+            DialButtonBar self = DialButtonBar.this;
+            Dial dial = self.dialref.get();
+
+            try {
+                dial.changeDialType(R.id.dialbtn__brightness);
+                setUpSwapLights();
+
+                dial.initialize();
+            } catch (NullPointerException ignored) {
+            } catch (AvarioException exception) {
+                PlatformUtil
+                        .getErrorToast(DialButtonBar.this.getContext(), exception)
+                        .show();
             }
         }
 
@@ -717,8 +947,11 @@ public class DialButtonBar extends LinearLayout {
             DialButtonBar self = DialButtonBar.this;
 
             DialButtonEntity buttonEntity = self.buttons.get(this.source);
+            if (buttonEntity == null) {
+                return;
+            }
             JSONObject buttonJSON = buttonEntity.buttonJSON,
-                       requestJSON;
+                    requestJSON;
 
             try {
                 requestJSON = this.getRequestSpec(buttonJSON, type);
@@ -744,11 +977,10 @@ public class DialButtonBar extends LinearLayout {
 //                    new NagleRunnable(buttonJSON, requestJSON),
 //                    EntityUtil.getNagleDelay(buttonEntity.buttonJSON)
 //                );
-            }
-            catch (AvarioException exception) {
+            } catch (AvarioException exception) {
                 PlatformUtil
-                    .getErrorToast(self.getContext(), exception)
-                    .show();
+                        .getErrorToast(self.getContext(), exception)
+                        .show();
             }
         }
 
@@ -757,27 +989,25 @@ public class DialButtonBar extends LinearLayout {
 
             try {
                 rqspecJSON = btnspecJSON
-                    .getJSONObject("controls")
-                    .getJSONObject("api");
-            }
-            catch (JSONException exception) {
+                        .getJSONObject("controls")
+                        .getJSONObject("api");
+            } catch (JSONException exception) {
                 throw new AvarioException(
-                    Constants.ERROR_STATE_MISSINGKEY,
-                    exception,
-                    new Object[] {
-                        String.format("%s.controls.api", btnspecJSON.optString("entity_id"))
-                    }
+                        Constants.ERROR_STATE_MISSINGKEY,
+                        exception,
+                        new Object[]{
+                                String.format("%s.controls.api", btnspecJSON.optString("entity_id"))
+                        }
                 );
             }
 
             try {
                 return new JSONObject(
-                    rqspecJSON
-                        .getJSONObject(type)
-                        .toString()
+                        rqspecJSON
+                                .getJSONObject(type)
+                                .toString()
                 );
-            }
-            catch (JSONException exception) {
+            } catch (JSONException exception) {
                 return null;
             }
         }
@@ -785,9 +1015,9 @@ public class DialButtonBar extends LinearLayout {
         private void processRequestSpec(JSONObject specJSON, DialButtonEntity meta) throws AvarioException {
             if (!APIClient.isValidRequestSpec(specJSON))
                 throw new AvarioException(
-                    Constants.ERROR_STATE_API_OBJECTS,
-                    null,
-                    new Object[] { specJSON.optString("entity_id"), 0 }
+                        Constants.ERROR_STATE_API_OBJECTS,
+                        null,
+                        new Object[]{specJSON.optString("entity_id"), 0}
                 );
 
             try {
@@ -802,8 +1032,8 @@ public class DialButtonBar extends LinearLayout {
                     mapping.put("value", String.valueOf(dial.getValue()));
 
                 specJSON.put("payload", RefStringUtil.replaceMarkers(matcher, mapping));
+            } catch (JSONException ignored) {
             }
-            catch (JSONException ignored) {}
         }
     }
 
@@ -831,12 +1061,12 @@ public class DialButtonBar extends LinearLayout {
      *
      * @param entityId button entity id
      */
-    public void click(String entityId){
-        for (Map.Entry<ImageButton, DialButtonEntity> item : buttons.entrySet()){
+    public void click(String entityId) {
+        for (Map.Entry<ImageButton, DialButtonEntity> item : buttons.entrySet()) {
             try {
                 if (item.getValue().entitiesId.equals(entityId)
                         && Light.isStateSame(item.getValue().entitiesId,
-                        item.getValue().buttonJSON.getString("active_state"))){
+                        item.getValue().buttonJSON.getString("active_state"))) {
                     long downTime = SystemClock.uptimeMillis();
                     long eventTime = SystemClock.uptimeMillis() + 100;
                     float x = 0.0f;
@@ -862,9 +1092,9 @@ public class DialButtonBar extends LinearLayout {
     private class DialButtonEntity {
         /**
          * The consolidated entitiesId string of entityJSONs. Examples would be:
-         *      > light.side
-         *      > light.main,light.side
-         *
+         * > light.side
+         * > light.main,light.side
+         * <p>
          * This field will be alphabetically arranged
          */
         String entitiesId;

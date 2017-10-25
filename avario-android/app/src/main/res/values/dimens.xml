@@ -10,8 +10,8 @@ R
     <dimen name="settings__field__width">150dp</dimen>
 
     <dimen name="dialbutton__padding">10dp</dimen>
-    <dimen name="dialbutton__width">56dp</dimen>
-    <dimen name="dialbutton__height">56dp</dimen>
+    <dimen name="dialbutton__width">60dp</dimen>
+    <dimen name="dialbutton__height">60dp</dimen>
     <dimen name="dialbutton__margin__left">36dp</dimen>
 
     <dimen name="deviceslist__inset">30dp</dimen>
