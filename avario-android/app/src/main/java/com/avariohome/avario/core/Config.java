@@ -256,6 +256,9 @@ public class Config {
         this.prefs.edit().putString(PREFKEY_BOOTSTRAP, bootstrap).apply();
     }
 
+    /**
+     * Restore previous config data.
+     */
     public void restore(){
         this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, tempIsKiosk).apply();
         this.prefs.edit().putBoolean(PREFKEY_HTTP_SSL, tempSSL).apply();
@@ -273,6 +276,9 @@ public class Config {
                 .apply();
     }
 
+    /**
+     * Override the previous stored config data.
+     */
     public void apply(){
         tempIsKiosk = fetchBoolean(PREFKEY_IS_KIOSK);
         tempSSL = fetchBoolean(PREFKEY_HTTP_SSL);
@@ -310,6 +316,10 @@ public class Config {
         return this.prefs.getString(key, null);
     }
 
+    /**
+     * Store light algo to be use when app reboots.
+     * @param algos ArrayList of Light.Algo class.
+     */
     public void setLightAlgo(ArrayList<Light.Algo> algos) {
         String set = new Gson().toJson(algos);
         this.prefs.edit().putString(PREFKEY_LIGHT_ALGO, set).apply();

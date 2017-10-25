@@ -218,6 +218,8 @@ public class APIClient {
         final Config config = Config.getInstance();
         JsonObjectRequest request;
 
+        // Path can be null. If null or empty then
+        // get default bootstrap path.
         if (path == null || path.isEmpty()) {
             path = config.getBootstrapURL();
         } else {

@@ -1647,6 +1647,10 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Catch any bootstrap changes. This is mostly called during push notification
+     * to get new bootstrap.
+     */
     private class BootstrapListener extends APIClient.BootstrapListener {
         @Override
         public void onResponse(JSONObject response) {

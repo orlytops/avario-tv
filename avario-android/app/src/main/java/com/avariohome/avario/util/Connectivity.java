@@ -21,6 +21,10 @@ public class Connectivity {
 
     }
 
+    /**
+     * To ensure that there is ony a single instance.
+     * @return instance;
+     */
     public static Connectivity getInstance() {
         if (instance == null) {
             synchronized (Connectivity.class) {
@@ -32,11 +36,21 @@ public class Connectivity {
         return instance;
     }
 
+    /**
+     * Get router mac address.
+     * @param context Application context.
+     * @return return router mac address.
+     */
     public static String getAccessPointMac(Context context) {
         WifiInfo wifiInfo = Connectivity.getWifiInfo(context);
         return wifiInfo.getBSSID();
     }
 
+    /**
+     * Get device mac address.
+     * @param context application context.
+     * @return device mac address.
+     */
     public static String getMacAddress(Context context) {
         WifiInfo wifiInfo = Connectivity.getWifiInfo(context);
 
@@ -52,6 +66,11 @@ public class Connectivity {
         return wifiMan.getConnectionInfo();
     }
 
+    /**
+     * Check if mac address from state array is similar to device mac address.
+     * @param context applicaiton context.
+     * @return boolean.
+     */
     public static boolean identifyConnection(Context context) {
         JSONArray lanMacList;
         boolean result = false;

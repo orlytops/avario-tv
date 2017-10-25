@@ -170,7 +170,6 @@ public class StateArray {
             String deviceId = PlatformUtil.getTabletId();
             for (int i = 0; i < tabletIdList.length(); i++) {
                 if (tabletIdList.get(i).toString().equalsIgnoreCase(deviceId)) {
-                    android.util.Log.v("BootstrapChange", "Sending broadcast locally");
                     this.handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1173,6 +1172,10 @@ public class StateArray {
         return file;
     }
 
+    /**
+     * Data might be empty so use this to check.
+     * @return boolean.
+     */
     public boolean isDataEmpty(){
         return data == null;
     }
