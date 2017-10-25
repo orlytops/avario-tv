@@ -763,9 +763,6 @@ public class Dial extends FrameLayout {
         this.category = category;
 
         switch (category) {
-            case COLOUR:
-                //this.adapt();
-                break;
             case ENTITY:
                 this.adapt(isFromMQTT);
                 break;
@@ -776,11 +773,6 @@ public class Dial extends FrameLayout {
 
             case VOLUME:
                 this.adaptVolume();
-                break;
-            case SATURATION:
-                //this.adapt();
-            case TEMPRATURE:
-                //this.adapt();
                 break;
         }
     }
@@ -1284,7 +1276,7 @@ public class Dial extends FrameLayout {
                 new ArcThumbCallback(this.arc)
         );
 
-        this.arc.setMax(360); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
+        this.arc.setMax(360);
 
         arc.setSeekColor(getResources().getColor(R.color.trasnparent));
         arc.setStartAngle(0);
@@ -1316,7 +1308,7 @@ public class Dial extends FrameLayout {
                 new ArcThumbCallback(this.arc)
         );
 
-        this.arc.setMax(255); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
+        this.arc.setMax(255);
         try {
             rgbArray = this.entities.get(0)
                     .getJSONObject("new_state")

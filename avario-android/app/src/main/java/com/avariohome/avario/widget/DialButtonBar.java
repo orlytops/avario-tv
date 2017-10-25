@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.BounceInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,6 +30,8 @@ import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.util.RefStringUtil;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -177,6 +180,9 @@ public class DialButtonBar extends LinearLayout {
             );
 
             this.addView(button);
+            YoYo.with(Techniques.ZoomIn)
+                    .duration(700)
+                    .playOn(button);
         }
 
         if (areSameLightTypes(dialTypes) && entityJSONs.size() > 1 && !mediaMode && !areAllTrue(shouldShowList)) {
@@ -205,6 +211,9 @@ public class DialButtonBar extends LinearLayout {
             );
 
             this.addView(button);
+            YoYo.with(Techniques.ZoomIn)
+                    .duration(700)
+                    .playOn(button);
         }
 
         // get reference to the `states` root object (algo state)
@@ -403,6 +412,10 @@ public class DialButtonBar extends LinearLayout {
         button.setId(id);
         this.buttons.put(button, buttonEntity);
         this.addView(button);
+        YoYo.with(Techniques.ZoomIn)
+                .interpolate(new BounceInterpolator())
+                .duration(500)
+                .playOn(button);
     }
 
     private ImageButton generateButton() {
