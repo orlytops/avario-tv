@@ -3,7 +3,6 @@ package com.avariohome.avario.core;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -604,6 +603,21 @@ public class StateArray {
         }
     }
 
+    public int getIdleDelay() throws AvarioException {
+        try {
+            return this.data
+                    .getJSONObject("settings")
+                    .getJSONObject("delays")
+                    .getInt("idle_delay");
+        } catch (NullPointerException | JSONException exception) {
+            throw new AvarioException(
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{"settings.delays.idle_delay"}
+            );
+        }
+    }
+
     public int getNagleDelay() throws AvarioException {
         try {
             return this.data
@@ -1174,9 +1188,10 @@ public class StateArray {
 
     /**
      * Data might be empty so use this to check.
+     *
      * @return boolean.
      */
-    public boolean isDataEmpty(){
+    public boolean isDataEmpty() {
         return data == null;
     }
 }
