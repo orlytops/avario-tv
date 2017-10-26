@@ -69,6 +69,8 @@ public class DialButtonBar extends LinearLayout {
     private Map<JSONObject, DialButtonEntity> entities;
     private WeakReference<Dial> dialref;
     private boolean mediaMode;
+    private DialButtonEntity previousEntity;
+    private List<String> previousButtons = new ArrayList<>();
 
     public DialButtonBar(Context context) {
         this(context, null, 0);
@@ -112,11 +114,13 @@ public class DialButtonBar extends LinearLayout {
     public void setup(List<JSONObject> entityJSONs, boolean mediaMode) {
         ArrayList<Boolean> shouldShowList = new ArrayList<>();
         ArrayList<String> dialTypes = new ArrayList<>();
-        this.removeAllViews();
         this.entities.clear();
         this.buttons.clear();
         shouldShowList.clear();
+        this.removeAllViews();
         this.mediaMode = mediaMode;
+        boolean isRemoveView = true;
+        boolean hasButtons = false;
 
         for (JSONObject entityJSON : entityJSONs) {
             if (entityJSON.has("dials")) {
@@ -141,6 +145,7 @@ public class DialButtonBar extends LinearLayout {
                 } else if (areSameTypes(dialTypes)) {
                     this.setupEntity(entityJSON);
                 }
+
             } catch (AvarioException exception) {
                 PlatformUtil
                         .getErrorToast(this.getContext(), exception)
@@ -161,11 +166,14 @@ public class DialButtonBar extends LinearLayout {
                     visibility == DialButtonBar.VISIBILITY_ALONE && size == 1 ||
                     visibility == DialButtonBar.VISIBILITY_GROUP && size > 1 ||
                     (visibility == DialButtonBar.VISIBILITY_LIGHTS && size >= 1 && entityJSONs.size() == 1)) {
-                this.setupButton(buttonEntity);
+                Log.d("Has buttons itr", hasButton(buttonEntity.buttonJSON.optString("entity_id")) + " ");
+                this.setupButton(buttonEntity, hasButton(buttonEntity.buttonJSON.optString("entity_id")));
             } else {
                 iterator.remove();
             }
         }
+
+        Log.d("Has buttons", hasButtons + " " + previousButtons.size());
 
         if (areAllTrue(shouldShowList) && areSameTypes(dialTypes) && entityJSONs.size() > 1 && !mediaMode) {
             ImageButton button;
@@ -181,7 +189,8 @@ public class DialButtonBar extends LinearLayout {
 
             this.addView(button);
             YoYo.with(Techniques.ZoomIn)
-                    .duration(700)
+                    .interpolate(new BounceInterpolator())
+                    .duration(500)
                     .playOn(button);
         }
 
@@ -212,7 +221,8 @@ public class DialButtonBar extends LinearLayout {
 
             this.addView(button);
             YoYo.with(Techniques.ZoomIn)
-                    .duration(700)
+                    .interpolate(new BounceInterpolator())
+                    .duration(500)
                     .playOn(button);
         }
 
@@ -257,6 +267,15 @@ public class DialButtonBar extends LinearLayout {
             }
         }
         return true;
+    }
+
+    private boolean hasButton(String entityId) {
+        for (int i = 0; i < previousButtons.size(); i++) {
+            if (previousButtons.get(i).equals(entityId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean areSameLightTypes(ArrayList<String> array) {
@@ -389,7 +408,7 @@ public class DialButtonBar extends LinearLayout {
      *
      * @param buttonEntity
      */
-    private void setupButton(DialButtonEntity buttonEntity) {
+    private void setupButton(DialButtonEntity buttonEntity, boolean hasButton) {
         ImageButton button = this.generateButton();
 
         int id = 0;
@@ -407,15 +426,35 @@ public class DialButtonBar extends LinearLayout {
             case "temprature":
                 id = R.id.dialbtn__temprature;
                 break;
+            case "lightalgo1":
+                id = R.id.dialbtn__algo1;
+                break;
+            case "lightalgo2":
+                id = R.id.dialbtn__algo2;
+                break;
+            case "lightalgo3":
+                id = R.id.dialbtn__algo3;
+                break;
         }
 
         button.setId(id);
+        button.setTag(buttonEntity.buttonJSON.optString("entity_id"));
         this.buttons.put(button, buttonEntity);
         this.addView(button);
-        YoYo.with(Techniques.ZoomIn)
-                .interpolate(new BounceInterpolator())
-                .duration(500)
-                .playOn(button);
+        Log.d("Has button bellow", hasButton + "");
+        if (!hasButton) {
+            YoYo.with(Techniques.ZoomIn)
+                    .interpolate(new BounceInterpolator())
+                    .duration(500)
+                    .playOn(button);
+        }
+        previousButtons.add(buttonEntity.buttonJSON.optString("entity_id"));
+
+        if (!previousButtons.isEmpty() && previousButtons.size() >= 6) {
+            previousButtons.remove(0);
+            previousButtons.remove(0);
+            previousButtons.remove(0);
+        }
     }
 
     private ImageButton generateButton() {
@@ -820,6 +859,8 @@ public class DialButtonBar extends LinearLayout {
             List<JSONObject> entityJSONs = dial.getEntities();
             removeAllViews();
             entities.clear();
+            boolean hasButtons = false;
+
             if (!isDialAlgo()) {
                 buttons.clear();
                 for (JSONObject entityJSON : entityJSONs) {
@@ -831,14 +872,16 @@ public class DialButtonBar extends LinearLayout {
                                 .show();
                     }
                 }
+
                 // setup the buttons for rendering. remove as necessary
                 Iterator<JSONObject> iterator = entities.keySet().iterator();
 
                 while (iterator.hasNext()) {
                     JSONObject buttonJSON = iterator.next();
                     DialButtonEntity buttonEntity = entities.get(buttonJSON);
-                    setupButton(buttonEntity);
+                    setupButton(buttonEntity, hasButton(buttonEntity.buttonJSON.optString("entity_id")));
                 }
+
                 ImageButton button;
 
                 button = generateButton();
@@ -952,23 +995,23 @@ public class DialButtonBar extends LinearLayout {
             JSONObject buttonJSON = buttonEntity.buttonJSON,
                     requestJSON;
 
+            try {
+                requestJSON = this.getRequestSpec(buttonJSON, type);
+
+                if (requestJSON == null)
+                    return;
+
+                this.processRequestSpec(requestJSON, buttonEntity);
+
                 try {
-                    requestJSON = this.getRequestSpec(buttonJSON, type);
-
-                    if (requestJSON == null)
-                        return;
-
-                    this.processRequestSpec(requestJSON, buttonEntity);
-
-                    try {
-                        Light.updateAlgo(buttonEntity.entitiesId,
-                                buttonJSON.getJSONObject("controls")
-                                        .getJSONObject("api")
-                                        .getJSONObject("clk")
-                                        .getString("payload"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    Light.updateAlgo(buttonEntity.entitiesId,
+                            buttonJSON.getJSONObject("controls")
+                                    .getJSONObject("api")
+                                    .getJSONObject("clk")
+                                    .getString("payload"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 updateStates();
 //                NagleTimers.reset(
