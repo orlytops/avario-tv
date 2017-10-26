@@ -253,7 +253,7 @@
     </string-array>
 
     <string-array name="ic__roomselect__device">
-        <item>/roomselect/ic__device.png</item>
+        <item>/topbar/ic__dropdown__activated.png</item>
     </string-array>
 
     <string-array name="ic__roomselect__media">

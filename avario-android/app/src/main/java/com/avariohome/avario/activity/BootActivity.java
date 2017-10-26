@@ -216,8 +216,9 @@ public class BootActivity extends BaseActivity {
         if (alert11 != null && alert11.isShowing()) {
             alert11.hide();
         }
-
-        EventBus.getDefault().register(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         IntentFilter mIntentFilter = new IntentFilter();
         mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);

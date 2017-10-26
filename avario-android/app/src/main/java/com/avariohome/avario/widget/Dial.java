@@ -792,7 +792,6 @@ public class Dial extends FrameLayout {
         String type;
         String defaultDial = null;
         JSONObject dials = null;
-        Log.d("Category", category.toString() + " " + isFromMQTT);
 
         for (JSONObject entity : this.entities) {
 
@@ -859,7 +858,6 @@ public class Dial extends FrameLayout {
         }
 
         // check if the dial still needs to adapt or stay put
-        Log.d("Dial id", dialId);
         try {
 
             dialId = dialId == null ? Type.SWITCH.getId() : dialId;
@@ -868,8 +866,6 @@ public class Dial extends FrameLayout {
 
         } catch (NullPointerException ignored) {
         }
-
-        Log.d(TAG, "Adapting to 1: " + dialId);
 
         this.unrender();
 
@@ -937,8 +933,6 @@ public class Dial extends FrameLayout {
                 return;
         } catch (NullPointerException ignored) {
         }
-
-        Log.d(TAG, "Adapting to: " + dialId);
 
         this.unrender();
 
@@ -1120,8 +1114,6 @@ public class Dial extends FrameLayout {
         if (this.dialJSON == null)
             return;
 
-        Log.d("Type ", this.type.toString());
-
         switch (this.type) {
             case SWITCH:
                 this.renderSwitch();
@@ -1171,8 +1163,6 @@ public class Dial extends FrameLayout {
     private void renderSwitch() {
         Context context = this.getContext();
 
-        Log.d(TAG, "Rendering switch..");
-
         AssetUtil.toDrawable(
                 context,
                 R.array.bg__dial__top__button,
@@ -1211,7 +1201,6 @@ public class Dial extends FrameLayout {
         final Context context = this.getContext();
 
         Log.d(TAG, "Rendering light..");
-        Log.d(TAG, "Entities: " + entitiesId);
 
         AssetUtil.toDrawable(
                 context,
@@ -1237,15 +1226,11 @@ public class Dial extends FrameLayout {
 
         try {
             if (dials != null) {
-                Log.d("With diaols: ", dials.toString());
-
                 arcColourStart = dials.getJSONObject("brightness").getString("arc_colour_start");
                 arcColourEnd = dials.getJSONObject("brightness").getString("arc_colour_end");
                 //handled bootstrap colors
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
             } else if (dial != null) {
-                Log.d("Dial: ", dial.toString());
-
                 arcColourStart = dial.getString("arc_colour_start");
                 arcColourEnd = dial.getString("arc_colour_end");
                 //handled bootstrap colors
@@ -1262,7 +1247,6 @@ public class Dial extends FrameLayout {
         final Context context = this.getContext();
 
         Log.d(TAG, "Rendering Hue..");
-        Log.d(TAG, "Entities: " + entitiesId);
 
         AssetUtil.toDrawable(
                 context,
@@ -1294,7 +1278,6 @@ public class Dial extends FrameLayout {
         int[] rgb = new int[3];
 
         Log.d(TAG, "Rendering light..");
-        Log.d(TAG, "Entities: " + entitiesId);
 
         AssetUtil.toDrawable(
                 context,
@@ -1352,7 +1335,6 @@ public class Dial extends FrameLayout {
         int[] rgb = new int[3];
 
         Log.d(TAG, "Rendering light..");
-        Log.d(TAG, "Entities: " + entitiesId);
 
         AssetUtil.toDrawable(
                 context,
@@ -1415,7 +1397,6 @@ public class Dial extends FrameLayout {
 
         JSONObject dial = entities.get(0).optJSONObject("dial");
         if (dial != null) {
-            Log.d("Dial: ", dial.toString());
 
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
@@ -1460,8 +1441,6 @@ public class Dial extends FrameLayout {
 
         JSONObject dial = entities.get(0).optJSONObject("dial");
         if (dial != null) {
-            Log.d("Dial: ", dial.toString());
-
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
@@ -1501,8 +1480,6 @@ public class Dial extends FrameLayout {
 
         JSONObject dial = entities.get(0).optJSONObject("dial");
         if (dial != null) {
-            Log.d("Dial: ", dial.toString());
-
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
@@ -1546,8 +1523,6 @@ public class Dial extends FrameLayout {
 
         JSONObject dial = entities.get(0).optJSONObject("dial");
         if (dial != null) {
-            Log.d("Dial: ", dial.toString());
-
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
@@ -1586,8 +1561,6 @@ public class Dial extends FrameLayout {
         String arcColourEnd = "";
         JSONObject dial = entities.get(0).optJSONObject("dial");
         if (dial != null) {
-            Log.d("Dial: ", dial.toString());
-
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
@@ -1625,8 +1598,6 @@ public class Dial extends FrameLayout {
 
         JSONObject dial = entities.get(0).optJSONObject("dial");
         if (dial != null) {
-            Log.d("Dial: ", dial.toString());
-
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
@@ -1824,7 +1795,6 @@ public class Dial extends FrameLayout {
         int temperature = ((value * 350) / 100) + 150;
         this.tempraturePowerIB.setActivated(true);
         this.tempraturePercentTV.setText(temperature + "");
-        Log.d("temprature inside", value + " " + value);
     }
 
     private void refreshThermo(int value, boolean fromUser, String units) {
@@ -1985,7 +1955,6 @@ public class Dial extends FrameLayout {
 
         if (source == Dial.SOURCE_USER)
             this.progressPrev = valueArc;
-        Log.d("Switch", valueArc + " " + state.equals("off"));
         this.updateDial(valueArc, source, true);
         this.refreshControls(valueArc, false);
     }
@@ -2032,7 +2001,6 @@ public class Dial extends FrameLayout {
         Color.RGBToHSV(rgb[0], rgb[1], rgb[2], hsv);
 
         int hue = (int) hsv[0];
-        Log.d("Hue", hue + "");
         this.updateDial(360, source, false);
         this.arc.setThumbPosition(hue);
         this.refreshControls(hue, false);
@@ -2051,7 +2019,6 @@ public class Dial extends FrameLayout {
         }
 
         int percentage = (value * 100) / 255;
-        Log.d("percentage", percentage + " " + value);
         this.updateDial(255, source, false);
         this.arc.updateThumbPositionCustom(value);
         this.refreshControls(value, false);
@@ -2243,8 +2210,7 @@ public class Dial extends FrameLayout {
 
     // region API Execution
     private JSONObject getRequestSpec(String state) throws AvarioException {
-        Log.d("state ", state);
-        Log.d("json", this.dialJSON.toString());
+
         try {
             return new JSONObject(
                     this.dialJSON
@@ -2467,7 +2433,6 @@ public class Dial extends FrameLayout {
                 this.arc == source ? "set" :
                         progress > 0 ? "on" : "off"
         );
-        Log.d("specJson: ", specJSON.toString());
         if (this.arc != source) {
             isLightsOn = !(progress > 0);
         } else {
@@ -2490,7 +2455,6 @@ public class Dial extends FrameLayout {
                 ? "set"
                 : getStateLight().equals("on") ? "off" : "on";
 
-        Log.d("State light: ", this.getStateLight());
         if (!directive.equals("set") && directive.equals(this.getStateLight()))
             return null;
 
@@ -2510,7 +2474,6 @@ public class Dial extends FrameLayout {
         rgbint[0] = red;
         rgbint[1] = green;
         rgbint[2] = blue;
-        Log.d("specJson: ", specJSON.toString());
 
         if (getStateLight().equals("on")) {
             arc.setThumbDrawable(null);
@@ -2583,7 +2546,6 @@ public class Dial extends FrameLayout {
             arc.setThumbDrawable(null);
         }
 
-        Log.d("value", progress + "");
 
         if (this.arc == source) {
             this.processRequestSpec(specJSON, progress);
@@ -2940,8 +2902,21 @@ public class Dial extends FrameLayout {
 
         @Override
         public void onStopTrackingTouch(SeekArc seekArc) {
+
+            /*
+            * Created this to handle the the delay based on boostrap
+            * */
+            StateArray states = StateArray.getInstance();
+            int delay = 1000;
+
+            try {
+                delay = states.getIdleDelay();
+            } catch (AvarioException e) {
+                e.printStackTrace();
+            }
+
             Dial self = Dial.this;
-            self.mainHandler.postDelayed(self.idleRunnable, 1000);
+            self.mainHandler.postDelayed(self.idleRunnable, delay);
         }
     }
 

@@ -16,7 +16,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Path;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -250,7 +249,7 @@ public class SettingsDialogFragment extends DialogFragment {
         try {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version = pInfo.versionName;
-            versionText.setText("Version: avario_john_v" + version);
+            versionText.setText("Version: avario_master_v" + version);
 //            versionText.setText("Version: avario_orly_v" + version);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -265,7 +264,7 @@ public class SettingsDialogFragment extends DialogFragment {
             clearAssetsB.setVisibility(View.VISIBLE);
             relativeLayoutBootStrap.setVisibility(View.VISIBLE);
             relativeLayoutCache.setVisibility(View.VISIBLE);
-            bootstrapSource.setText("Source: "+this.config.getHttpHost()+":"+this.config.getHttpPort());
+            bootstrapSource.setText("Source: " + this.config.getHttpHost() + ":" + this.config.getHttpPort());
         }
         startKiosk();
         return view;
@@ -464,7 +463,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
     private void cancelChanges() {
         Log.i(TAG, "Cancelling new changes...");
-        if (this.config.getHttpHost() != null && this.config.getHttpPort() != null){
+        if (this.config.getHttpHost() != null && this.config.getHttpPort() != null) {
             this.dismiss();
             this.config.restore();
 
@@ -675,7 +674,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 self.cancelChanges();
             } else if (view.getId() == R.id.btnClearAssets) {
                 self.setEnabled(false);
-                if (!isFileEmpty(self.getActivity().getCacheDir())){
+                if (!isFileEmpty(self.getActivity().getCacheDir())) {
                     Toast.makeText(self.getActivity(),
                             self.deleteAssetCache(self.getActivity().getCacheDir())
                                     ? "All assets deleted." : "Failed to delete assets.", Toast.LENGTH_SHORT).show();
@@ -689,7 +688,7 @@ public class SettingsDialogFragment extends DialogFragment {
                     self.deleteAssetCache(self.getActivity().getCacheDir());
                     self.loadAssets();
                 }
-            } else if(view.getId() == R.id.btnDownloadBootstrap) {
+            } else if (view.getId() == R.id.btnDownloadBootstrap) {
                 if (config.isSet()) {
                     Toast.makeText(self.getActivity(), "Getting new bootstrap", Toast.LENGTH_SHORT).show();
                     reboot = true;
@@ -701,7 +700,7 @@ public class SettingsDialogFragment extends DialogFragment {
         }
     }
 
-    private boolean isFileEmpty(File file){
+    private boolean isFileEmpty(File file) {
         File[] content = file.listFiles();
         return content.length == 0;
     }
@@ -729,7 +728,7 @@ public class SettingsDialogFragment extends DialogFragment {
                     .setData(response);
             Connectivity.identifyConnection(getActivity());
             self.config.setBootstrapFetched(true);
-            if (reboot){
+            if (reboot) {
                 try {
                     StateArray.getInstance().save();
                 } catch (AvarioException e) {
