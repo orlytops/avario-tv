@@ -5,10 +5,8 @@ package com.avariohome.avario.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.SystemUpdatePolicy;
@@ -45,7 +43,6 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
 import com.android.volley.TimeoutError;
@@ -75,6 +72,7 @@ import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.util.SystemUtil;
+import com.avariohome.avario.widget.BatteryWifi;
 import com.avariohome.avario.widget.DevicesList;
 import com.avariohome.avario.widget.ElementsBar;
 import com.avariohome.avario.widget.MediaList;
@@ -128,6 +126,7 @@ public class MainActivity extends BaseActivity {
     private ImageButton boltIB;
     private ImageButton tempIB;
     private ImageButton activeModeIB;
+    private BatteryWifi battery;
 
     private ImageButton playIB;
     private ImageButton nextIB;
@@ -190,6 +189,7 @@ public class MainActivity extends BaseActivity {
         this.activeModeIB.performClick();
         this.isBluetoothAvailable();
         this.checkNotifications();
+
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(this.bluetoothReceiver, filter);
 
@@ -353,8 +353,8 @@ public class MainActivity extends BaseActivity {
 //        );
 
         IntentFilter notificationIntentFilter = new IntentFilter();
-        notificationIntentFilter.addAction( Constants.BROADCAST_NOTIF);
-        notificationIntentFilter.addAction( Constants.BROADCAST_BOOTSTRAP_CHANGED);
+        notificationIntentFilter.addAction(Constants.BROADCAST_NOTIF);
+        notificationIntentFilter.addAction(Constants.BROADCAST_BOOTSTRAP_CHANGED);
         LocalBroadcastManager
                 .getInstance(this)
                 .registerReceiver(new NotificationReceiver(), notificationIntentFilter);
@@ -407,6 +407,8 @@ public class MainActivity extends BaseActivity {
         this.volumeIB = (ImageButton) this.findViewById(R.id.volume);
 
         this.notifIB = (ImageButton) this.findViewById(R.id.notif);
+
+        this.battery = (BatteryWifi) this.findViewById(R.id.battery);
 
         this.dialFragment = (DialFragment) this
                 .getSupportFragmentManager()
@@ -1523,7 +1525,7 @@ public class MainActivity extends BaseActivity {
             if (BluetoothScanner.getInstance().isEnabled())
                 BluetoothScanner.getInstance().scanLeDevice(true);
 
-
+            battery.setIsLan(Connectivity.getInstance().isConnectedToLan());
         }
 
         @Override
@@ -1663,7 +1665,7 @@ public class MainActivity extends BaseActivity {
             } catch (AvarioException e) {
                 e.printStackTrace();
             }
-            if (StateArray.getInstance().tempReboot){
+            if (StateArray.getInstance().tempReboot) {
                 SystemUtil.rebootApp(MainActivity.this);
             } else {
                 Toast.makeText(MainActivity.this,

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:seekarc="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.triggertrap.seekarc.SeekArc
+        android:id="@+id/arc"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        seekarc:arcWidth="1dp"
+        seekarc:boundsInner="86dp"
+        seekarc:boundsOuter="36dp"
+        seekarc:continuous="false"
+        seekarc:progressWidth="2dp"
+        seekarc:rotation="180"
+        seekarc:roundEdges="true"
+        seekarc:startAngle="30"
+        seekarc:sweepAngle="300"
+        seekarc:thumb="@color/white__60"
+        seekarc:thumbOffset="64dp" />
+
+    <ImageView
+        android:id="@+id/image_wifi"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/text_percent"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="center"
+        android:textSize="22sp" />
+
+</merge>

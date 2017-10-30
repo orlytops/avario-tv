@@ -3,7 +3,6 @@ package com.avariohome.avario.util;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.util.Log;
 
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
@@ -23,6 +22,7 @@ public class Connectivity {
 
     /**
      * To ensure that there is ony a single instance.
+     *
      * @return instance;
      */
     public static Connectivity getInstance() {
@@ -38,6 +38,7 @@ public class Connectivity {
 
     /**
      * Get router mac address.
+     *
      * @param context Application context.
      * @return return router mac address.
      */
@@ -48,6 +49,7 @@ public class Connectivity {
 
     /**
      * Get device mac address.
+     *
      * @param context application context.
      * @return device mac address.
      */
@@ -68,6 +70,7 @@ public class Connectivity {
 
     /**
      * Check if mac address from state array is similar to device mac address.
+     *
      * @param context applicaiton context.
      * @return boolean.
      */
