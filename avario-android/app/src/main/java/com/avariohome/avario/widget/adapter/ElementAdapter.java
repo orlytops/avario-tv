@@ -49,8 +49,8 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
 
         view = inflater.inflate(this.itemLayoutId, parent, false);
         view.setLayoutParams(new RecyclerView.LayoutParams(
-            this.itemWidth,
-            LinearLayout.LayoutParams.MATCH_PARENT
+                this.itemWidth,
+                LinearLayout.LayoutParams.MATCH_PARENT
         ));
 
         return new ViewHolder(view);
@@ -78,18 +78,19 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
             holder.textTV.setText(element.data.optString("name"));
         else
             holder.textTV.setText(element.data.optString(
-                "name_climate",
-                element.data.optString("name")
+                    "name_climate",
+                    element.data.optString("name")
             ));
 
         try {
-            AssetUtil.toDrawable(
-                holder.itemView.getContext(),
-                EntityUtil.getStateIconUrl(holder.itemView.getContext(), element.data),
-                new AssetUtil.ImageViewCallback(holder.iconIV)
+            AssetUtil.loadImage(
+                    holder.itemView.getContext(),
+                    EntityUtil.getStateIconUrl(holder.itemView.getContext(), element.data),
+                    new AssetUtil.ImageViewCallback(holder.iconIV),
+                    holder.iconIV
             );
+        } catch (AvarioException ignored) {
         }
-        catch (AvarioException ignored) {}
     }
 
     private void bindSelection(ViewHolder holder, Entity entity) {
@@ -108,7 +109,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
 
     private void setPageSize(Context context, int pageSize) {
         int screenWidth = context.getResources().getDisplayMetrics().widthPixels,
-            width;
+                width;
 
         width = screenWidth / pageSize;
         width = width + (width / 2 / (pageSize - 1));
@@ -117,7 +118,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
 
     public void setMode(int mode) {
         if (mode != ElementAdapter.MODE_HOME &&
-            mode != ElementAdapter.MODE_CLIMATE)
+                mode != ElementAdapter.MODE_CLIMATE)
             mode = ElementAdapter.MODE_HOME;
 
         this.mode = mode;
@@ -147,8 +148,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     public Entity get(int index) {
         try {
             return this.elements.get(index);
-        }
-        catch (IndexOutOfBoundsException exception) {
+        } catch (IndexOutOfBoundsException exception) {
             return null;
         }
     }
@@ -165,8 +165,8 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         private ViewHolder(View view) {
             super(view);
 
-            this.textTV = (TextView)view.findViewById(R.id.text);
-            this.iconIV = (ImageView)view.findViewById(R.id.icon);
+            this.textTV = (TextView) view.findViewById(R.id.text);
+            this.iconIV = (ImageView) view.findViewById(R.id.icon);
         }
     }
 }
