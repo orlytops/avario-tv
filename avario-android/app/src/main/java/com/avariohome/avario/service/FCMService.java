@@ -30,6 +30,7 @@ public class FCMService extends FirebaseMessagingService {
         array.deleteExpired();
 
         this.broadcastNotif(notification);
+        showMessageInformation(message);
     }
 
     private void showMessageInformation(RemoteMessage message) {

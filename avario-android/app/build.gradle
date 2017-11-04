@@ -62,7 +62,8 @@ dependencies {
             'rhino'            : '1.7.7.1',
             'supt'             : '25.3.1',
             'volley'           : '1.0.0',
-            'nv-bluetooth'     : '1.8'
+            'nv-bluetooth'     : '1.8',
+            'firebasecrash'    : '11.0.2'
     ]
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -79,19 +80,20 @@ dependencies {
     compile "com.squareup.picasso:picasso:${versions['picasso']}"
     compile "org.mozilla:rhino:${versions['rhino']}"
     compile "com.neovisionaries:nv-bluetooth:${versions['nv-bluetooth']}"
-    compile "com.google.code.gson:gson:2.8.1"
-    compile 'io.reactivex:rxandroid:1.2.1'
-    compile 'io.reactivex:rxjava:1.1.6'
-    compile 'org.greenrobot:eventbus:3.0.0'
-    compile 'com.android.support:support-compat:25.1.1'
-    compile 'com.daimajia.easing:library:2.0@aar'
-    compile 'com.daimajia.androidanimations:library:2.3@aar'
 
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support',
                 module: 'support-annotations'
     })
 
+    compile 'com.google.code.gson:gson:2.8.1'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxjava:1.1.6'
+    compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'com.android.support:support-compat:25.1.1'
+    compile 'com.daimajia.easing:library:2.0@aar'
+    compile 'com.daimajia.androidanimations:library:2.3@aar'
+    compile 'com.google.firebase:firebase-crash:11.0.2'
     testCompile 'junit:junit:4.12'
 }
 
