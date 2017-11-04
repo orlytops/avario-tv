@@ -239,6 +239,59 @@
                 android:text="@string/delete_assets" />
         </RelativeLayout>
 
+        <RelativeLayout
+            android:id="@+id/rlCrashReport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible">
+
+            <View
+                android:id="@+id/vCrashReportBorder"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/black__60" />
+
+            <TextView
+                android:id="@+id/tvCrashReportTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/vCrashReportBorder"
+                android:text="Crash Report"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etNoneFatalMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvCrashReportTitle"
+                android:hint="None Fatal Crash Message"/>
+
+            <Button
+                android:id="@+id/btnNoneFatal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/etNoneFatalMessage"
+                android:background="@drawable/settings_dialog_button"
+                android:paddingEnd="@dimen/custom_settings_button"
+                android:paddingStart="@dimen/custom_settings_button"
+                android:textColor="@color/dial__color3"
+                android:text="Send none Fatal crash" />
+
+            <Button
+                android:id="@+id/btnForceCrash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btnNoneFatal"
+                android:background="@drawable/settings_dialog_button"
+                android:paddingEnd="@dimen/custom_settings_button"
+                android:paddingStart="@dimen/custom_settings_button"
+                android:textColor="@color/dial__color3"
+                android:text="Force Crash" />
+        </RelativeLayout>
+
         <!-- Working Message -->
         <LinearLayout
             android:id="@+id/working__holder"
