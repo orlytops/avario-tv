@@ -3,6 +3,7 @@ package com.avariohome.avario.util;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.*;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -49,6 +50,7 @@ public class AssetUtil {
     }
 
     public static DrawableLoader toDrawable(Context context, int assetId, DrawableLoader.Callback callback) {
+        // TODO: 11/6/17 This is were multiple asset download gets called John notes.
         return AssetUtil.toDrawable(
                 context,
                 AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId)),

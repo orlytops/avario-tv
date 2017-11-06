@@ -547,7 +547,6 @@ public class DialButtonBar extends LinearLayout {
                                 : "icon_off");
             } else
                 iconURL = buttonJSON.getString("icon_off");
-
             AssetUtil.toDrawable(
                     this.getContext(),
                     AssetUtil.toAbsoluteURLs(this.getContext(), new String[]{iconURL}),

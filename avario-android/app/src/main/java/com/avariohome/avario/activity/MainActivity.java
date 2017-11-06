@@ -1560,21 +1560,23 @@ public class MainActivity extends BaseActivity {
             super.onResponse(response);
 
             Handler handler = Application.workHandler;
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        StateArray.getInstance()
-                                .updateFromHTTP(response)
-                                .broadcastChanges(null, StateArray.FROM_HTTP);
-                    } catch (AvarioException exception) {
-                        CurrentStateListener.this.reportError(exception);
+            if (handler != null) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            StateArray.getInstance()
+                                    .updateFromHTTP(response)
+                                    .broadcastChanges(null, StateArray.FROM_HTTP);
+                        } catch (AvarioException exception) {
+                            CurrentStateListener.this.reportError(exception);
+                        }
+
                     }
+                });
 
-                }
-            });
-
-            MainActivity.this.hideBusyDialog();
+                MainActivity.this.hideBusyDialog();
+            }
         }
 
         // TODO call super.onErrorResponse() and then override super.forceTimerExpire()
