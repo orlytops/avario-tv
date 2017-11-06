@@ -270,7 +270,7 @@ public class BootActivity extends BaseActivity {
                     if (mWifi.isConnected()) {
                         isHasWifi = true;
                         Connectivity.identifyConnection(getApplicationContext());
-                        //sendFCMToken();
+                        sendFCMToken();
                         connectMQTT(new MqttConnectionListener(), false);
                         progressPD.setMessage(getString(R.string.message__mqtt__connecting));
                         countDownTimer.cancel();
@@ -426,7 +426,7 @@ public class BootActivity extends BaseActivity {
     private void sendFCMToken() {
         APIClient
                 .getInstance()
-                .postFCMToken(null);
+                .postFCMToken(Config.getInstance().getFCM());
     }
 
     protected void startMainActivity() {

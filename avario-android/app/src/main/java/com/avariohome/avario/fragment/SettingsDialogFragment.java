@@ -579,7 +579,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private void sendFCMToken() {
         APIClient
                 .getInstance()
-                .postFCMToken(null);
+                .postFCMToken(Config.getInstance().getFCM());
     }
 
     /**

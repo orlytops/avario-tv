@@ -3,6 +3,7 @@ package com.avariohome.avario.service;
 
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
+import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.Log;
@@ -30,6 +31,10 @@ public class FCMInstanceService extends FirebaseInstanceIdService{
         String token = FirebaseInstanceId.getInstance().getToken();
 
         Log.d(TAG, "Token:\n" + token);
+
+        if (token != null) {
+            Config.getInstance().setFCM(token);
+        }
 
         APIClient
             .getInstance()
