@@ -77,29 +77,29 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             holder.nameTV.setText(entity.data.optString("name"));
         else
             holder.nameTV.setText(entity.data.optString(
-                "name_climate",
-                entity.data.optString("name"))
+                    "name_climate",
+                    entity.data.optString("name"))
             );
 
         try {
             imageUrls = EntityUtil.getStateIconUrl(
-                holder.itemView.getContext(),
-                entity.data
+                    holder.itemView.getContext(),
+                    entity.data
             );
-        }
-        catch (AvarioException exception) {
-            imageUrls = new String[] { "" };
+        } catch (AvarioException exception) {
+            imageUrls = new String[]{""};
         }
 
         try {
-            AssetUtil.toDrawable(
-                holder.itemView.getContext(),
-                imageUrls,
-                new AssetUtil.ImageViewCallback(holder.iconIV)
+            AssetUtil.loadImage(
+                    holder.itemView.getContext(),
+                    imageUrls,
+                    new AssetUtil.ImageViewCallback(holder.iconIV),
+                    holder.iconIV
             );
+        } catch (ArrayIndexOutOfBoundsException ignored) {
         }
-        catch (ArrayIndexOutOfBoundsException ignored) {}
-            holder.iconIV.setImageDrawable(null);
+        //holder.iconIV.setImageDrawable(null);
     }
 
     private void bindValue(ViewHolder holder, Entity entity) {
@@ -107,8 +107,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
         try {
             value = RefStringUtil.processCode(entity.data.getString("value"));
-        }
-        catch (AvarioException | JSONException exception) {
+        } catch (AvarioException | JSONException exception) {
             value = "";
         }
 
@@ -118,12 +117,12 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
             tmp = Float.parseFloat(value);
             tmp = type.equals("cover")
-                ? tmp / Constants.MAX_VALUE_COVER * 100.00f
-                : tmp / Constants.MAX_VALUE_NUMBER * 100.00f;
+                    ? tmp / Constants.MAX_VALUE_COVER * 100.00f
+                    : tmp / Constants.MAX_VALUE_NUMBER * 100.00f;
 
             value = String.valueOf(Math.round(tmp));
+        } catch (NumberFormatException ignored) {
         }
-        catch (NumberFormatException ignored) {}
 
         holder.valueTV.setText(value);
     }
@@ -168,8 +167,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
     public void setMode(int mode) {
         if (mode != DeviceAdapter.MODE_HOME &&
-            mode != DeviceAdapter.MODE_CLIMATE)
-            mode =  DeviceAdapter.MODE_HOME;
+                mode != DeviceAdapter.MODE_CLIMATE)
+            mode = DeviceAdapter.MODE_HOME;
 
         this.mode = mode;
     }
@@ -198,8 +197,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     public Entity get(int index) {
         try {
             return this.devices.get(index);
-        }
-        catch (IndexOutOfBoundsException exception) {
+        } catch (IndexOutOfBoundsException exception) {
             return null;
         }
     }
@@ -226,9 +224,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         private ViewHolder(View view) {
             super(view);
 
-            this.nameTV = (TextView)view.findViewById(R.id.name);
-            this.valueTV = (TextView)view.findViewById(R.id.value);
-            this.iconIV = (ImageView)view.findViewById(R.id.icon);
+            this.nameTV = (TextView) view.findViewById(R.id.name);
+            this.valueTV = (TextView) view.findViewById(R.id.value);
+            this.iconIV = (ImageView) view.findViewById(R.id.icon);
         }
     }
 }

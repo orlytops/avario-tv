@@ -3,15 +3,29 @@ package com.avariohome.avario.util;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.exception.AvarioException;
+import com.jakewharton.picasso.OkHttp3Downloader;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+
+import javax.net.ssl.HostnameVerifier;
+
+import okhttp3.Credentials;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
 
 
 /**
@@ -19,6 +33,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class AssetUtil {
     public static final String TAG = "Avario/AssetUtil";
+    private static Picasso picasso;
 
     public static Drawable getPlaceholderDrawable(Context context) {
         Drawable drawable;
@@ -48,7 +63,102 @@ public class AssetUtil {
         return url;
     }
 
+    /*public static DrawableLoader toDrawable(Context context, int assetId, DrawableLoader.Callback callback, View image) {
+
+
+        String[] urls = AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId));
+        for (String url : urls) {
+            if (image instanceof ImageButton) {
+                ImageButton imageView = (ImageButton) image;
+                AssetUtil.picasso(context).load(url).into(imageView);
+            } else if (image instanceof ImageView) {
+                ImageView imageViw = (ImageView) image;
+                AssetUtil.picasso(context).load(url).into(imageViw);
+            }
+        }
+
+        return AssetUtil.toDrawable(
+                context,
+                AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId)),
+                callback
+        );
+    }*/
+
+    public static Picasso picasso(Context context) {
+        if (picasso == null) {
+            HostnameVerifier verifier = APIClient.getDevHostnameVerifier();
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            OkHttpClient client;
+
+            builder = builder
+                    .cache(OkHttp3Downloader.createDefaultCache(context))
+                    .addNetworkInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(@NonNull Interceptor.Chain chain) throws IOException {
+                            Config config = Config.getInstance();
+                            String credential = Credentials.basic(
+                                    config.getUsername(),
+                                    config.getPassword()
+                            );
+
+                            return chain.proceed(
+                                    chain.request().newBuilder()
+                                            .addHeader("Authorization", credential)
+                                            .build()
+                            );
+                        }
+                    });
+
+            if (verifier != null)
+                builder.hostnameVerifier(verifier);
+
+            client = builder.build();
+
+            picasso = new Picasso.Builder(context)
+                    .listener(picassoListener)
+                    .downloader(new OkHttp3Downloader(client))
+                    .build();
+            //Picasso.setSingletonInstance(AssetUtil.picasso);
+            picasso.setIndicatorsEnabled(true);
+        }
+        return picasso;
+    }
+
+    public static Picasso.Listener picassoListener = new Picasso.Listener() {
+        @Override
+        public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
+            exception.printStackTrace();
+        }
+    };
+
+    public static void loadImage(Context context, int assetId, DrawableLoader.Callback callback, View image) {
+
+        String[] urls = AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId));
+        for (String url : urls) {
+            if (image instanceof ImageButton) {
+                ImageButton imageView = (ImageButton) image;
+                AssetUtil.picasso(context).load(url).into(imageView);
+            } else if (image instanceof ImageView) {
+                ImageView imageViw = (ImageView) image;
+                AssetUtil.picasso(context).load(url).into(imageViw);
+            }
+        }
+    }
+
+    public static void loadImage(Context context, String[] urls, DrawableLoader.Callback callback, View image) {
+        for (String url : urls) {
+            if (image instanceof ImageButton) {
+                ImageButton imageView = (ImageButton) image;
+                AssetUtil.picasso(context).load(url).into(imageView);
+            } else if (image instanceof ImageView) {
+                ImageView imageViw = (ImageView) image;
+                AssetUtil.picasso(context).load(url).into(imageViw);
+            }
+        }
+    }
+
     public static DrawableLoader toDrawable(Context context, int assetId, DrawableLoader.Callback callback) {
+
         return AssetUtil.toDrawable(
                 context,
                 AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId)),

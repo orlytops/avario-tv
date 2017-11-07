@@ -38,8 +38,8 @@ public class DialFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
         View root = inflater.inflate(R.layout.fragment__dial, container, false);
 
-        this.dial = (Dial)root.findViewById(R.id.dial);
-        this.dialbtnBar = (DialButtonBar)root.findViewById(R.id.dialbuttons);
+        this.dial = (Dial) root.findViewById(R.id.dial);
+        this.dialbtnBar = (DialButtonBar) root.findViewById(R.id.dialbuttons);
         this.dialbtnBar.setDial(this.dial);
 
         return root;
@@ -63,13 +63,12 @@ public class DialFragment extends Fragment {
         try {
             for (int index = 0, length = entityIds.length(); index < length; index++)
                 entities.add(states.getEntity(entityIds.getString(index)));
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
+        } catch (JSONException ignored) {
         }
-        catch (JSONException ignored) {}
 
         this.dial.setup(entities);
         this.dialbtnBar.setup(entities);
@@ -84,11 +83,10 @@ public class DialFragment extends Fragment {
         try {
             for (String entityId : entityIds)
                 entities.add(states.getEntity(entityId));
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
         }
 
         this.dial.setup(entities);
@@ -103,11 +101,10 @@ public class DialFragment extends Fragment {
 
         try {
             entities.add(states.getMediaEntity(entityId));
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
         }
 
         this.dial.setup(entities, Dial.Category.MEDIA, false);
@@ -122,11 +119,10 @@ public class DialFragment extends Fragment {
 
         try {
             entities.add(states.getMediaEntity(entityId));
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
         }
 
         this.dial.setup(entities, Dial.Category.VOLUME, false);
@@ -136,11 +132,10 @@ public class DialFragment extends Fragment {
     }
 
     /**
-     *
      * @param entityId button entity id
      */
-    public void click(String entityId){
-        if (entityId != null){
+    public void click(String entityId) {
+        if (entityId != null) {
             dialbtnBar.click(entityId);
         }
     }
