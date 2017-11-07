@@ -831,6 +831,9 @@ public class StateArray {
     }
 
     public JSONObject getFCMRequest() throws AvarioException {
+        if (!this.hasData()) {
+            return null;
+        }
         try {
             return new JSONObject(
                     this.data
