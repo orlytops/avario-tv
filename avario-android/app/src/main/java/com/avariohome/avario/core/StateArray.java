@@ -304,13 +304,11 @@ public class StateArray {
                     .getJSONObject("media")
                     .getJSONObject(entityId);
         } catch (JSONException exception) {
-            //prevent throwing exception on firebase the entity throwed from the HTTP
-            //is not available in the bootstrap
-            /*throw new AvarioException(
+            throw new AvarioException(
                     Constants.ERROR_STATE_MISSINGKEY,
                     exception,
                     new Object[]{"media." + entityId}
-            );*/
+            );
         }
     }
 
@@ -808,6 +806,9 @@ public class StateArray {
     }
 
     public JSONObject getBluetoothEndpointRequest() throws AvarioException {
+        if (!this.hasData()) {
+            return null;
+        }
         try {
             JSONObject specJSON;
 
