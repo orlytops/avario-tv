@@ -859,6 +859,10 @@ public class StateArray {
     }
 
     public JSONArray getFCMTopics() throws AvarioException {
+        if (!hasData()) {
+            return null;
+        }
+
         try {
             return this.data
                     .getJSONObject("settings")
