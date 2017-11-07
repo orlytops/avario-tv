@@ -11,8 +11,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 
 /**
@@ -32,6 +30,7 @@ public class Config {
     private static final String PREFKEY_HOLD_SECONDS = "setting__hold_seconds";
     private static final String PREFKEY_LIGHT_ALGO = "algo_light";
     private static final String PREFKEY_IS_KIOSK = "is_kiosk";
+    private static final String PREFKEY_IS_TABLET = "is_tablet";
 
     private static Config instance = null;
 
@@ -44,6 +43,7 @@ public class Config {
     private boolean tempSSL;
     private boolean tempFetched;
     private boolean tempIsKiosk;
+    private boolean tempIsTablet;
     private String tempUsername;
     private String temppassword;
     private String tempBootstrap;
@@ -78,6 +78,7 @@ public class Config {
         tempSSL = fetchBoolean(PREFKEY_HTTP_SSL);
         tempFetched = fetchBoolean(PREFKEY_RES_FETCHED);
         tempIsKiosk = fetchBoolean(PREFKEY_IS_KIOSK);
+        tempIsTablet = fetchBoolean(PREFKEY_IS_TABLET);
         tempUsername = fetchString(PREFKEY_USERNAME);
         temppassword = fetchString(PREFKEY_PASSWORD);
         tempBootstrap = fetchString(PREFKEY_BOOTSTRAP);
@@ -125,6 +126,10 @@ public class Config {
 
     public boolean isKiosk() {
         return this.fetchBoolean(PREFKEY_IS_KIOSK);
+    }
+
+    public boolean isTablet() {
+        return this.fetchBoolean(PREFKEY_IS_TABLET);
     }
 
     public String getAssetRoot() {
@@ -252,15 +257,20 @@ public class Config {
         this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, isKiosk).apply();
     }
 
-    public void setBootstrap(String bootstrap){
+    public void setIsTablet(boolean isTablet) {
+        this.prefs.edit().putBoolean(PREFKEY_IS_TABLET, isTablet).apply();
+    }
+
+    public void setBootstrap(String bootstrap) {
         this.prefs.edit().putString(PREFKEY_BOOTSTRAP, bootstrap).apply();
     }
 
     /**
      * Restore previous config data.
      */
-    public void restore(){
+    public void restore() {
         this.prefs.edit().putBoolean(PREFKEY_IS_KIOSK, tempIsKiosk).apply();
+        this.prefs.edit().putBoolean(PREFKEY_IS_TABLET, tempIsTablet).apply();
         this.prefs.edit().putBoolean(PREFKEY_HTTP_SSL, tempSSL).apply();
         this.prefs.edit().putBoolean(PREFKEY_RES_FETCHED, tempFetched).apply();
         this.prefs.edit().putString(PREFKEY_HTTP_PORT, tempHttpPort).apply();
@@ -279,8 +289,9 @@ public class Config {
     /**
      * Override the previous stored config data.
      */
-    public void apply(){
+    public void apply() {
         tempIsKiosk = fetchBoolean(PREFKEY_IS_KIOSK);
+        tempIsTablet = fetchBoolean(PREFKEY_IS_TABLET);
         tempSSL = fetchBoolean(PREFKEY_HTTP_SSL);
         tempFetched = fetchBoolean(PREFKEY_RES_FETCHED);
         tempHttpPort = fetchString(PREFKEY_HTTP_PORT);
@@ -318,6 +329,7 @@ public class Config {
 
     /**
      * Store light algo to be use when app reboots.
+     *
      * @param algos ArrayList of Light.Algo class.
      */
     public void setLightAlgo(ArrayList<Light.Algo> algos) {
@@ -333,7 +345,7 @@ public class Config {
     }
 
     // Delete algo content to avoid redundancy.
-    public void deleteAlgo(){
+    public void deleteAlgo() {
         this.prefs.edit().remove(PREFKEY_LIGHT_ALGO).apply();
     }
 }

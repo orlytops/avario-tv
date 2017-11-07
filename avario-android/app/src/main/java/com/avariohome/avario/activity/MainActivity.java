@@ -16,6 +16,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.http.SslError;
@@ -34,13 +35,16 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.android.volley.NetworkError;
@@ -80,6 +84,7 @@ import com.avariohome.avario.widget.RoomSelector;
 import com.avariohome.avario.widget.adapter.DeviceAdapter;
 import com.avariohome.avario.widget.adapter.ElementAdapter;
 import com.avariohome.avario.widget.adapter.Entity;
+import com.avariohome.avario.widget.adapter.EventAdapter;
 import com.avariohome.avario.widget.adapter.MediaAdapter;
 import com.avariohome.avario.widget.adapter.RoomEntity;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -133,6 +138,8 @@ public class MainActivity extends BaseActivity {
 
     private ImageButton notifIB;
 
+    private Spinner eventsSpinner;
+
     private WebView contentWV;
     private DialFragment dialFragment;
 
@@ -153,12 +160,33 @@ public class MainActivity extends BaseActivity {
     private boolean isInActive = false;
     private boolean isMediaAvailable = false;
 
+    private Config config;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity__main);
 
+        config = Config.getInstance();
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        float yInches = metrics.heightPixels / metrics.ydpi;
+        float xInches = metrics.widthPixels / metrics.xdpi;
+        double diagonalInches = Math.sqrt(xInches * xInches + yInches * yInches);
+        if (diagonalInches >= 6.5) {
+            // 6.5inch device or bigger
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+            config.setIsTablet(true);
+        } else {
+            // smaller device
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            config.setIsTablet(false);
+        }
 
         this.handler = Application.mainHandler;
 
@@ -180,7 +208,11 @@ public class MainActivity extends BaseActivity {
         this.initViewConf();
 
         this.registerEvents();
-        this.loadAssets();
+        if (config.isTablet()) {
+            this.loadTabAssets();
+        } else {
+            this.loadPhoneAssets();
+        }
 
         this.activeModeIB = this.homeIB;
         this.activeModeIB.setActivated(true);
@@ -189,6 +221,7 @@ public class MainActivity extends BaseActivity {
         this.checkNotifications();
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(this.bluetoothReceiver, filter);
+
 
     }
 
@@ -397,6 +430,7 @@ public class MainActivity extends BaseActivity {
         this.cctvIB = (ImageButton) this.findViewById(R.id.cctv);
         this.tempIB = (ImageButton) this.findViewById(R.id.temperature);
         this.contentWV = (WebView) this.findViewById(R.id.webview);
+        this.eventsSpinner = (Spinner) this.findViewById(R.id.spinner_events);
 
         this.playIB = (ImageButton) this.findViewById(R.id.play);
         this.nextIB = (ImageButton) this.findViewById(R.id.next);
@@ -408,6 +442,44 @@ public class MainActivity extends BaseActivity {
         this.dialFragment = (DialFragment) this
                 .getSupportFragmentManager()
                 .findFragmentById(R.id.dial);
+
+        if (!config.isTablet()) {
+            initSpinner();
+        }
+    }
+
+    private void initSpinner() {
+
+
+        List<Integer> eventsIdList = new ArrayList<>();
+        eventsIdList.add(R.array.ic__mode__temp);
+        eventsIdList.add(R.array.ic__mode__bolt);
+        eventsIdList.add(R.array.ic__mode__cctv);
+
+        EventAdapter eventAdapter = new EventAdapter(this, eventsIdList);
+        eventsSpinner.setAdapter(eventAdapter);
+
+        eventsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        activateModeClimate();
+                        break;
+                    case 1:
+                        activateModeEnergy();
+                        break;
+                    case 2:
+                        activateModeCCTV();
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @SuppressLint("RtlHardcoded")
@@ -494,7 +566,42 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void loadAssets() {
+    private void loadPhoneAssets() {
+        int[][] resourceIds = new int[][]{
+                new int[]{
+                        R.id.home,
+
+                        R.id.devices,
+                        R.id.notif,
+
+                        R.id.prev,
+                        R.id.play,
+                        R.id.next,
+                        R.id.volume,
+                },
+                new int[]{
+                        R.array.ic__mode__home,
+
+                        R.array.ic__topbar__dropdown,
+                        R.array.ic__topbar__notiff,
+
+                        R.array.ic__topbar__prev,
+                        R.array.ic__topbar__play,
+                        R.array.ic__topbar__next,
+                        R.array.ic__topbar__volume,
+                },
+        };
+
+        for (int index = 0; index < resourceIds[0].length; index++) {
+            AssetUtil.loadImage(
+                    this,
+                    resourceIds[1][index],
+                    new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index])), (ImageButton) this.findViewById(resourceIds[0][index])
+            );
+        }
+    }
+
+    private void loadTabAssets() {
         int[][] resourceIds = new int[][]{
                 new int[]{
                         R.id.home,
@@ -1404,7 +1511,11 @@ public class MainActivity extends BaseActivity {
 
             self.startInactivityCountdown();
             self.loadFromStateArray();
-            self.loadAssets();
+            if (config.isTablet()) {
+                self.loadTabAssets();
+            } else {
+                self.loadPhoneAssets();
+            }
             self.showBusyDialog(null);
             self.fetchCurrentStates();
             self.initFCMTopics();

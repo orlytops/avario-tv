@@ -1,8 +1,6 @@
 package com.avariohome.avario.exception;
 
 
-import com.google.firebase.crash.FirebaseCrash;
-
 /**
  * Created by aeroheart-c6 on 10/01/2017.
  */
@@ -18,7 +16,7 @@ public class AvarioException extends Exception {
         super(throwable);
         this.code = code;
         this.arguments = arguments;
-        FirebaseCrash.report(throwable);
+        //FirebaseCrash.report(throwable);
     }
 
     public Object[] getMessageArguments() {

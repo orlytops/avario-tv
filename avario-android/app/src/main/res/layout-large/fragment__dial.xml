@@ -9,8 +9,8 @@
 
     <com.avariohome.avario.widget.Dial
         android:id="@+id/dial"
-        android:layout_width="350dp"
-        android:layout_height="350dp" />
+        android:layout_width="360dp"
+        android:layout_height="360dp" />
 
     <com.avariohome.avario.widget.DialButtonBar
         android:id="@+id/dialbuttons"

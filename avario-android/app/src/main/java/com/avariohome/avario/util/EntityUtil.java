@@ -33,21 +33,19 @@ public class EntityUtil {
      * Reads from the icon_on or icon_off depending on the entity's state. The method will always
      * fall back to icon_off.
      *
-     * @throws AvarioException when icon_off property cannot be found from within the entity
-     *
      * @param entityJSON
      * @return url value from icon_on / icon_off attributes contained in an array for easy
-     *         integration with AssetUtil loaders
+     * integration with AssetUtil loaders
+     * @throws AvarioException when icon_off property cannot be found from within the entity
      */
     public static String[] getStateIconUrl(Context context, JSONObject entityJSON) throws AvarioException {
         String property;
 
         try {
             property = "icon_" + entityJSON
-                .getJSONObject("new_state")
-                .getString("state");
-        }
-        catch (JSONException exception) {
+                    .getJSONObject("new_state")
+                    .getString("state");
+        } catch (JSONException exception) {
             property = "icon_off";
         }
 
@@ -56,12 +54,11 @@ public class EntityUtil {
 
         try {
             return AssetUtil.toAbsoluteURLs(
-                context,
-                new String[] { entityJSON.getString(property) }
+                    context,
+                    new String[]{entityJSON.getString(property)}
             );
-        }
-        catch (JSONException exception) {
-            return new String[] { "" };
+        } catch (JSONException exception) {
+            return new String[]{""};
         }
     }
 
@@ -77,15 +74,14 @@ public class EntityUtil {
         String entityId = mediaJSON.optString("entity_id");
 
         try {
-            return (int)mediaJSON.getDouble("media_position_live");
-        }
-        catch (JSONException exception) {
+            return (int) mediaJSON.getDouble("media_position_live");
+        } catch (JSONException exception) {
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                new Object[] {
-                    String.format("%s.new_state.state", entityId)
-                }
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{
+                            String.format("%s.new_state.state", entityId)
+                    }
             );
         }
     }
@@ -96,17 +92,16 @@ public class EntityUtil {
      * JSON be passed, it will simply return null
      *
      * @param entityJSON the entity
-     * @param type the "clk", "dbl", "lng" strings depending on the tap type it received
+     * @param type       the "clk", "dbl", "lng" strings depending on the tap type it received
      * @return the JSONArray describing the GUI commands in the form of ["A", "H", "D", "L"]
      */
     public static JSONArray getGUICommands(JSONObject entityJSON, String type) {
         try {
             return entityJSON
-                .getJSONObject("controls")
-                .getJSONObject("gui")
-                .getJSONArray(type);
-        }
-        catch (JSONException | NullPointerException exception) {
+                    .getJSONObject("controls")
+                    .getJSONObject("gui")
+                    .getJSONArray(type);
+        } catch (JSONException | NullPointerException exception) {
             return null;
         }
     }
@@ -117,17 +112,16 @@ public class EntityUtil {
      * JSON be passed, it will simply return null
      *
      * @param entityJSON the entity
-     * @param type the "clk", "dbl", "lng" strings depending on the tap type it received
+     * @param type       the "clk", "dbl", "lng" strings depending on the tap type it received
      * @return the JSONArray describe the API commands to perform
      */
     public static JSONArray getAPICommands(JSONObject entityJSON, String type) {
         try {
             return entityJSON
-                .getJSONObject("controls")
-                .getJSONObject("api")
-                .getJSONArray(type);
-        }
-        catch (JSONException | NullPointerException exception) {
+                    .getJSONObject("controls")
+                    .getJSONObject("api")
+                    .getJSONArray(type);
+        } catch (JSONException | NullPointerException exception) {
             return null;
         }
     }
@@ -147,12 +141,12 @@ public class EntityUtil {
 
         try {
             NagleTimers.reset(
-                entityJSON.getString("entity_id"),
-                new HttpRunnable(entityJSON, apiJSON, context),
-                EntityUtil.getNagleDelay(entityJSON)
+                    entityJSON.getString("entity_id"),
+                    new HttpRunnable(entityJSON, apiJSON, context),
+                    EntityUtil.getNagleDelay(entityJSON)
             );
+        } catch (JSONException ignored) {
         }
-        catch (JSONException ignored) {}
     }
 
     public static boolean isEntityOn(JSONObject entityJSON) {
@@ -160,12 +154,11 @@ public class EntityUtil {
 
         try {
             state = entityJSON
-                .getJSONObject("new_state")
-                .getString("state");
+                    .getJSONObject("new_state")
+                    .getString("state");
 
             state = state.toLowerCase();
-        }
-        catch (JSONException | NullPointerException exception) {
+        } catch (JSONException | NullPointerException exception) {
             return false;
         }
 
@@ -174,7 +167,7 @@ public class EntityUtil {
 
     public static boolean isConsideredOn(String value) {
         return value.equals("on")
-            || value.equals("open");
+                || value.equals("open");
     }
 
     public static String compileIds(List<JSONObject> entityJSONs) {
@@ -186,8 +179,8 @@ public class EntityUtil {
         for (JSONObject entityJSON : entityJSONs)
             try {
                 ids.add(entityJSON.getString("entity_id"));
+            } catch (JSONException ignored) {
             }
-            catch (JSONException ignored) {}
 
         Collections.sort(ids);
 
@@ -225,24 +218,22 @@ public class EntityUtil {
 
                         if (requestJSON.has("payload"))
                             requestJSON.put(
-                                "payload",
-                                RefStringUtil.processRefs(requestJSON.getString("payload"))
+                                    "payload",
+                                    RefStringUtil.processRefs(requestJSON.getString("payload"))
                             );
 
                         execJSON.put(requestJSON);
-                    }
-                    catch (JSONException exception) {
+                    } catch (JSONException exception) {
                         throw new AvarioException(
-                            Constants.ERROR_STATE_API_OBJECTS,
-                            exception,
-                            new Object[] {
-                                entityJSON.optString("entity_id"),
-                                index
-                            }
+                                Constants.ERROR_STATE_API_OBJECTS,
+                                exception,
+                                new Object[]{
+                                        entityJSON.optString("entity_id"),
+                                        index
+                                }
                         );
                     }
-                }
-                catch (AvarioException exception) {
+                } catch (AvarioException exception) {
                     if (exception.getCodeValue() == Constants.ERROR_STATE_API_CONDITION) {
                         Object[] args;
 
@@ -259,15 +250,14 @@ public class EntityUtil {
                 String entityId = entityJSON.optString("entity_id", null);
 
                 APIClient
-                    .getInstance()
-                    .sequenceRequests(
-                        execJSON,
-                        entityId,
-                        entityId,
-                        new HttpListener(entityId, new String[] { entityId }, this.context)
-                    );
-            }
-            catch (final AvarioException exception)  {
+                        .getInstance()
+                        .sequenceRequests(
+                                execJSON,
+                                entityId,
+                                entityId,
+                                new HttpListener(entityId, new String[]{entityId}, this.context)
+                        );
+            } catch (final AvarioException exception) {
                 Application.mainHandler.post(new PlatformUtil.ErrorToastRunnable(this.context, exception));
             }
         }
@@ -308,8 +298,8 @@ public class EntityUtil {
                             code = Constants.ERROR_API_HTTP_SERVER;
 
                         PlatformUtil
-                            .getErrorToast(self.context, new AvarioException(code, error))
-                            .show();
+                                .getErrorToast(self.context, new AvarioException(code, error))
+                                .show();
                     }
                 }
             });

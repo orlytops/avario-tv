@@ -89,7 +89,7 @@
             android:configChanges="keyboardHidden|orientation"
             android:hardwareAccelerated="true"
             android:launchMode="singleTask"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="portrait"
             android:stateNotNeeded="true">
 
         </activity>
