@@ -119,7 +119,7 @@ public class AssetUtil {
                     .downloader(new OkHttp3Downloader(client))
                     .build();
             //Picasso.setSingletonInstance(AssetUtil.picasso);
-            picasso.setIndicatorsEnabled(true);
+            //picasso.setIndicatorsEnabled(true);
         }
         return picasso;
     }

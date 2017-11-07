@@ -297,17 +297,20 @@ public class StateArray {
     public JSONObject getMediaEntity(String entityId) throws AvarioException {
         if (!this.hasData())
             return null;
+        android.util.Log.d("Entity", entityId);
 
         try {
             return this.data
                     .getJSONObject("media")
                     .getJSONObject(entityId);
         } catch (JSONException exception) {
-            throw new AvarioException(
+            //prevent throwing exception on firebase the entity throwed from the HTTP
+            //is not available in the bootstrap
+            /*throw new AvarioException(
                     Constants.ERROR_STATE_MISSINGKEY,
                     exception,
                     new Object[]{"media." + entityId}
-            );
+            );*/
         }
     }
 
