@@ -33,15 +33,15 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="450dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="40dp">
+            android:layout_centerInParent="true">
 
             <fragment
                 android:id="@+id/dial"
                 android:name="com.avariohome.avario.fragment.DialFragment"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:layout_marginTop="50dp" />
         </FrameLayout>
 
         <LinearLayout
@@ -96,8 +96,7 @@
                 android:layout_toStartOf="@+id/spinner_events"
                 android:background="@android:color/transparent"
                 android:padding="10dp"
-                android:scaleType="fitXY"
-                android:visibility="gone" /> <!-- android:src="@drawable/ic__dropdown" -->
+                android:scaleType="fitXY" /> <!-- android:src="@drawable/ic__dropdown" -->
 
             <ImageButton
                 android:id="@+id/notif"

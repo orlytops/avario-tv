@@ -375,7 +375,7 @@ public class Dial extends FrameLayout {
         AssetUtil.loadImage(
                 context, R.array.ic__dial__dpad__up,
                 new AssetUtil.ImageViewCallback(this.mediadpadUpIB),
-                mediadpadCenterIB
+                mediadpadUpIB
         );
 
         AssetUtil.loadImage(

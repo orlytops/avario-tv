@@ -449,7 +449,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initSpinner() {
-
+        final int[] check = {0};
 
         List<Integer> eventsIdList = new ArrayList<>();
         eventsIdList.add(R.array.ic__mode__temp);
@@ -462,16 +462,19 @@ public class MainActivity extends BaseActivity {
         eventsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-                        activateModeClimate();
-                        break;
-                    case 1:
-                        activateModeEnergy();
-                        break;
-                    case 2:
-                        activateModeCCTV();
-                        break;
+                if (++check[0] > 1) {
+                    switch (position) {
+                        case 0:
+                            activateModeClimate();
+                            break;
+                        case 1:
+                            activateModeEnergy();
+                            break;
+                        case 2:
+                            activateModeCCTV();
+                            break;
+                    }
+
                 }
             }
 

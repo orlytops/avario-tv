@@ -782,8 +782,8 @@ public class SeekArc extends View {
         if (thumb != null)
             mThumb = thumb;
 
-        thumbHalfHeight = mThumb.getIntrinsicHeight() / 2;
-        thumbHalfWidth = mThumb.getIntrinsicWidth() / 2;
+        thumbHalfHeight = mThumb.getIntrinsicHeight() / 3;
+        thumbHalfWidth = mThumb.getIntrinsicWidth() / 3;
 
         mThumb.setBounds(-thumbHalfWidth, -thumbHalfHeight, thumbHalfWidth, thumbHalfHeight);
     }
