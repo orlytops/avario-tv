@@ -650,6 +650,10 @@ public class StateArray {
     }
 
     public int getInactivityDelay() throws AvarioException {
+        if (!hasData()) {
+            return 20000;
+        }
+
         try {
             return this.data
                     .getJSONObject("settings")
