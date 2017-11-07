@@ -665,6 +665,9 @@ public class StateArray {
     }
 
     public int getPostBLEDelay() throws AvarioException {
+        if (!hasData()) {
+            return 0;
+        }
         try {
             return this.data
                     .getJSONObject("settings")
