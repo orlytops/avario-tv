@@ -52,6 +52,7 @@ public class DrawableLoader extends AssetLoaderTask<Map<int[], Bitmap>> {
 
         if (this.exception == null)
             this.callback.onSuccess(this.getDrawable(assets));
+
         else
             this.callback.onFailure(this.exception);
     }

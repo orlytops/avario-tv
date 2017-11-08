@@ -181,10 +181,11 @@ public class DialButtonBar extends LinearLayout {
             button = this.generateButton();
             button.setId(R.id.dialbtn__switch);
 
-            AssetUtil.toDrawable(
+            AssetUtil.loadImage(
                     this.getContext(),
                     R.array.ic__switch,
-                    new AssetUtil.ImageViewCallback(button)
+                    new AssetUtil.ImageViewCallback(button),
+                    button
             );
 
             this.addView(button);
@@ -213,10 +214,11 @@ public class DialButtonBar extends LinearLayout {
             button = this.generateButton();
             button.setId(R.id.dialbtn__swap);
 
-            AssetUtil.toDrawable(
+            AssetUtil.loadImage(
                     this.getContext(),
                     R.array.ic__dialbtn__dpad,
-                    new AssetUtil.ImageViewCallback(button)
+                    new AssetUtil.ImageViewCallback(button),
+                    button
             );
 
             this.addView(button);
@@ -547,10 +549,12 @@ public class DialButtonBar extends LinearLayout {
                                 : "icon_off");
             } else
                 iconURL = buttonJSON.getString("icon_off");
-            AssetUtil.toDrawable(
+
+            AssetUtil.loadImage(
                     this.getContext(),
                     AssetUtil.toAbsoluteURLs(this.getContext(), new String[]{iconURL}),
-                    new AssetUtil.ImageViewCallback(button)
+                    new AssetUtil.ImageViewCallback(button),
+                    button
             );
         } catch (JSONException exception) {
             throw new AvarioException(
@@ -886,10 +890,11 @@ public class DialButtonBar extends LinearLayout {
                 button = generateButton();
                 button.setId(R.id.dialbtn__switch);
 
-                AssetUtil.toDrawable(
+                AssetUtil.loadImage(
                         getContext(),
                         R.array.ic__switch,
-                        new AssetUtil.ImageViewCallback(button)
+                        new AssetUtil.ImageViewCallback(button),
+                        button
                 );
 
                 addView(button);

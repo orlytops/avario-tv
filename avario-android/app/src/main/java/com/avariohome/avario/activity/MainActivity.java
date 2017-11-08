@@ -5,10 +5,8 @@ package com.avariohome.avario.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.SystemUpdatePolicy;
@@ -45,7 +43,6 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
 import com.android.volley.TimeoutError;
@@ -353,8 +350,8 @@ public class MainActivity extends BaseActivity {
 //        );
 
         IntentFilter notificationIntentFilter = new IntentFilter();
-        notificationIntentFilter.addAction( Constants.BROADCAST_NOTIF);
-        notificationIntentFilter.addAction( Constants.BROADCAST_BOOTSTRAP_CHANGED);
+        notificationIntentFilter.addAction(Constants.BROADCAST_NOTIF);
+        notificationIntentFilter.addAction(Constants.BROADCAST_BOOTSTRAP_CHANGED);
         LocalBroadcastManager
                 .getInstance(this)
                 .registerReceiver(new NotificationReceiver(), notificationIntentFilter);
@@ -530,10 +527,10 @@ public class MainActivity extends BaseActivity {
         };
 
         for (int index = 0; index < resourceIds[0].length; index++) {
-            AssetUtil.toDrawable(
+            AssetUtil.loadImage(
                     this,
                     resourceIds[1][index],
-                    new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index]))
+                    new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index])), (ImageButton) this.findViewById(resourceIds[0][index])
             );
         }
     }
@@ -1665,7 +1662,7 @@ public class MainActivity extends BaseActivity {
             } catch (AvarioException e) {
                 e.printStackTrace();
             }
-            if (StateArray.getInstance().tempReboot){
+            if (StateArray.getInstance().tempReboot) {
                 SystemUtil.rebootApp(MainActivity.this);
             } else {
                 Toast.makeText(MainActivity.this,

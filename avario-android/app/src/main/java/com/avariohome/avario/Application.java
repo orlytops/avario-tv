@@ -1,13 +1,11 @@
 package com.avariohome.avario;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.android.volley.VolleyLog;
 import com.avariohome.avario.api.APIClient;
@@ -49,7 +47,9 @@ public class Application extends android.app.Application {
         if (Application.workHandler != null && Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED){
             // Clear any instance of tickerRunnable to avoid duplicate
             // and initialize to make sure ticker is running as intended.
-            Application.workHandler.removeCallbacksAndMessages(null);
+            if (Application.workHandler != null) {
+                Application.workHandler.removeCallbacks(Application.tickerRunnable);
+            }
             Application.tickerRunnable = null;
             Application.tickerRunnable = new TickerRunnable(context, Application.workHandler);
             Application.tickerRunnable.tick();
