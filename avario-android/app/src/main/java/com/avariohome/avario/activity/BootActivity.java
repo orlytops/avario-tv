@@ -33,7 +33,6 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.bus.WifiChange;
 import com.avariohome.avario.bus.WifiConnected;
-import com.avariohome.avario.core.BluetoothScanner;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
@@ -45,7 +44,6 @@ import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.MyCountDownTimer;
 import com.avariohome.avario.util.PlatformUtil;
-import com.google.firebase.crash.FirebaseCrash;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -91,12 +89,7 @@ public class BootActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.setContentView(R.layout.activity__boot);
-//        try {
-//            android.util.Log.v("FirebaseReport", getIntent().getStringExtra("data"));
-//        } catch (NullPointerException ex){
-//            FirebaseCrash.report(ex);
-//        }
+
         mDevicePolicyManager = (DevicePolicyManager)
                 getSystemService(Context.DEVICE_POLICY_SERVICE);
         builder = new AlertDialog.Builder(BootActivity.this);
@@ -128,14 +121,14 @@ public class BootActivity extends BaseActivity {
         Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(Subscriber<? super Object> subscriber) {
-                if (BluetoothScanner.getInstance().isEnabled())
-                    BluetoothScanner.getInstance().scanLeDevice(true);
+               /* if (BluetoothScanner.getInstance().isEnabled())
+                    BluetoothScanner.getInstance().scanLeDevice(true);*/
                 mAdminComponentName = AvarioReceiver.getComponentName(BootActivity.this);
                 mDevicePolicyManager = (DevicePolicyManager) getSystemService(
                         Context.DEVICE_POLICY_SERVICE);
                 mPackageManager = getPackageManager();
                 if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
-                    setDefaultCosuPolicies(true);
+                    //setDefaultCosuPolicies(true);
                 }
 
                 subscriber.onNext(new Object());
@@ -178,6 +171,7 @@ public class BootActivity extends BaseActivity {
                         }
                     }
                 });
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -248,6 +242,8 @@ public class BootActivity extends BaseActivity {
             this.loadBootstrap();
         else
             this.showSettingsDialog(this.settingsListener);
+
+        startMainActivity();
     }
 
     protected void loadBootstrap() {

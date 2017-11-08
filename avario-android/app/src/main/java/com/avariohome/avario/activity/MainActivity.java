@@ -116,6 +116,7 @@ public class MainActivity extends BaseActivity {
 
     private RelativeLayout contentRL;
     private FrameLayout controlsFL;
+    private FrameLayout deviceLayout;
     private DrawerLayout drawer;
     private RoomSelector roomSelector;
     private DevicesList devicesList;
@@ -221,13 +222,6 @@ public class MainActivity extends BaseActivity {
         this.checkNotifications();
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(this.bluetoothReceiver, filter);
-
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -247,13 +241,10 @@ public class MainActivity extends BaseActivity {
             fetchCurrentStates();
 
             android.util.Log.v("ProgressDialog", "OnResume");
-            this.showBusyDialog(null);
+            //this.showBusyDialog(null);
         } else if (!this.settingsOpened && !StateArray.getInstance().isDataEmpty()) {
             this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
         }
-
-        if (BluetoothScanner.getInstance().isEnabled())
-            BluetoothScanner.getInstance().scanLeDevice(true);
 
         Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
@@ -322,7 +313,7 @@ public class MainActivity extends BaseActivity {
         this.hideBusyDialog();
         this.progressPD = null;
         this.visible = false;
-        BluetoothScanner.getInstance().scanLeDevice(false);
+        //BluetoothScanner.getInstance().scanLeDevice(false);
 
         // Store algo to be use later when app restarts.
         Config.getInstance().setLightAlgo(Light.getInstance().algos);
@@ -419,6 +410,7 @@ public class MainActivity extends BaseActivity {
         this.drawer = (DrawerLayout) this.findViewById(R.id.drawer);
         this.contentRL = (RelativeLayout) this.findViewById(R.id.content);
         this.controlsFL = (FrameLayout) this.findViewById(R.id.controls__holder);
+        this.deviceLayout = (FrameLayout) this.findViewById(R.id.layout_device);
         this.roomSelector = (RoomSelector) this.findViewById(R.id.selector);
         this.elementsBar = (ElementsBar) this.findViewById(R.id.elements);
         this.sourcesList = (MediaSourcesList) this.findViewById(R.id.sources);
@@ -500,7 +492,8 @@ public class MainActivity extends BaseActivity {
         this.devicesList.setLayoutParams(params);
         this.devicesList.setId(View.generateViewId());
         this.devicesList.setVisibility(View.GONE);
-        this.controlsFL.addView(this.devicesList);
+        //this.controlsFL.addView(this.devicesList);
+        this.deviceLayout.addView(this.devicesList);
 
         params = new FrameLayout.LayoutParams(
                 (int) (375.00 * metrics.density),
@@ -518,7 +511,8 @@ public class MainActivity extends BaseActivity {
         this.mediaList.setLayoutParams(params);
         this.mediaList.setId(View.generateViewId());
         this.mediaList.setVisibility(View.GONE);
-        this.controlsFL.addView(this.mediaList);
+        //this.controlsFL.addView(this.mediaList);
+        this.deviceLayout.addView(this.mediaList);
     }
 
     private void initViewConf() {
