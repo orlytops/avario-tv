@@ -12,6 +12,14 @@
         android:orientation="vertical"
         android:padding="@dimen/dialog__padding">
 
+        <ImageButton
+            android:id="@+id/button_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:background="@color/trasnparent"
+            android:src="@drawable/ic_settings" />
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -127,13 +135,13 @@
                 android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/check_kiosk"
                 android:layout_alignParentEnd="true"
+                android:layout_below="@+id/check_kiosk"
                 android:background="@drawable/settings_dialog_button"
                 android:paddingEnd="@dimen/custom_settings_button"
                 android:paddingStart="@dimen/custom_settings_button"
-                android:textColor="@color/dial__color3"
-                android:text="@string/setting__save" />
+                android:text="@string/setting__save"
+                android:textColor="@color/dial__color3" />
 
             <Button
                 android:id="@+id/btnCancel"
@@ -144,8 +152,8 @@
                 android:background="@drawable/settings_dialog_button"
                 android:paddingEnd="@dimen/custom_settings_button"
                 android:paddingStart="@dimen/custom_settings_button"
-                android:textColor="@color/dial__color3"
-                android:text="@string/setting__discard" />
+                android:text="@string/setting__discard"
+                android:textColor="@color/dial__color3" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -188,8 +196,8 @@
                 android:background="@drawable/settings_dialog_button"
                 android:paddingEnd="@dimen/custom_settings_button"
                 android:paddingStart="@dimen/custom_settings_button"
-                android:textColor="@color/dial__color3"
-                android:text="@string/setting_get_new_bootstrap" />
+                android:text="@string/setting_get_new_bootstrap"
+                android:textColor="@color/dial__color3" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -223,8 +231,8 @@
                 android:background="@drawable/settings_dialog_button"
                 android:paddingEnd="@dimen/custom_settings_button"
                 android:paddingStart="@dimen/custom_settings_button"
-                android:textColor="@color/dial__color3"
-                android:text="@string/download_assets" />
+                android:text="@string/download_assets"
+                android:textColor="@color/dial__color3" />
 
             <Button
                 android:id="@+id/btnClearAssets"
@@ -235,8 +243,8 @@
                 android:background="@drawable/settings_dialog_button"
                 android:paddingEnd="@dimen/custom_settings_button"
                 android:paddingStart="@dimen/custom_settings_button"
-                android:textColor="@color/dial__color3"
-                android:text="@string/delete_assets" />
+                android:text="@string/delete_assets"
+                android:textColor="@color/dial__color3" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -266,7 +274,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/tvCrashReportTitle"
-                android:hint="None Fatal Crash Message"/>
+                android:hint="None Fatal Crash Message" />
 
             <Button
                 android:id="@+id/btnNoneFatal"
@@ -277,8 +285,8 @@
                 android:background="@drawable/settings_dialog_button"
                 android:paddingEnd="@dimen/custom_settings_button"
                 android:paddingStart="@dimen/custom_settings_button"
-                android:textColor="@color/dial__color3"
-                android:text="Send none Fatal crash" />
+                android:text="Send none Fatal crash"
+                android:textColor="@color/dial__color3" />
 
             <Button
                 android:id="@+id/btnForceCrash"
@@ -288,8 +296,8 @@
                 android:background="@drawable/settings_dialog_button"
                 android:paddingEnd="@dimen/custom_settings_button"
                 android:paddingStart="@dimen/custom_settings_button"
-                android:textColor="@color/dial__color3"
-                android:text="Force Crash" />
+                android:text="Force Crash"
+                android:textColor="@color/dial__color3" />
         </RelativeLayout>
 
         <!-- Working Message -->
@@ -317,8 +325,8 @@
         <TextView
             android:id="@+id/text_connection"
             android:layout_width="wrap_content"
-            android:layout_gravity="end"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="end" />
 
         <TextView
             android:id="@+id/error"
@@ -332,10 +340,10 @@
             android:id="@+id/text_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_gravity="end"
+            android:layout_marginTop="20dp"
+            android:focusable="true"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:focusable="true"/>
+            android:textStyle="bold" />
     </LinearLayout>
 </ScrollView>
