@@ -594,7 +594,7 @@ public class MainActivity extends BaseActivity {
         UIListener uiListener = new UIListener();
         WidgetListener widgetListener = new WidgetListener();
 
-        this.homeIB.setOnTouchListener(uiListener);
+        this.battery.setOnTouchListener(uiListener);
         this.contentRL.setOnClickListener(uiListener);
 
         for (ImageButton button : new ImageButton[]{
