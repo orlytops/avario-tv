@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -95,6 +96,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private EditText passwordET;
     private CheckBox secureCB;
     private CheckBox kioskCheck;
+    private ImageButton settingsButton;
 
     private Button clearAssetsB, getAssetsB, saveB, cancelB, getBootstrapB;
     private Button enableUninstallButton;
@@ -199,6 +201,7 @@ public class SettingsDialogFragment extends DialogFragment {
         getAssetsB = (Button) view.findViewById(R.id.btnDownloadAssets);
         getBootstrapB = (Button) view.findViewById(R.id.btnDownloadBootstrap);
         bootstrapSource = (TextView) view.findViewById(R.id.tvBootstrapSource);
+        settingsButton = (ImageButton) view.findViewById(R.id.button_settings);
 
         noneFatalMessage = (EditText) view.findViewById(R.id.etNoneFatalMessage);
         sendNoneFatalMessage = (Button) view.findViewById(R.id.btnNoneFatal);
@@ -277,6 +280,14 @@ public class SettingsDialogFragment extends DialogFragment {
             bootstrapSource.setText("Source: " + this.config.getHttpHost() + ":" + this.config.getHttpPort());
         }
         startKiosk();
+
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Settings.ACTION_SETTINGS));
+            }
+        });
+
         return view;
     }
 
@@ -706,18 +717,18 @@ public class SettingsDialogFragment extends DialogFragment {
                     self.toggleError(false, "");
                     self.reloadBootstrap();
                 }
-            } else if (view.getId() == R.id.btnNoneFatal){
+            } else if (view.getId() == R.id.btnNoneFatal) {
                 if (noneFatalMessage.getText() == null
-                        || noneFatalMessage.getText().toString().isEmpty()){
+                        || noneFatalMessage.getText().toString().isEmpty()) {
                     Toast.makeText(view.getContext(), "None Fatal Message should not be empty", Toast.LENGTH_SHORT).show();
                 } else {
                     FirebaseCrash.report(new Throwable(noneFatalMessage.getText().toString()));
                     Toast.makeText(view.getContext(), "None Fatal crash " + noneFatalMessage.getText().toString()
                             + "Has been sent to firebase.", Toast.LENGTH_SHORT).show();
                 }
-            } else if (view.getId() == R.id.btnForceCrash){
+            } else if (view.getId() == R.id.btnForceCrash) {
                 String val = null;
-                if(val.equals("")){
+                if (val.equals("")) {
 
                 }
             }

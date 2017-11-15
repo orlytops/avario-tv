@@ -72,6 +72,7 @@ import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.util.SystemUtil;
+import com.avariohome.avario.widget.BatteryWifi;
 import com.avariohome.avario.widget.DevicesList;
 import com.avariohome.avario.widget.ElementsBar;
 import com.avariohome.avario.widget.MediaList;
@@ -125,6 +126,7 @@ public class MainActivity extends BaseActivity {
     private ImageButton boltIB;
     private ImageButton tempIB;
     private ImageButton activeModeIB;
+    private BatteryWifi battery;
 
     private ImageButton playIB;
     private ImageButton nextIB;
@@ -187,6 +189,7 @@ public class MainActivity extends BaseActivity {
         this.activeModeIB.performClick();
         this.isBluetoothAvailable();
         this.checkNotifications();
+
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(this.bluetoothReceiver, filter);
 
@@ -280,6 +283,8 @@ public class MainActivity extends BaseActivity {
         Light.addAllAlgo(Config.getInstance().getLightAlgo());
         // delete algo stored to avoid redundancy.
         Config.getInstance().deleteAlgo();
+
+        battery.setIsLan(Connectivity.identifyConnection(MainActivity.this));
     }
 
     @Override
@@ -404,6 +409,8 @@ public class MainActivity extends BaseActivity {
         this.volumeIB = (ImageButton) this.findViewById(R.id.volume);
 
         this.notifIB = (ImageButton) this.findViewById(R.id.notif);
+
+        this.battery = (BatteryWifi) this.findViewById(R.id.battery);
 
         this.dialFragment = (DialFragment) this
                 .getSupportFragmentManager()
@@ -587,7 +594,7 @@ public class MainActivity extends BaseActivity {
         UIListener uiListener = new UIListener();
         WidgetListener widgetListener = new WidgetListener();
 
-        this.homeIB.setOnTouchListener(uiListener);
+        this.battery.setOnTouchListener(uiListener);
         this.contentRL.setOnClickListener(uiListener);
 
         for (ImageButton button : new ImageButton[]{
@@ -1519,8 +1526,6 @@ public class MainActivity extends BaseActivity {
 
             if (BluetoothScanner.getInstance().isEnabled())
                 BluetoothScanner.getInstance().scanLeDevice(true);
-
-
         }
 
         @Override
