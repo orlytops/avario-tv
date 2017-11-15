@@ -283,6 +283,8 @@ public class MainActivity extends BaseActivity {
         Light.addAllAlgo(Config.getInstance().getLightAlgo());
         // delete algo stored to avoid redundancy.
         Config.getInstance().deleteAlgo();
+
+        battery.setIsLan(Connectivity.identifyConnection(MainActivity.this));
     }
 
     @Override
@@ -1524,8 +1526,6 @@ public class MainActivity extends BaseActivity {
 
             if (BluetoothScanner.getInstance().isEnabled())
                 BluetoothScanner.getInstance().scanLeDevice(true);
-
-            battery.setIsLan(Connectivity.getInstance().isConnectedToLan());
         }
 
         @Override

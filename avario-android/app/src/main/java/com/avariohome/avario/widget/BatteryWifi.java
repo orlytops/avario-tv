@@ -119,6 +119,7 @@ public class BatteryWifi extends FrameLayout {
     }
 
     public void setIsLan(boolean isLan) {
+        this.isLan = isLan;
         setWifiLevel(levelWifi);
     }
 
