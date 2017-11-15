@@ -34,19 +34,23 @@ public class APITimers {
 
         APITimers.invalidate(timerId);
 
-        Application.workHandler.postDelayed(
-            runnable,
-            Config.getInstance().getAPIErrorDelay()
-        );
+        if (Application.workHandler != null) {
+            Application.workHandler.postDelayed(
+                runnable,
+                Config.getInstance().getAPIErrorDelay()
+            );
 
-        APITimers.runnables.put(timerId, runnable);
+            APITimers.runnables.put(timerId, runnable);
+        }
     }
 
     public static void invalidate(String timerId) {
         if (!APITimers.runnables.containsKey(timerId))
             return;
 
-        Application.workHandler.removeCallbacks(APITimers.runnables.get(timerId));
+        if (Application.workHandler != null) {
+            Application.workHandler.removeCallbacks(APITimers.runnables.get(timerId));
+        }
         APITimers.forget(timerId);
     }
 

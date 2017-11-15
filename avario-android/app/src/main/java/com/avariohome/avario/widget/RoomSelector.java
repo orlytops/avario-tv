@@ -79,19 +79,19 @@ public class RoomSelector extends RelativeLayout {
         DisplayMetrics metrics = this.getResources().getDisplayMetrics();
 
         int handleResId = R.layout.roomselector__handle,
-            width,
-            height,
-            handleBG,
-            bodyBG;
+                width,
+                height,
+                handleBG,
+                bodyBG;
         boolean handleIsRes,
                 bodyIsRes;
 
         if (this.getContext().getTheme().resolveAttribute(R.attr.actionBarSize, values, true))
             height = TypedValue.complexToDimensionPixelSize(values.data, metrics);
         else
-            height = (int)(48.0f * metrics.density);
+            height = (int) (48.0f * metrics.density);
 
-        width = (int)(275.0f * metrics.density);
+        width = (int) (275.0f * metrics.density);
 
         handleIsRes = true;
         handleBG = -1;
@@ -101,10 +101,10 @@ public class RoomSelector extends RelativeLayout {
 
         if (attributes != null) {
             TypedArray array = this.getContext().obtainStyledAttributes(
-                attributes,
-                R.styleable.RoomSelector,
-                defaultStyleAttr,
-                0
+                    attributes,
+                    R.styleable.RoomSelector,
+                    defaultStyleAttr,
+                    0
             );
 
             width = array.getDimensionPixelSize(R.styleable.RoomSelector_widgetWidth, width);
@@ -148,8 +148,8 @@ public class RoomSelector extends RelativeLayout {
         filter.addAction(Constants.BROADCAST_ROOM_CHANGED);
 
         LocalBroadcastManager
-            .getInstance(this.getContext())
-            .registerReceiver(new StateReceiver(), filter);
+                .getInstance(this.getContext())
+                .registerReceiver(new StateReceiver(), filter);
     }
 
     private void initializeHandle(int layoutResId, int height) {
@@ -171,7 +171,7 @@ public class RoomSelector extends RelativeLayout {
 
         layout = new LayoutParams(this.widgetWidth, height);
 
-        this.handleRL = (RelativeLayout)inflater.inflate(layoutResId, null);
+        this.handleRL = (RelativeLayout) inflater.inflate(layoutResId, null);
         this.handleRL.setLayoutParams(layout);
         this.handleRL.setId(this.handleId);
         this.handleRL.setOnClickListener(listener);
@@ -184,8 +184,8 @@ public class RoomSelector extends RelativeLayout {
         else
             this.handleRL.setBackgroundColor(this.handleBG);
 
-        this.indicatorIV = (ImageView)this.handleRL.findViewById(R.id.indicator);
-        this.titleTV = (TextView)this.handleRL.findViewById(R.id.title);
+        this.indicatorIV = (ImageView) this.handleRL.findViewById(R.id.indicator);
+        this.titleTV = (TextView) this.handleRL.findViewById(R.id.title);
 
         this.addView(this.handleRL);
     }
@@ -200,8 +200,8 @@ public class RoomSelector extends RelativeLayout {
 
         decoration = new DividerItemDecoration(this.getContext(), DividerItemDecoration.VERTICAL);
         decoration.setDrawable(
-            this.getResources()
-                .getDrawable(R.drawable.ic__divider__roomselect)
+                this.getResources()
+                        .getDrawable(R.drawable.ic__divider__roomselect)
         );
 
         this.roomsRV = new RecyclerView(this.getContext());
@@ -222,16 +222,18 @@ public class RoomSelector extends RelativeLayout {
     }
 
     private void initializeAssets() {
-        AssetUtil.toDrawable(
-            this.getContext(),
-            R.array.ic__roomselect__more,
-            new AssetUtil.ImageViewCallback((ImageView)this.handleRL.findViewById(R.id.indicator))
+        AssetUtil.loadImage(
+                this.getContext(),
+                R.array.ic__roomselect__more,
+                new AssetUtil.ImageViewCallback((ImageView) this.handleRL.findViewById(R.id.indicator)),
+                this.handleRL.findViewById(R.id.indicator)
         );
 
-        AssetUtil.toDrawable(
-            this.getContext(),
-            R.array.ic__roomselect__locator,
-            new AssetUtil.ImageViewCallback((ImageView)this.handleRL.findViewById(R.id.location))
+        AssetUtil.loadImage(
+                this.getContext(),
+                R.array.ic__roomselect__locator,
+                new AssetUtil.ImageViewCallback((ImageView) this.handleRL.findViewById(R.id.location)),
+                this.handleRL.findViewById(R.id.location)
         );
     }
 
@@ -345,19 +347,17 @@ public class RoomSelector extends RelativeLayout {
         if (this.selectedRoom != null)
             try {
                 this.selectedRoom
-                    .data
-                    .put("active", false);
+                        .data
+                        .put("active", false);
                 this.selectedRoom.selected = false;
-            }
-            catch (JSONException exception) {
+            } catch (JSONException exception) {
                 return;
             }
 
         try {
             room.data
-                .put("active", true);
-        }
-        catch (JSONException exception) {
+                    .put("active", true);
+        } catch (JSONException exception) {
             return;
         }
 
@@ -412,7 +412,7 @@ public class RoomSelector extends RelativeLayout {
      ***********************************************************************************************
      */
     private class ClickListener implements View.OnClickListener,
-                                           RoomAdapter.ItemClickListener {
+            RoomAdapter.ItemClickListener {
         @Override
         public void onClick(View view) {
             RoomSelector self = RoomSelector.this;
@@ -434,8 +434,7 @@ public class RoomSelector extends RelativeLayout {
 
                 room.selectedMedia = !room.selectedMedia;
                 self.dispatchMediaSelected();
-            }
-            else {
+            } else {
                 payload = RoomAdapter.BIND_SELECTION_ROOM;
 
                 self.close();
@@ -471,11 +470,10 @@ public class RoomSelector extends RelativeLayout {
                 room.id = roomId;
                 room.name = room.data.optString("name");
                 room.selected = false;
-            }
-            catch (AvarioException exception) {
+            } catch (AvarioException exception) {
                 PlatformUtil
-                    .getErrorToast(RoomSelector.this.getContext(), exception)
-                    .show();
+                        .getErrorToast(RoomSelector.this.getContext(), exception)
+                        .show();
 
                 return;
             }
@@ -496,8 +494,7 @@ public class RoomSelector extends RelativeLayout {
 
                 try {
                     roomJSON = StateArray.getInstance().getRoom(room.id);
-                }
-                catch (AvarioException exception) {
+                } catch (AvarioException exception) {
                     continue;
                 }
 
@@ -514,8 +511,8 @@ public class RoomSelector extends RelativeLayout {
 
             try {
                 self.setTitle(self.getSelectedRoom().name);
+            } catch (NullPointerException ignored) {
             }
-            catch (NullPointerException ignored)  {}
         }
     }
 

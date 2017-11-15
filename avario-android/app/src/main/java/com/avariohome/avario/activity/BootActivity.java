@@ -45,6 +45,7 @@ import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.MyCountDownTimer;
 import com.avariohome.avario.util.PlatformUtil;
+import com.google.firebase.crash.FirebaseCrash;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -89,9 +90,13 @@ public class BootActivity extends BaseActivity {
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        android.util.Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity__boot);
+//        try {
+//            android.util.Log.v("FirebaseReport", getIntent().getStringExtra("data"));
+//        } catch (NullPointerException ex){
+//            FirebaseCrash.report(ex);
+//        }
         mDevicePolicyManager = (DevicePolicyManager)
                 getSystemService(Context.DEVICE_POLICY_SERVICE);
         builder = new AlertDialog.Builder(BootActivity.this);
@@ -265,7 +270,7 @@ public class BootActivity extends BaseActivity {
                     if (mWifi.isConnected()) {
                         isHasWifi = true;
                         Connectivity.identifyConnection(getApplicationContext());
-                        //sendFCMToken();
+                        sendFCMToken();
                         connectMQTT(new MqttConnectionListener(), false);
                         progressPD.setMessage(getString(R.string.message__mqtt__connecting));
                         countDownTimer.cancel();
@@ -421,7 +426,7 @@ public class BootActivity extends BaseActivity {
     private void sendFCMToken() {
         APIClient
                 .getInstance()
-                .postFCMToken(null);
+                .postFCMToken(Config.getInstance().getFCM());
     }
 
     protected void startMainActivity() {

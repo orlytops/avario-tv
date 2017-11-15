@@ -57,6 +57,7 @@ import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.SystemUtil;
 import com.avariohome.avario.util.Validator;
+import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -98,6 +99,9 @@ public class SettingsDialogFragment extends DialogFragment {
     private Button clearAssetsB, getAssetsB, saveB, cancelB, getBootstrapB;
     private Button enableUninstallButton;
     private TextView workingTV, errorTV, versionText, bootstrapSource;
+
+    private EditText noneFatalMessage;
+    private Button sendNoneFatalMessage, forceCrash;
 
     private ScrollView mainScrollView;
     private RelativeLayout relativeLayoutBootStrap, relativeLayoutCache;
@@ -196,6 +200,10 @@ public class SettingsDialogFragment extends DialogFragment {
         getBootstrapB = (Button) view.findViewById(R.id.btnDownloadBootstrap);
         bootstrapSource = (TextView) view.findViewById(R.id.tvBootstrapSource);
 
+        noneFatalMessage = (EditText) view.findViewById(R.id.etNoneFatalMessage);
+        sendNoneFatalMessage = (Button) view.findViewById(R.id.btnNoneFatal);
+        forceCrash = (Button) view.findViewById(R.id.btnForceCrash);
+
         relativeLayoutBootStrap = (RelativeLayout) view.findViewById(R.id.rlBootstrap);
         relativeLayoutCache = (RelativeLayout) view.findViewById(R.id.rlCache);
 
@@ -205,6 +213,8 @@ public class SettingsDialogFragment extends DialogFragment {
         cancelB.setOnClickListener(new ClickListener());
         getAssetsB.setOnClickListener(new ClickListener());
         getBootstrapB.setOnClickListener(new ClickListener());
+        sendNoneFatalMessage.setOnClickListener(new ClickListener());
+        forceCrash.setOnClickListener(new ClickListener());
 
         //set View.VISIBLE on kiosk mode
         kioskCheck.setVisibility(View.GONE);
@@ -249,7 +259,7 @@ public class SettingsDialogFragment extends DialogFragment {
         try {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version = pInfo.versionName;
-            versionText.setText("Version: avario_master_v" + version);
+            versionText.setText("Version: avario_john_v" + version);
 //            versionText.setText("Version: avario_orly_v" + version);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -569,7 +579,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private void sendFCMToken() {
         APIClient
                 .getInstance()
-                .postFCMToken(null);
+                .postFCMToken(Config.getInstance().getFCM());
     }
 
     /**
@@ -695,6 +705,20 @@ public class SettingsDialogFragment extends DialogFragment {
                     self.setEnabled(false);
                     self.toggleError(false, "");
                     self.reloadBootstrap();
+                }
+            } else if (view.getId() == R.id.btnNoneFatal){
+                if (noneFatalMessage.getText() == null
+                        || noneFatalMessage.getText().toString().isEmpty()){
+                    Toast.makeText(view.getContext(), "None Fatal Message should not be empty", Toast.LENGTH_SHORT).show();
+                } else {
+                    FirebaseCrash.report(new Throwable(noneFatalMessage.getText().toString()));
+                    Toast.makeText(view.getContext(), "None Fatal crash " + noneFatalMessage.getText().toString()
+                            + "Has been sent to firebase.", Toast.LENGTH_SHORT).show();
+                }
+            } else if (view.getId() == R.id.btnForceCrash){
+                String val = null;
+                if(val.equals("")){
+
                 }
             }
         }

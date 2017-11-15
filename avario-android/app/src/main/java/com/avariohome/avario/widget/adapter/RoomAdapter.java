@@ -54,25 +54,27 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
         if (type == TYPE_HEADER) {
             view = inflater.inflate(this.headerLayoutId, parent, false);
 
-            AssetUtil.toDrawable(
-                parent.getContext(),
-                R.array.ic__roomselect__device,
-                new AssetUtil.ImageViewCallback((ImageView)view.findViewById(R.id.device))
+            AssetUtil.loadImage(
+                    parent.getContext(),
+                    R.array.ic__roomselect__device,
+                    new AssetUtil.ImageViewCallback((ImageView) view.findViewById(R.id.device)),
+                    (ImageView) view.findViewById(R.id.device)
             );
 
-            AssetUtil.toDrawable(
-                parent.getContext(),
-                R.array.ic__roomselect__media,
-                new AssetUtil.ImageViewCallback((ImageView)view.findViewById(R.id.media))
+            AssetUtil.loadImage(
+                    parent.getContext(),
+                    R.array.ic__roomselect__media,
+                    new AssetUtil.ImageViewCallback((ImageView) view.findViewById(R.id.media)),
+                    (ImageView) view.findViewById(R.id.media)
             );
-        }
-        else {
+        } else {
             view = inflater.inflate(this.itemLayoutId, parent, false);
 
-            AssetUtil.toDrawable(
-                parent.getContext(),
-                R.array.ic__roomselect__indicator,
-                new AssetUtil.ImageViewCallback((ImageView)view.findViewById(R.id.media))
+            AssetUtil.loadImage(
+                    parent.getContext(),
+                    R.array.ic__roomselect__indicator,
+                    new AssetUtil.ImageViewCallback((ImageView) view.findViewById(R.id.media)),
+                    (ImageView) view.findViewById(R.id.media)
             );
         }
 
@@ -84,8 +86,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads);
             return;
-        }
-        else if (position == 0)
+        } else if (position == 0)
             return;
 
         for (Object payload : payloads)
@@ -154,8 +155,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
     public RoomEntity get(int index) {
         try {
             return this.rooms.get(index);
-        }
-        catch (IndexOutOfBoundsException exception) {
+        } catch (IndexOutOfBoundsException exception) {
             return null;
         }
     }
@@ -174,7 +174,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
      ***********************************************************************************************
      */
     static class ViewHolder extends RecyclerView.ViewHolder
-                            implements View.OnClickListener {
+            implements View.OnClickListener {
         private ItemClickListener listener;
         private TextView roomTV;
         private ImageView mediaIV;
@@ -184,8 +184,8 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
 
             this.listener = listener;
 
-            this.roomTV = (TextView)view.findViewById(R.id.title);
-            this.mediaIV = (ImageView)view.findViewById(R.id.media);
+            this.roomTV = (TextView) view.findViewById(R.id.title);
+            this.mediaIV = (ImageView) view.findViewById(R.id.media);
 
             this.itemView.setOnClickListener(this);
             this.mediaIV.setOnClickListener(this);

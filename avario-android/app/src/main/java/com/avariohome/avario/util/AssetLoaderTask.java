@@ -15,6 +15,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -40,23 +41,23 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
             OkHttpClient client;
 
             builder = builder
-                .cache(OkHttp3Downloader.createDefaultCache(context))
-                .addNetworkInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(@NonNull Interceptor.Chain chain) throws IOException {
-                        Config config = Config.getInstance();
-                        String credential = Credentials.basic(
-                            config.getUsername(),
-                            config.getPassword()
-                        );
+                    .cache(OkHttp3Downloader.createDefaultCache(context))
+                    .addNetworkInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(@NonNull Interceptor.Chain chain) throws IOException {
+                            Config config = Config.getInstance();
+                            String credential = Credentials.basic(
+                                    config.getUsername(),
+                                    config.getPassword()
+                            );
 
-                        return chain.proceed(
-                            chain.request().newBuilder()
-                                .addHeader("Authorization", credential)
-                                .build()
-                        );
-                    }
-                });
+                            return chain.proceed(
+                                    chain.request().newBuilder()
+                                            .addHeader("Authorization", credential)
+                                            .build()
+                            );
+                        }
+                    });
 //                .authenticator(new Authenticator() {
 //                    @Override
 //                    public Request authenticate(Route route, Response response) throws IOException {
@@ -78,12 +79,11 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
             client = builder.build();
 
             AssetLoaderTask.picasso = new Picasso.Builder(context)
-                .downloader(new OkHttp3Downloader(client))
-                .build();
+                    .downloader(new OkHttp3Downloader(client))
+                    .build();
 
-            Picasso.setSingletonInstance(AssetLoaderTask.picasso);
+            //Picasso.setSingletonInstance(AssetLoaderTask.picasso);
         }
-
         return AssetLoaderTask.picasso;
     }
 
@@ -105,13 +105,12 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
      * @return
      */
     @Override
-    protected Result doInBackground(List<String> ... params) {
+    protected Result doInBackground(List<String>... params) {
         this.exception = null;
 
         try {
             return this.processFetch(this.fetch(params[0]));
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             this.exception = exception;
             return null;
         }
@@ -140,21 +139,20 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
             Bitmap bitmap;
 
             try {
+                android.util.Log.v(TAG, "Downloading " + url);
                 bitmap = AssetLoaderTask
-                    .picasso(this.context.getApplicationContext())
-                    .load(url)
-                    .get();
+                        .picasso(this.context.getApplicationContext())
+                        .load(url)
+                        .get();
 
                 bitmaps.add(bitmap);
-            }
-            catch (IllegalArgumentException exception) {
+            } catch (IllegalArgumentException exception) {
                 bitmaps.add(null);
-            }
-            catch (IOException exception) {
+            } catch (IOException exception) {
                 throw new AvarioException(
-                    Constants.ERROR_ASSET_UNREACHABLE,
-                    exception,
-                    new Object[] { url }
+                        Constants.ERROR_ASSET_UNREACHABLE,
+                        exception,
+                        new Object[]{url}
                 );
             }
 

@@ -1,27 +1,35 @@
 {
   "project_info": {
-    "project_number": "359276913279",
-    "firebase_url": "https://avario-dev.firebaseio.com",
-    "project_id": "avario-dev",
-    "storage_bucket": "avario-dev.appspot.com"
+    "project_number": "1018104799090",
+    "firebase_url": "https://avario-10a04.firebaseio.com",
+    "project_id": "avario-10a04",
+    "storage_bucket": "avario-10a04.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:359276913279:android:c2d4ff12cbe9151a",
+        "mobilesdk_app_id": "1:1018104799090:android:c2d4ff12cbe9151a",
         "android_client_info": {
           "package_name": "com.avariohome.avario"
         }
       },
       "oauth_client": [
         {
-          "client_id": "359276913279-qosktj2shkfceg7qkmlo8p34veolunsi.apps.googleusercontent.com",
+          "client_id": "1018104799090-aecko3h31sddm9dq54r7c9pj70q0ovpt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.avariohome.avario",
+            "certificate_hash": "5d526e8293d43bcf3e04aaa15c35a873e3fd724d"
+          }
+        },
+        {
+          "client_id": "1018104799090-s0pj7paqh7a6l7qtmcdibhr966l32hp8.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDR5YKeD3QOe_p33qfnK26goCzXt37Zl-c"
+          "current_key": "AIzaSyA2eHLKVST1y7Y2w8P8ItxDfl6A4G3n36c"
         }
       ],
       "services": {
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1018104799090-s0pj7paqh7a6l7qtmcdibhr966l32hp8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

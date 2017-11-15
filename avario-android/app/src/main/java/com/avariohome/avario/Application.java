@@ -1,13 +1,11 @@
 package com.avariohome.avario;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.android.volley.VolleyLog;
 import com.avariohome.avario.api.APIClient;
@@ -20,6 +18,7 @@ import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.service.KioskService;
 import com.avariohome.avario.util.RefStringUtil;
+import com.google.firebase.crash.FirebaseCrash;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,10 +44,12 @@ public class Application extends android.app.Application {
      * Tries to start the worker thread just in case it was killed off before
      */
     public static void startWorker(Context context) {
-        if (Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED){
+        if (Application.workHandler != null && Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED){
             // Clear any instance of tickerRunnable to avoid duplicate
             // and initialize to make sure ticker is running as intended.
-            Application.workHandler.removeCallbacks(Application.tickerRunnable);
+            if (Application.workHandler != null) {
+                Application.workHandler.removeCallbacks(Application.tickerRunnable);
+            }
             Application.tickerRunnable = null;
             Application.tickerRunnable = new TickerRunnable(context, Application.workHandler);
             Application.tickerRunnable.tick();
@@ -63,16 +64,20 @@ public class Application extends android.app.Application {
         Application.tickerRunnable.tick();
     }
 
+    public static void stopWorker(){
+        Application.workHandler.removeCallbacks(Application.tickerRunnable);
+        Application.tickerRunnable = null;
+        Application.workHandler = null;
+        Application.mainHandler.removeCallbacksAndMessages(null);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-
+        FirebaseCrash.setCrashCollectionEnabled(false);
         VolleyLog.setTag("AvarioVolley");
 
-        Application.startWorker(getApplicationContext());
-
         Application.mainHandler = new Handler(Looper.getMainLooper());
-
         // Initialize all important singletons with the application context
         MqttManager.getInstance();
         RefStringUtil.initJSInterpreter();
@@ -90,7 +95,6 @@ public class Application extends android.app.Application {
                 .setContext(this);
         startService(new Intent(this, KioskService.class));
     }
-
 
     private static class TickerRunnable implements Runnable {
         private Context context;

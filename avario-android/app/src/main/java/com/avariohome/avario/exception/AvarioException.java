@@ -16,6 +16,9 @@ public class AvarioException extends Exception {
         super(throwable);
         this.code = code;
         this.arguments = arguments;
+        //prevent throwing exception on firebase the entity throwed from the HTTP
+        //is not available in the bootstrap
+        //FirebaseCrash.report(throwable);
     }
 
     public Object[] getMessageArguments() {

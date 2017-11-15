@@ -297,6 +297,7 @@ public class StateArray {
     public JSONObject getMediaEntity(String entityId) throws AvarioException {
         if (!this.hasData())
             return null;
+        android.util.Log.d("Entity", entityId);
 
         try {
             return this.data
@@ -649,6 +650,10 @@ public class StateArray {
     }
 
     public int getInactivityDelay() throws AvarioException {
+        if (!hasData()) {
+            return 20000;
+        }
+
         try {
             return this.data
                     .getJSONObject("settings")
@@ -664,6 +669,9 @@ public class StateArray {
     }
 
     public int getPostBLEDelay() throws AvarioException {
+        if (!hasData()) {
+            return 0;
+        }
         try {
             return this.data
                     .getJSONObject("settings")
@@ -805,6 +813,9 @@ public class StateArray {
     }
 
     public JSONObject getBluetoothEndpointRequest() throws AvarioException {
+        if (!this.hasData()) {
+            return null;
+        }
         try {
             JSONObject specJSON;
 
@@ -827,6 +838,9 @@ public class StateArray {
     }
 
     public JSONObject getFCMRequest() throws AvarioException {
+        if (!this.hasData()) {
+            return null;
+        }
         try {
             return new JSONObject(
                     this.data
@@ -845,6 +859,10 @@ public class StateArray {
     }
 
     public JSONArray getFCMTopics() throws AvarioException {
+        if (!hasData()) {
+            return null;
+        }
+
         try {
             return this.data
                     .getJSONObject("settings")
