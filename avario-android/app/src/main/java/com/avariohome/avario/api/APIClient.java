@@ -13,7 +13,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.avariohome.avario.BuildConfig;
 import com.avariohome.avario.Constants;
-import com.avariohome.avario.R;
 import com.avariohome.avario.core.APITimers;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;

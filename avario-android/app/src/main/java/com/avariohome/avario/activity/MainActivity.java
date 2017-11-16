@@ -218,18 +218,18 @@ public class MainActivity extends BaseActivity {
 
             android.util.Log.v("ProgressDialog", "OnResume");
             this.showBusyDialog(null);
-        } else if (!this.settingsOpened && !StateArray.getInstance().isDataEmpty()) {
+        } else if (!this.settingsOpened) {
             this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
         }
 
-        if (BluetoothScanner.getInstance().isEnabled())
-            BluetoothScanner.getInstance().scanLeDevice(true);
+       /* if (BluetoothScanner.getInstance().isEnabled())
+            BluetoothScanner.getInstance().scanLeDevice(true);*/
 
         Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(Subscriber<? super Object> subscriber) {
-                if (BluetoothScanner.getInstance().isEnabled())
-                    BluetoothScanner.getInstance().scanLeDevice(true);
+                /*if (BluetoothScanner.getInstance().isEnabled())
+                    BluetoothScanner.getInstance().scanLeDevice(true);*/
                 mAdminComponentName = AvarioReceiver.getComponentName(MainActivity.this);
                 mDevicePolicyManager = (DevicePolicyManager) getSystemService(
                         Context.DEVICE_POLICY_SERVICE);
@@ -1373,18 +1373,19 @@ public class MainActivity extends BaseActivity {
                         Context.ACTIVITY_SERVICE);
 
                 DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Activity.DEVICE_POLICY_SERVICE);
-                if (am.getLockTaskModeState() ==
+                /*if (am.getLockTaskModeState() ==
                         ActivityManager.LOCK_TASK_MODE_LOCKED) {
                     stopLockTask();
                     Config config = Config.getInstance();
                     config.setIsKiosk(false);
-                }
-                self.startActivity(intent);
+                }*/
                 if (devicePolicyManager.isDeviceOwnerApp(getPackageName())) {
                     devicePolicyManager.setLockTaskPackages(mAdminComponentName, new String[]{appId});
                     Config config = Config.getInstance();
                     config.setIsKiosk(false);
                 }
+
+                self.startActivity(intent);
             } else if (URLUtil.isValidUrl(appId)) {
                 loadWebView(appId);
                 drawer.closeDrawers();

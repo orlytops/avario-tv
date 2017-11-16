@@ -82,9 +82,11 @@ public class Connectivity {
             if (lanMacList != null) {
                 String accessPointMac = Connectivity.getAccessPointMac(context);
                 for (int i = 0; i < lanMacList.length(); i++) {
-                    if (accessPointMac.equals(lanMacList.getString(i))) {
-                        result = true;
-                        break;
+                    if (accessPointMac != null) {
+                        if (accessPointMac.equals(lanMacList.getString(i))) {
+                            result = true;
+                            break;
+                        }
                     }
                 }
             }

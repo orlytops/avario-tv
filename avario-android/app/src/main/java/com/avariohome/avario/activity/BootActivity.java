@@ -45,7 +45,6 @@ import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.MyCountDownTimer;
 import com.avariohome.avario.util.PlatformUtil;
-import com.google.firebase.crash.FirebaseCrash;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -97,6 +96,8 @@ public class BootActivity extends BaseActivity {
 //        } catch (NullPointerException ex){
 //            FirebaseCrash.report(ex);
 //        }
+
+        EventBus.getDefault().register(this);
         mDevicePolicyManager = (DevicePolicyManager)
                 getSystemService(Context.DEVICE_POLICY_SERVICE);
         builder = new AlertDialog.Builder(BootActivity.this);
@@ -220,9 +221,6 @@ public class BootActivity extends BaseActivity {
         android.util.Log.v(TAG, "onResume");
         if (alert11 != null && alert11.isShowing()) {
             alert11.hide();
-        }
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
         }
         IntentFilter mIntentFilter = new IntentFilter();
         mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
@@ -521,7 +519,7 @@ public class BootActivity extends BaseActivity {
         // set this Activity as a lock task package
 
         mDevicePolicyManager.setLockTaskPackages(mAdminComponentName,
-                active ? new String[]{getPackageName()} : new String[]{});
+                active ? new String[]{getPackageName(), "com.google.android.youtube"} : new String[]{});
 
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MAIN);
         intentFilter.addCategory(Intent.CATEGORY_HOME);
