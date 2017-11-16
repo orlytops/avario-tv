@@ -2,7 +2,6 @@ package com.avariohome.avario.widget.adapter;
 
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,6 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.AssetLoaderTask;
-import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.PlatformUtil;
 
@@ -79,68 +77,63 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
 
         try {
             String state = entity.data
-                .getJSONObject("new_state")
-                .getString("state");
+                    .getJSONObject("new_state")
+                    .getString("state");
 
             holder.rootLayout.setVisibility(
-                !state.equals(Constants.ENTITY_MEDIA_STATE_PLAYING) && !state.equals(Constants.ENTITY_MEDIA_STATE_PAUSED)
-                    ? View.GONE
-                    : View.VISIBLE
+                    !state.equals(Constants.ENTITY_MEDIA_STATE_PLAYING) && !state.equals(Constants.ENTITY_MEDIA_STATE_PAUSED)
+                            ? View.GONE
+                            : View.VISIBLE
 
             );
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             holder.itemView.setVisibility(View.VISIBLE);
         }
 
         // Thumbnail
         try {
             String url = this.states.getHTTPHost("ip1") + entityJSON
-                .getJSONObject("new_state")
-                .getJSONObject("attributes")
-                .getString("entity_picture");
+                    .getJSONObject("new_state")
+                    .getJSONObject("attributes")
+                    .getString("entity_picture");
 
             AssetLoaderTask.picasso(holder.itemView.getContext())
-                .load(url)
-                .fit()
-                .centerCrop()
-                .into(holder.thumbnailIV);
-        }
-        catch (AvarioException | JSONException exception) {
+                    .load(url)
+                    .fit()
+                    .centerCrop()
+                    .into(holder.thumbnailIV);
+        } catch (AvarioException | JSONException exception) {
             holder.thumbnailIV.setImageDrawable(null);
         }
 
         // Title
         try {
             holder.titleTV.setText(
-                entityJSON
-                    .getJSONObject("new_state")
-                    .getJSONObject("attributes")
-                    .getString("media_title")
+                    entityJSON
+                            .getJSONObject("new_state")
+                            .getJSONObject("attributes")
+                            .getString("media_title")
             );
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             holder.titleTV.setText("");
 
-            /*PlatformUtil.logError(new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                new Object[] {
-                    String.format("%s.new_state.attributes.media_title", entityJSON.optString("entity_id"))
-                })
-            );*/
+            PlatformUtil.logError(new AvarioException(
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{
+                            String.format("%s.new_state.attributes.media_title", entityJSON.optString("entity_id"))
+                    })
+            );
         }
-
         // Artist
         try {
             holder.artistTV.setText(
-                entityJSON
-                    .getJSONObject("new_state")
-                    .getJSONObject("attributes")
-                    .getString("media_artist")
+                    entityJSON
+                            .getJSONObject("new_state")
+                            .getJSONObject("attributes")
+                            .getString("media_artist")
             );
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             holder.artistTV.setText("");
 
             /*PlatformUtil.logError(new AvarioException(
@@ -164,21 +157,19 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
         // Media Position
         try {
             holder.seekTV.setText(PlatformUtil.toTimeString(EntityUtil.getSeekPosition(entityJSON)));
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             holder.seekTV.setText(R.string.medialist__unknown__timer);
         }
 
         // Media Duration
         try {
             holder.durationTV.setText(PlatformUtil.toTimeString(
-                entityJSON
-                    .getJSONObject("new_state")
-                    .getJSONObject("attributes")
-                    .getInt("media_duration")
+                    entityJSON
+                            .getJSONObject("new_state")
+                            .getJSONObject("attributes")
+                            .getInt("media_duration")
             ));
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             holder.durationTV.setText(R.string.medialist__unknown__timer);
 
             /*PlatformUtil.logError(new AvarioException(
@@ -206,8 +197,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
     public Entity get(int index) {
         try {
             return this.mediaEntities.get(index);
-        }
-        catch (ArrayIndexOutOfBoundsException exception) {
+        } catch (ArrayIndexOutOfBoundsException exception) {
             return null;
         }
     }
@@ -249,11 +239,11 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
             super(view);
 
             this.rootLayout = (RelativeLayout) view.findViewById(R.id.root);
-            this.thumbnailIV = (ImageView)view.findViewById(R.id.thumbnail);
-            this.titleTV = (TextView)view.findViewById(R.id.title);
-            this.artistTV = (TextView)view.findViewById(R.id.artist);
-            this.seekTV = (TextView)view.findViewById(R.id.seek);
-            this.durationTV = (TextView)view.findViewById(R.id.duration);
+            this.thumbnailIV = (ImageView) view.findViewById(R.id.thumbnail);
+            this.titleTV = (TextView) view.findViewById(R.id.title);
+            this.artistTV = (TextView) view.findViewById(R.id.artist);
+            this.seekTV = (TextView) view.findViewById(R.id.seek);
+            this.durationTV = (TextView) view.findViewById(R.id.duration);
         }
     }
 }

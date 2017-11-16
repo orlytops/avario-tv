@@ -318,6 +318,10 @@ public class APIClient {
         mapping.put("token", token);
         mapping.put("id", PlatformUtil.getTabletId());
 
+        if (requestJSON == null) {
+            return;
+        }
+
         try {
             requestJSON.put("payload", RefStringUtil.replaceMarkers(
                     RefStringUtil.extractMarkers(requestJSON.getString("payload"), null),

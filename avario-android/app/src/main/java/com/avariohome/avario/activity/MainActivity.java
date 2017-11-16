@@ -450,7 +450,22 @@ public class MainActivity extends BaseActivity {
         this.mediaList.setLayoutParams(params);
         this.mediaList.setId(View.generateViewId());
         this.mediaList.setVisibility(View.GONE);
+        disableMediaPlay();
         this.controlsFL.addView(this.mediaList);
+    }
+
+    private void disableMediaPlay() {
+        playIB.setEnabled(false);
+        nextIB.setEnabled(false);
+        prevIB.setEnabled(false);
+        volumeIB.setEnabled(false);
+    }
+
+    private void enableMediaPlay() {
+        playIB.setEnabled(true);
+        nextIB.setEnabled(true);
+        prevIB.setEnabled(true);
+        volumeIB.setEnabled(true);
     }
 
     private void initViewConf() {
@@ -534,10 +549,10 @@ public class MainActivity extends BaseActivity {
         };
 
         for (int index = 0; index < resourceIds[0].length; index++) {
-            AssetUtil.loadImage(
+            AssetUtil.toDrawable(
                     this,
                     resourceIds[1][index],
-                    new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index])), (ImageButton) this.findViewById(resourceIds[0][index])
+                    new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index]))
             );
         }
     }
@@ -584,6 +599,7 @@ public class MainActivity extends BaseActivity {
         if (view.getId() == this.devicesList.getId()) {
             this.devicesList.setVisibility(View.VISIBLE);
             this.mediaList.setVisibility(View.GONE);
+            disableMediaPlay();
         } else {
             this.devicesList.setVisibility(View.GONE);
             this.mediaList.setVisibility(View.VISIBLE);
@@ -1279,6 +1295,8 @@ public class MainActivity extends BaseActivity {
 
             mediaList.setup(rooms);
             sourcesList.setup(rooms);
+
+
         }
         // endregion
 
@@ -1340,14 +1358,26 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onMediaListUpdated() {
             MainActivity self = MainActivity.this;
-
             if (self.mediaList.getVisibility() == View.VISIBLE)
                 self.updateDialFromSelections(self.mediaList);
+            enableMediaPlay();
         }
 
         @Override
         public void onMediaSelected(Entity entity) {
             MainActivity.this.updateDialFromSelections(MainActivity.this.mediaList);
+            enableMediaPlay();
+        }
+
+        @Override
+        public void onMediaState(String state) {
+            if (state.equals(Constants.ENTITY_MEDIA_STATE_STOPPED)) {
+                disableMediaPlay();
+                Log.d("State", "Idle");
+            } else {
+                enableMediaPlay();
+            }
+
         }
         // endregion
 
