@@ -18,6 +18,7 @@ import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.service.KioskService;
 import com.avariohome.avario.util.RefStringUtil;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.crash.FirebaseCrash;
 
 import org.json.JSONException;
@@ -44,7 +45,7 @@ public class Application extends android.app.Application {
      * Tries to start the worker thread just in case it was killed off before
      */
     public static void startWorker(Context context) {
-        if (Application.workHandler != null && Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED){
+        if (Application.workHandler != null && Application.worker != null && Application.worker.getState() != Thread.State.TERMINATED) {
             // Clear any instance of tickerRunnable to avoid duplicate
             // and initialize to make sure ticker is running as intended.
             if (Application.workHandler != null) {
@@ -64,7 +65,7 @@ public class Application extends android.app.Application {
         Application.tickerRunnable.tick();
     }
 
-    public static void stopWorker(){
+    public static void stopWorker() {
         Application.workHandler.removeCallbacks(Application.tickerRunnable);
         Application.tickerRunnable = null;
         Application.workHandler = null;
@@ -74,7 +75,8 @@ public class Application extends android.app.Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        FirebaseCrash.setCrashCollectionEnabled(false);
+        FirebaseApp.initializeApp(this);
+        FirebaseCrash.setCrashCollectionEnabled(true);
         VolleyLog.setTag("AvarioVolley");
 
         Application.mainHandler = new Handler(Looper.getMainLooper());

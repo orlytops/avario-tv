@@ -220,7 +220,7 @@ public class SettingsDialogFragment extends DialogFragment {
         forceCrash.setOnClickListener(new ClickListener());
 
         //set View.VISIBLE on kiosk mode
-        kioskCheck.setVisibility(View.GONE);
+        kioskCheck.setVisibility(View.VISIBLE);
 
         mAdminComponentName = AvarioReceiver.getComponentName(getActivity());
         mDevicePolicyManager = (DevicePolicyManager) getActivity().getSystemService(
@@ -262,7 +262,7 @@ public class SettingsDialogFragment extends DialogFragment {
         try {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version = pInfo.versionName;
-            versionText.setText("Version: avario_john_v" + version);
+            versionText.setText("Version: avario_master_v" + version);
 //            versionText.setText("Version: avario_orly_v" + version);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -284,7 +284,7 @@ public class SettingsDialogFragment extends DialogFragment {
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Settings.ACTION_SETTINGS));
+                startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0);
             }
         });
 
@@ -718,6 +718,7 @@ public class SettingsDialogFragment extends DialogFragment {
                     self.reloadBootstrap();
                 }
             } else if (view.getId() == R.id.btnNoneFatal) {
+                noneFatalMessage.setText("Test firebase");
                 if (noneFatalMessage.getText() == null
                         || noneFatalMessage.getText().toString().isEmpty()) {
                     Toast.makeText(view.getContext(), "None Fatal Message should not be empty", Toast.LENGTH_SHORT).show();
@@ -960,7 +961,7 @@ public class SettingsDialogFragment extends DialogFragment {
         // set this Activity as a lock task package
 
         mDevicePolicyManager.setLockTaskPackages(mAdminComponentName,
-                active ? new String[]{getActivity().getPackageName()} : new String[]{});
+                active ? new String[]{getActivity().getPackageName(), "com.google.android.youtube"} : new String[]{});
 
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MAIN);
         intentFilter.addCategory(Intent.CATEGORY_HOME);

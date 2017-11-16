@@ -192,6 +192,7 @@ public class BatteryWifi extends FrameLayout {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("Signal Level", getWifiSignalStrength(getContext()) + "");
+            setIsLan(Connectivity.identifyConnection(getContext()));
             levelWifi = getWifiSignalStrength(getContext());
             setWifiLevel(levelWifi);
         }
