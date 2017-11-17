@@ -11,7 +11,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,12 +20,14 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.core.APITimers;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
+import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.widget.adapter.Entity;
 import com.avariohome.avario.widget.adapter.MediaAdapter;
 import com.avariohome.avario.widget.adapter.RoomEntity;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -57,10 +58,10 @@ public class MediaList extends RecyclerView {
 
         if (attributes != null) {
             TypedArray array = this.getContext().obtainStyledAttributes(
-                attributes,
-                R.styleable.MediaList,
-                defaultStyleAttr,
-                0
+                    attributes,
+                    R.styleable.MediaList,
+                    defaultStyleAttr,
+                    0
             );
 
             array.recycle();
@@ -73,23 +74,23 @@ public class MediaList extends RecyclerView {
         this.setHasFixedSize(true);
         this.setAdapter(this.adapter);
         this.setLayoutManager(new LinearLayoutManager(
-            this.getContext(),
-            LinearLayoutManager.VERTICAL,
-            false
+                this.getContext(),
+                LinearLayoutManager.VERTICAL,
+                false
         ));
         this.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(
-                Rect rect,
-                View view,
-                RecyclerView parent,
-                RecyclerView.State state
+                    Rect rect,
+                    View view,
+                    RecyclerView parent,
+                    RecyclerView.State state
             ) {
                 float density = parent.getResources().getDisplayMetrics().density;
                 int position = parent.getChildAdapterPosition(view);
 
                 if (position < state.getItemCount() - 1)
-                    rect.bottom = (int)(10.0 * density);
+                    rect.bottom = (int) (10.0 * density);
             }
         });
         this.addOnItemTouchListener(new ItemListener());
@@ -131,11 +132,10 @@ public class MediaList extends RecyclerView {
                 media.id = media.data.optString("entity_id");
 
                 entities.add(media);
-            }
-            catch (AvarioException exception) {
+            } catch (AvarioException exception) {
                 PlatformUtil
-                    .getErrorToast(this.getContext(), exception)
-                    .show();
+                        .getErrorToast(this.getContext(), exception)
+                        .show();
             }
 
         // sort them entities
@@ -152,9 +152,11 @@ public class MediaList extends RecyclerView {
 
         this.adapter.clear();
         this.adapter.addAll(entities);
+        Log.d("Entity media size", entities.size() + "");
         this.adapter.notifyDataSetChanged();
 
         this.fireMediaListUpdated();
+
     }
 
     @Override
@@ -182,7 +184,7 @@ public class MediaList extends RecyclerView {
      ***********************************************************************************************
      */
     private class ItemListener extends GestureDetector.SimpleOnGestureListener
-                               implements RecyclerView.OnItemTouchListener {
+            implements RecyclerView.OnItemTouchListener {
         private GestureDetector detector;
 
         private ItemListener() {
@@ -197,10 +199,12 @@ public class MediaList extends RecyclerView {
         }
 
         @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {}
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        }
 
         @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        }
 
         // GestureDetector.SimpleOnGestureListener
         @Override
@@ -233,8 +237,8 @@ public class MediaList extends RecyclerView {
             int position;
 
             position = self.getChildAdapterPosition(self.findChildViewUnder(
-                event.getX(),
-                event.getY()
+                    event.getX(),
+                    event.getY()
             ));
 
             media = self.adapter.getSelected();
@@ -245,8 +249,7 @@ public class MediaList extends RecyclerView {
             try {
                 media = self.adapter.get(position);
                 media.selected = true;
-            }
-            catch (NullPointerException exception) {
+            } catch (NullPointerException exception) {
                 return;
             }
 
@@ -274,12 +277,11 @@ public class MediaList extends RecyclerView {
                         media = adapter.get(index);
                         media.data = states.getMediaEntity(media.id);
                         APITimers.invalidate(media.id);
+                    } catch (AvarioException ignored) {
                     }
-                    catch (AvarioException ignored) {}
 
                 adapter.notifyItemRangeChanged(0, length);
-            }
-            else
+            } else
                 for (int index = 0; index < length; index++) {
                     Entity media = adapter.get(index);
 
@@ -289,9 +291,20 @@ public class MediaList extends RecyclerView {
                     try {
                         selected.data = states.getMediaEntity(selected.id);
                         adapter.notifyItemChanged(index);
+
+                        try {
+                            String state = adapter.getSelected().data
+                                    .getJSONObject("new_state")
+                                    .getString("state");
+                            if (listener != null) {
+                                listener.onMediaState(state);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                         APITimers.invalidate(media.id);
+                    } catch (AvarioException ignored) {
                     }
-                    catch (AvarioException ignored) {}
                 }
         }
     }
@@ -309,9 +322,9 @@ public class MediaList extends RecyclerView {
         @Override
         public int compare(Entity objectA, Entity objectB) {
             JSONObject jsonA = objectA.data,
-                jsonB = objectB.data;
+                    jsonB = objectB.data;
             int priorityA = jsonA.optInt("priority", -1),
-                priorityB = jsonB.optInt("priority", -1);
+                    priorityB = jsonB.optInt("priority", -1);
 
             if (priorityA > priorityB)
                 return 1;
@@ -335,5 +348,7 @@ public class MediaList extends RecyclerView {
          * @param entity
          */
         void onMediaSelected(Entity entity);
+
+        void onMediaState(String state);
     }
 }

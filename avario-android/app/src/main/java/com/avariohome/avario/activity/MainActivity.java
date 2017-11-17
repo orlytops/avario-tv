@@ -5,6 +5,7 @@ package com.avariohome.avario.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
@@ -14,6 +15,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
@@ -543,10 +545,24 @@ public class MainActivity extends BaseActivity {
         this.mediaList.setLayoutParams(params);
         this.mediaList.setId(View.generateViewId());
         this.mediaList.setVisibility(View.GONE);
+        disableMediaPlay();
         if (config.isTablet()) {
             this.controlsFL.addView(this.mediaList);
         }
+    }
 
+    private void disableMediaPlay() {
+        playIB.setEnabled(false);
+        nextIB.setEnabled(false);
+        prevIB.setEnabled(false);
+        volumeIB.setEnabled(false);
+    }
+
+    private void enableMediaPlay() {
+        playIB.setEnabled(true);
+        nextIB.setEnabled(true);
+        prevIB.setEnabled(true);
+        volumeIB.setEnabled(true);
     }
 
     private void initViewConf() {
@@ -665,10 +681,10 @@ public class MainActivity extends BaseActivity {
         };
 
         for (int index = 0; index < resourceIds[0].length; index++) {
-            AssetUtil.loadImage(
+            AssetUtil.toDrawable(
                     this,
                     resourceIds[1][index],
-                    new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index])), (ImageButton) this.findViewById(resourceIds[0][index])
+                    new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index]))
             );
         }
     }
@@ -715,8 +731,11 @@ public class MainActivity extends BaseActivity {
         if (view.getId() == this.devicesList.getId()) {
             this.devicesList.setVisibility(View.VISIBLE);
             this.mediaList.setVisibility(View.GONE);
+            disableMediaPlay();
         } else {
-            this.devicesList.setVisibility(View.GONE);
+            if (config.isTablet()) {
+                this.devicesList.setVisibility(View.GONE);
+            }
             this.mediaList.setVisibility(View.VISIBLE);
         }
     }
@@ -768,8 +787,42 @@ public class MainActivity extends BaseActivity {
         this.contentWV.getSettings().setJavaScriptEnabled(true);
         this.contentWV.setWebViewClient(new WebViewClient() {
             @Override
-            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-                handler.proceed();
+            public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                String message = "SSL Certificate error.";
+                switch (error.getPrimaryError()) {
+                    case SslError.SSL_UNTRUSTED:
+                        message = "The certificate authority is not trusted.";
+                        break;
+                    case SslError.SSL_EXPIRED:
+                        message = "The certificate has expired.";
+                        break;
+                    case SslError.SSL_IDMISMATCH:
+                        message = "The certificate Hostname mismatch.";
+                        break;
+                    case SslError.SSL_NOTYETVALID:
+                        message = "The certificate is not yet valid.";
+                        break;
+                }
+                message += " Do you want to continue anyway?";
+
+                builder.setTitle("SSL Certificate Error");
+                builder.setMessage(message);
+
+                builder.setPositiveButton("continue", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        handler.proceed();
+                    }
+                });
+                builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        handler.cancel();
+                    }
+                });
+                final AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
         this.contentWV.loadUrl(url);
@@ -1473,6 +1526,8 @@ public class MainActivity extends BaseActivity {
 
             mediaList.setup(rooms);
             sourcesList.setup(rooms);
+
+
         }
         // endregion
 
@@ -1541,14 +1596,26 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onMediaListUpdated() {
             MainActivity self = MainActivity.this;
-
             if (self.mediaList.getVisibility() == View.VISIBLE)
                 self.updateDialFromSelections(self.mediaList);
+            enableMediaPlay();
         }
 
         @Override
         public void onMediaSelected(Entity entity) {
             MainActivity.this.updateDialFromSelections(MainActivity.this.mediaList);
+            enableMediaPlay();
+        }
+
+        @Override
+        public void onMediaState(String state) {
+            if (state.equals(Constants.ENTITY_MEDIA_STATE_STOPPED)) {
+                disableMediaPlay();
+                Log.d("State", "Idle");
+            } else {
+                enableMediaPlay();
+            }
+
         }
         // endregion
 
