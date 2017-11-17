@@ -17,6 +17,7 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -91,7 +92,7 @@ public class RoomSelector extends RelativeLayout {
         else
             height = (int) (48.0f * metrics.density);
 
-        width = (int) (275.0f * metrics.density);
+        width = (int) (150.0f * metrics.density);
 
         handleIsRes = true;
         handleBG = -1;
@@ -159,7 +160,7 @@ public class RoomSelector extends RelativeLayout {
 
         listener = new ClickListener();
 
-        layout = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        layout = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 
         this.dummyView = new View(this.getContext());
         this.dummyView.setId(View.generateViewId());
@@ -169,7 +170,7 @@ public class RoomSelector extends RelativeLayout {
 
         this.addView(this.dummyView);
 
-        layout = new LayoutParams(this.widgetWidth, height);
+        layout = new LayoutParams(600, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         this.handleRL = (RelativeLayout) inflater.inflate(layoutResId, null);
         this.handleRL.setLayoutParams(layout);
@@ -194,7 +195,7 @@ public class RoomSelector extends RelativeLayout {
         LayoutParams layout;
         DividerItemDecoration decoration;
 
-        layout = new LayoutParams(this.widgetWidth, 0);
+        layout = new LayoutParams(600, ViewGroup.LayoutParams.WRAP_CONTENT);
         layout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         layout.addRule(RelativeLayout.BELOW, this.handleId);
 

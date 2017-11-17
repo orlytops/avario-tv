@@ -29,48 +29,10 @@
             android:layout_below="@+id/toolbar"
             android:background="@drawable/drop_shadow" />
 
-        <!--<android.support.v4.widget.SlidingPaneLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/elements"
-            android:layout_below="@+id/toolbar">
-
-            <FrameLayout
-                android:id="@+id/layout_device"
-                android:layout_width="300dp"
-                android:layout_height="match_parent" />
-
-        </android.support.v4.widget.SlidingPaneLayout>-->
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/elements"
-            android:layout_below="@+id/toolbar">
-
-            <FrameLayout
-                android:id="@+id/crossfade_content"
-                android:layout_width="400dp"
-                android:layout_height="match_parent"
-                android:layout_above="@+id/elements"
-                android:layout_below="@+id/toolbar"
-                android:layout_centerInParent="true"
-                android:layout_marginLeft="40dp">
-
-                <fragment
-                    android:id="@+id/dial"
-                    android:name="com.avariohome.avario.fragment.DialFragment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="50dp" />
-            </FrameLayout>
-        </FrameLayout>
-
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_height="0dp"
+            android:layout_above="@+id/elements"
             android:layout_alignParentTop="true"
             android:layout_marginTop="50dp"
             android:baselineAligned="false"
@@ -79,21 +41,33 @@
 
             <FrameLayout
                 android:id="@+id/controls__holder"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_gravity="center"
                 android:layout_marginTop="20dp"
                 android:layout_weight="1" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <fragment
+                    android:id="@+id/dial"
+                    android:name="com.avariohome.avario.fragment.DialFragment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center" />
+            </FrameLayout>
 
         </LinearLayout>
 
         <com.avariohome.avario.widget.ElementsBar
-            android:id="@+id/elements"
+            android:id="@id/elements"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:background="@color/white__60"
-            presetsbar:pageSize="6" />
+            presetsbar:pageSize="11" />
 
         <View
             android:layout_width="match_parent"
@@ -103,12 +77,12 @@
 
         <RelativeLayout
             android:id="@+id/toolbar"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="70dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="200dp"
+            android:layout_marginStart="275dp"
             android:background="@color/white__60">
 
             <ImageButton
@@ -117,7 +91,6 @@
                 android:layout_height="@dimen/home_button_size"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="5dp"
-                android:layout_toStartOf="@+id/spinner_events"
                 android:background="@android:color/transparent"
                 android:padding="10dp"
                 android:scaleType="fitXY" /> <!-- android:src="@drawable/ic__dropdown" -->
@@ -130,8 +103,7 @@
                 android:layout_toEndOf="@id/devices"
                 android:background="@android:color/transparent"
                 android:padding="7dp"
-                android:scaleType="fitXY"
-                android:visibility="gone" />
+                android:scaleType="fitXY" />
 
             <!-- Media Buttons -->
             <ImageButton
@@ -139,54 +111,41 @@
                 style="@style/HomeMediaButton"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="100dp"
-                android:layout_toEndOf="@id/devices"
-                android:visibility="gone" />
+                android:layout_toEndOf="@id/devices" />
 
             <ImageButton
                 android:id="@+id/play"
                 style="@style/HomeMediaButton"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/prev"
-                android:visibility="gone" />
+                android:layout_toEndOf="@id/prev" />
 
             <ImageButton
                 android:id="@+id/next"
                 style="@style/HomeMediaButton"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/play"
-                android:visibility="gone" />
+                android:layout_toEndOf="@id/play" />
 
             <ImageButton
                 android:id="@+id/volume"
                 style="@style/HomeMediaButton"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/next"
-                android:visibility="gone" />
+                android:layout_toEndOf="@id/next" />
 
             <!-- Mode Buttons -->
             <ImageButton
                 android:id="@+id/temperature"
                 style="@style/ModeButton.Head"
                 android:layout_centerVertical="true"
-                android:layout_toStartOf="@+id/bolt"
-                android:visibility="gone" />
+                android:layout_toStartOf="@+id/bolt" />
 
             <ImageButton
                 android:id="@id/bolt"
                 style="@style/ModeButton"
                 android:layout_centerVertical="true"
-                android:layout_toStartOf="@+id/cctv"
-                android:visibility="gone" />
+                android:layout_toStartOf="@+id/cctv" />
 
             <ImageButton
                 android:id="@id/cctv"
-                style="@style/ModeButton"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@+id/home"
-                android:visibility="gone" />
-
-            <Spinner
-                android:id="@+id/spinner_events"
                 style="@style/ModeButton"
                 android:layout_centerVertical="true"
                 android:layout_toStartOf="@+id/home" />
@@ -194,16 +153,21 @@
             <ImageButton
                 android:id="@id/home"
                 style="@style/ModeButton"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/battery" />
+
+            <com.avariohome.avario.widget.BatteryWifi
+                android:id="@+id/battery"
+                style="@style/ModeButton"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="20dp" />
-
         </RelativeLayout>
 
         <com.avariohome.avario.widget.RoomSelector
             android:id="@+id/selector"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="match_parent"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_below="@id/toolbar"
@@ -219,7 +183,6 @@
             android:layout_height="match_parent"
             android:layout_below="@+id/toolbar"
             android:visibility="gone" />
-
     </RelativeLayout>
 
     <!-- Navigation Drawer -->
@@ -227,13 +190,12 @@
         android:id="@+id/sources"
         android:layout_width="275dp"
         android:layout_height="match_parent"
-        android:layout_gravity="end"
+        android:layout_gravity="start"
         android:background="#FF333333"
         android:paddingBottom="?attr/actionBarSize"
         android:paddingEnd="25dp"
         android:paddingStart="25dp"
         android:paddingTop="?attr/actionBarSize" />
-
 
 </android.support.v4.widget.DrawerLayout>
 

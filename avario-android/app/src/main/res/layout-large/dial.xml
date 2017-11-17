@@ -8,17 +8,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:padding="16dp"
-        seekarc:arcWidth="8dp"
+        android:padding="23dp"
+        seekarc:arcWidth="12dp"
         seekarc:boundsInner="86dp"
         seekarc:boundsOuter="36dp"
         seekarc:continuous="false"
-        seekarc:progressWidth="9dp"
+        seekarc:progressWidth="14dp"
         seekarc:rotation="180"
         seekarc:roundEdges="true"
         seekarc:startAngle="30"
         seekarc:sweepAngle="300"
-        seekarc:thumbOffset="45dp" />
+        seekarc:thumbOffset="64dp" />
 
     <!-- Switch Dial -->
     <FrameLayout
@@ -287,7 +287,7 @@
             android:layout_width="120dp"
             android:layout_height="60dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="120dp" />
+            android:layout_marginBottom="175dp" />
 
         <ImageButton
             android:id="@+id/dpad__down"
@@ -295,7 +295,7 @@
             android:layout_width="120dp"
             android:layout_height="60dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="120dp" />
+            android:layout_marginTop="175dp" />
 
         <ImageButton
             android:id="@+id/dpad__left"
@@ -303,7 +303,7 @@
             android:layout_width="60dp"
             android:layout_height="120dp"
             android:layout_centerVertical="true"
-            android:layout_marginRight="120dp" />
+            android:layout_marginRight="175dp" />
 
         <ImageButton
             android:id="@+id/dpad__right"
@@ -311,6 +311,6 @@
             android:layout_width="60dp"
             android:layout_height="120dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="120dp" />
+            android:layout_marginLeft="175dp" />
     </RelativeLayout>
 </merge>
