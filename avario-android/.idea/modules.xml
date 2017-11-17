@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/avario-android.iml" filepath="$PROJECT_DIR$/avario-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/library/material-drawer.iml" filepath="$PROJECT_DIR$/library/material-drawer.iml" />
       <module fileurl="file://$PROJECT_DIR$/../refs/seekarc/library/seekarc.iml" filepath="$PROJECT_DIR$/../refs/seekarc/library/seekarc.iml" />
     </modules>
   </component>

@@ -29,7 +29,7 @@
             android:layout_below="@+id/toolbar"
             android:background="@drawable/drop_shadow" />
 
-        <android.support.v4.widget.SlidingPaneLayout
+        <!--<android.support.v4.widget.SlidingPaneLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/elements"
@@ -40,12 +40,22 @@
                 android:layout_width="300dp"
                 android:layout_height="match_parent" />
 
+        </android.support.v4.widget.SlidingPaneLayout>-->
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/elements"
+            android:layout_below="@+id/toolbar">
+
             <FrameLayout
+                android:id="@+id/crossfade_content"
                 android:layout_width="400dp"
                 android:layout_height="match_parent"
+                android:layout_above="@+id/elements"
+                android:layout_below="@+id/toolbar"
                 android:layout_centerInParent="true"
-                android:layout_marginLeft="40dp"
-                android:background="@color/white__60">
+                android:layout_marginLeft="40dp">
 
                 <fragment
                     android:id="@+id/dial"
@@ -55,8 +65,8 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="50dp" />
             </FrameLayout>
+        </FrameLayout>
 
-        </android.support.v4.widget.SlidingPaneLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -184,12 +194,6 @@
             <ImageButton
                 android:id="@id/home"
                 style="@style/ModeButton"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@+id/battery" />
-
-            <com.avariohome.avario.widget.BatteryWifi
-                android:id="@+id/battery"
-                style="@style/ModeButton"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="20dp" />
@@ -229,6 +233,7 @@
         android:paddingEnd="25dp"
         android:paddingStart="25dp"
         android:paddingTop="?attr/actionBarSize" />
+
 
 </android.support.v4.widget.DrawerLayout>
 

@@ -72,6 +72,7 @@ import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.Connectivity;
+import com.avariohome.avario.util.CrossfadeWrapper;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
@@ -89,6 +90,14 @@ import com.avariohome.avario.widget.adapter.EventAdapter;
 import com.avariohome.avario.widget.adapter.MediaAdapter;
 import com.avariohome.avario.widget.adapter.RoomEntity;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.mikepenz.crossfader.Crossfader;
+import com.mikepenz.crossfader.util.UIUtils;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.MiniDrawer;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -165,11 +174,22 @@ public class MainActivity extends BaseActivity {
 
     private Config config;
 
+    private AccountHeader headerResult = null;
+    private Drawer result = null;
+    private MiniDrawer miniResult = null;
+
+    private Crossfader crossFader;
+
+    private List<IDrawerItem> itemDrawers = new ArrayList<>();
+    private List<Integer> deviceSelected = new ArrayList<>();
+    private Bundle savedInstanceState;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity__main);
+        this.savedInstanceState = savedInstanceState;
 
         config = Config.getInstance();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -207,7 +227,7 @@ public class MainActivity extends BaseActivity {
 
         this.initFCM();
         this.initViews();
-        this.initListingViews();
+        this.initListingViews(savedInstanceState);
         this.initViewConf();
 
         this.registerEvents();
@@ -310,8 +330,9 @@ public class MainActivity extends BaseActivity {
         Light.addAllAlgo(Config.getInstance().getLightAlgo());
         // delete algo stored to avoid redundancy.
         Config.getInstance().deleteAlgo();
-
-        battery.setIsLan(Connectivity.identifyConnection(MainActivity.this));
+        if (config.isTablet()) {
+            battery.setIsLan(Connectivity.identifyConnection(MainActivity.this));
+        }
     }
 
     @Override
@@ -418,7 +439,7 @@ public class MainActivity extends BaseActivity {
         this.drawer = (DrawerLayout) this.findViewById(R.id.drawer);
         this.contentRL = (RelativeLayout) this.findViewById(R.id.content);
         this.controlsFL = (FrameLayout) this.findViewById(R.id.controls__holder);
-        this.deviceLayout = (FrameLayout) this.findViewById(R.id.layout_device);
+        //this.deviceLayout = (FrameLayout) this.findViewById(R.id.layout_device);
         this.roomSelector = (RoomSelector) this.findViewById(R.id.selector);
         this.elementsBar = (ElementsBar) this.findViewById(R.id.elements);
         this.sourcesList = (MediaSourcesList) this.findViewById(R.id.sources);
@@ -488,7 +509,7 @@ public class MainActivity extends BaseActivity {
     }
 
     @SuppressLint("RtlHardcoded")
-    private void initListingViews() {
+    private void initListingViews(Bundle savedInstanceState) {
         DisplayMetrics metrics = this.getResources().getDisplayMetrics();
         FrameLayout.LayoutParams params;
 
@@ -502,8 +523,9 @@ public class MainActivity extends BaseActivity {
         this.devicesList.setLayoutParams(params);
         this.devicesList.setId(View.generateViewId());
         this.devicesList.setVisibility(View.GONE);
-        //this.controlsFL.addView(this.devicesList);
-        this.deviceLayout.addView(this.devicesList);
+        if (config.isTablet()) {
+            this.controlsFL.addView(this.devicesList);
+        }
 
         params = new FrameLayout.LayoutParams(
                 (int) (375.00 * metrics.density),
@@ -521,8 +543,10 @@ public class MainActivity extends BaseActivity {
         this.mediaList.setLayoutParams(params);
         this.mediaList.setId(View.generateViewId());
         this.mediaList.setVisibility(View.GONE);
-        //this.controlsFL.addView(this.mediaList);
-        this.deviceLayout.addView(this.mediaList);
+        if (config.isTablet()) {
+            this.controlsFL.addView(this.mediaList);
+        }
+
     }
 
     private void initViewConf() {
@@ -700,8 +724,9 @@ public class MainActivity extends BaseActivity {
     private void registerEvents() {
         UIListener uiListener = new UIListener();
         WidgetListener widgetListener = new WidgetListener();
-
-        this.battery.setOnTouchListener(uiListener);
+        if (config.isTablet()) {
+            this.battery.setOnTouchListener(uiListener);
+        }
         this.contentRL.setOnClickListener(uiListener);
 
         for (ImageButton button : new ImageButton[]{
@@ -1098,6 +1123,9 @@ public class MainActivity extends BaseActivity {
                 entity.selected = false;
 
                 adapter.append(entity);
+                itemDrawers.add(new PrimaryDrawerItem().withIcon(AssetUtil.toDrawable(MainActivity.this,
+                        EntityUtil.getStateIconUrl(MainActivity.this, entity.data))).withSelectable(false).withIdentifier(index));
+
             } catch (AvarioException exception) {
                 PlatformUtil
                         .getErrorToast(this, exception)
@@ -1106,6 +1134,65 @@ public class MainActivity extends BaseActivity {
         }
 
         adapter.notifyItemRangeInserted(oldSize, newSize);
+
+        if (config.isTablet()) {
+            return;
+        }
+
+        result = new DrawerBuilder()
+                .withActivity(this)
+                .withDrawerItems(itemDrawers)
+                .withTranslucentStatusBar(false)
+                .withCustomView(this.devicesList)
+                .withGenerateMiniDrawer(true)
+                .withSavedInstance(savedInstanceState)
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        Log.d("Selected", drawerItem.isSelected() + " " + position);
+
+                        if (deviceSelected.size() == 0) {
+                            view.setBackgroundColor(getResources().getColor(R.color.gray1));
+                            deviceSelected.add(position);
+                            return false;
+                        }
+
+                        for (int i = 0; i < deviceSelected.size(); i++) {
+                            if (i == position) {
+                                view.setBackgroundColor(getResources().getColor(R.color.trasnparent));
+                                deviceSelected.remove(deviceSelected.get(i));
+                            } else {
+                                view.setBackgroundColor(getResources().getColor(R.color.gray1));
+                                deviceSelected.add(position);
+                            }
+                        }
+
+                        return false;
+                    }
+                })
+                .buildView();
+
+        //the MiniDrawer is managed by the Drawer and we just get it to hook it into the Crossfader
+        miniResult = result.getMiniDrawer();
+
+        //get the widths in px for the first and second panel
+        int firstWidth = (int) UIUtils.convertDpToPixel(300, this);
+        int secondWidth = (int) UIUtils.convertDpToPixel(72, this);
+
+        //create and build our crossfader (see the MiniDrawer is also builded in here, as the build method returns the view to be used in the crossfader)
+        //the crossfader library can be found here: https://github.com/mikepenz/Crossfader
+        crossFader = new Crossfader()
+                .withContent(findViewById(R.id.crossfade_content))
+                .withFirst(result.getSlider(), firstWidth)
+                .withSecond(miniResult.build(this), secondWidth)
+                .withSavedInstance(savedInstanceState)
+                .build();
+
+        //define the crossfader to be used with the miniDrawer. This is required to be able to automatically toggle open / close
+        miniResult.withCrossFader(new CrossfadeWrapper(crossFader));
+
+        //define a shadow (this is only for normal LTR layouts if you have a RTL app you need to define the other one
+        crossFader.getCrossFadeSlidingPaneLayout().setShadowResourceLeft(R.drawable.material_drawer_shadow_left);
     }
 
     private void showSettingsDialog(boolean silent) {

@@ -10,13 +10,13 @@ android {
         }
     }
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.avariohome.avario"
         minSdkVersion 19
         targetSdkVersion 25
         versionCode 2
-        versionName "0.0.4"
+        versionName "0.0.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -41,6 +41,7 @@ repositories {
     maven {
         url 'https://jitpack.io'
     }
+    google()
 }
 
 dependencies {
@@ -58,8 +59,9 @@ dependencies {
             'firebasecrash'    : '11.0.2'
     ]
 
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':seekarc')
+
     compile "com.android.volley:volley:${versions['volley']}"
     compile "com.android.support:appcompat-v7:${versions['supt']}"
     compile "com.android.support:recyclerview-v7:${versions['supt']}"
@@ -87,6 +89,20 @@ dependencies {
     compile 'com.daimajia.androidanimations:library:2.3@aar'
     compile 'com.google.firebase:firebase-crash:11.0.2'
     testCompile 'junit:junit:4.12'
+
+    implementation("com.mikepenz:materialdrawer:6.0.1@aar") {
+        transitive = true
+    }
+
+//required support lib modules
+    implementation "com.android.support:appcompat-v7:${versions.supportLib}"
+    implementation "com.android.support:recyclerview-v7:${versions.supportLib}"
+    implementation "com.android.support:support-annotations:${versions.supportLib}"
+    implementation 'com.mikepenz:crossfader:1.5.1@aar'
+    implementation 'com.mikepenz:google-material-typeface:3.0.1.1.original@aar'
+    implementation 'com.mikepenz:fontawesome-typeface:4.7.0.1@aar'
+    implementation 'com.mikepenz:octicons-typeface:3.0.0.1@aar'
+    implementation('com.mikepenz:crossfadedrawerlayout:1.0.1@aar')
 }
 
 apply plugin: 'com.google.gms.google-services'

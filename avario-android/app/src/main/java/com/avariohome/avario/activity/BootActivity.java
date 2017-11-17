@@ -245,8 +245,6 @@ public class BootActivity extends BaseActivity {
             this.loadBootstrap();
         else
             this.showSettingsDialog(this.settingsListener);
-
-        startMainActivity();
     }
 
     protected void loadBootstrap() {
@@ -259,7 +257,9 @@ public class BootActivity extends BaseActivity {
 
         final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        this.progressPD.show();
+        if (progressPD != null) {
+            this.progressPD.show();
+        }
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override

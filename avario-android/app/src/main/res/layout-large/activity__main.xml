@@ -153,6 +153,12 @@
             <ImageButton
                 android:id="@id/home"
                 style="@style/ModeButton"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/battery" />
+
+            <com.avariohome.avario.widget.BatteryWifi
+                android:id="@+id/battery"
+                style="@style/ModeButton"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="20dp" />
