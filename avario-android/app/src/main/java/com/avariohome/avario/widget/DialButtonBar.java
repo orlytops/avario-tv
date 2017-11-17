@@ -173,8 +173,6 @@ public class DialButtonBar extends LinearLayout {
             }
         }
 
-        Log.d("Has buttons", hasButtons + " " + previousButtons.size());
-
         if (areAllTrue(shouldShowList) && areSameTypes(dialTypes) && entityJSONs.size() > 1 && !mediaMode) {
             ImageButton button;
 
@@ -187,8 +185,9 @@ public class DialButtonBar extends LinearLayout {
                     new AssetUtil.ImageViewCallback(button),
                     button
             );
-
-            this.addView(button);
+            if (this.findViewById(R.id.dialbtn__switch) == null) {
+                this.addView(button);
+            }
             YoYo.with(Techniques.ZoomIn)
                     .interpolate(new BounceInterpolator())
                     .duration(500)
@@ -221,7 +220,9 @@ public class DialButtonBar extends LinearLayout {
                     button
             );
 
-            this.addView(button);
+            if (this.findViewById(R.id.dialbtn__switch) == null) {
+                this.addView(button);
+            }
             YoYo.with(Techniques.ZoomIn)
                     .interpolate(new BounceInterpolator())
                     .duration(500)
@@ -857,6 +858,7 @@ public class DialButtonBar extends LinearLayout {
         }
 
         private void setUpSwapLights() {
+            com.avariohome.avario.util.Log.d("Swap", "setUpSwapLights");
             DialButtonBar self = DialButtonBar.this;
             Dial dial = self.dialref.get();
             List<JSONObject> entityJSONs = dial.getEntities();
@@ -897,7 +899,9 @@ public class DialButtonBar extends LinearLayout {
                         button
                 );
 
-                addView(button);
+                if (findViewById(R.id.dialbtn__switch) == null) {
+                    addView(button);
+                }
             } else {
 
                 switch (dial.getType()) {
@@ -957,6 +961,7 @@ public class DialButtonBar extends LinearLayout {
         }
 
         private void swapDial(int id) {
+            com.avariohome.avario.util.Log.d("Swap", "swapDial");
             DialButtonBar self = DialButtonBar.this;
             Dial dial = self.dialref.get();
 
@@ -974,6 +979,7 @@ public class DialButtonBar extends LinearLayout {
         }
 
         private void swapDialLights() {
+            com.avariohome.avario.util.Log.d("Swap", "swapDialLights");
             DialButtonBar self = DialButtonBar.this;
             Dial dial = self.dialref.get();
 

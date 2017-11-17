@@ -23,11 +23,11 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 /**
  * Connection object class for MQTT connections and related data. Contains callbacks so that the
  * app can be notified what is happening with the connection
- *
+ * <p>
  * Guidelines:
  * - class does not infinitely do any connection attempts and will ALWAYS stop when the maximum
- *   retry amount is achieved
- *
+ * retry amount is achieved
+ * <p>
  * Created by aeroheart-c6 on 23/05/2017.
  */
 public class MqttConnection implements MqttCallbackExtended, IMqttActionListener {
@@ -155,8 +155,8 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
         try {
             this.client.setCallback(null);
             this.client.close();
+        } catch (NullPointerException exception) {
         }
-        catch (NullPointerException exception) {}
 
         this.client = new MqttAndroidClient(context, this.buildUrl(), this.clientId);
         this.client.setCallback(this);
@@ -186,19 +186,21 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
 
     private String buildUrl() {
         return new StringBuilder()
-            .append(this.ssl ? "ssl://" : "tcp://")
-            .append(this.host)
-            .append(":")
-            .append(this.port)
-            .toString();
+                .append(this.ssl ? "ssl://" : "tcp://")
+                .append(this.host)
+                .append(":")
+                .append(this.port)
+                .toString();
     }
 
     // endregion
 
     // region event dispatch
+
     /**
      * registers a Listener for this connection to listen for interesting events. To unset a
      * listener for this object, pass `null` as the argument
+     *
      * @param listener
      */
     public void setListener(Listener listener) {
@@ -320,17 +322,16 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
 
         try {
             this.client.subscribe(
-                this.subscription.topic,
-                Constants.MQTT_QOS,
-                this.action,
-                this
+                    this.subscription.topic,
+                    Constants.MQTT_QOS,
+                    this.action,
+                    this
             );
-        }
-        catch (MqttException exception) {
+        } catch (MqttException exception) {
             throw new AvarioException(
-                Constants.ERROR_MQTT_SUBSCRIPTION,
-                exception,
-                new Object[] { this.subscription.topic }
+                    Constants.ERROR_MQTT_SUBSCRIPTION,
+                    exception,
+                    new Object[]{this.subscription.topic}
             );
         }
     }
@@ -346,8 +347,7 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
 
         try {
             this.subscribe();
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             this.dispatchOnSubscriptionError(exception);
         }
     }
@@ -359,8 +359,8 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
 
         // when disconnected as planned, `cause` is null
         this.dispatchOnDisconnection(cause == null ? null : new AvarioException(
-            Constants.ERROR_MQTT_DISCONNECTED,
-            cause
+                Constants.ERROR_MQTT_DISCONNECTED,
+                cause
         ));
     }
 
@@ -378,7 +378,8 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
     }
 
     @Override
-    public void deliveryComplete(IMqttDeliveryToken token) {}
+    public void deliveryComplete(IMqttDeliveryToken token) {
+    }
 
     // endregion
 
@@ -413,11 +414,11 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
 
         switch (this.action) {
             case CONNECT:
-                unsetAction = this.onActionConnect((MqttException)throwable);
+                unsetAction = this.onActionConnect((MqttException) throwable);
                 break;
 
             case DISCONNECT:
-                unsetAction = this.onActionDisconnect((MqttException)throwable);
+                unsetAction = this.onActionDisconnect((MqttException) throwable);
                 break;
 
             case SUBSCRIBE:
@@ -438,9 +439,9 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
     private boolean onActionSubscribe(Throwable throwable) {
         this.subscription.subscribed = false;
         this.dispatchOnSubscriptionError(new AvarioException(
-            Constants.ERROR_MQTT_SUBSCRIPTION,
-            throwable,
-            new Object[] { this.subscription.topic }
+                Constants.ERROR_MQTT_SUBSCRIPTION,
+                throwable,
+                new Object[]{this.subscription.topic}
         ));
 
         return true;
@@ -459,10 +460,10 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
         }
 
         AvarioException exception = new AvarioException(
-            mqttException instanceof MqttSecurityException
-                ? Constants.ERROR_MQTT_AUTHENTICATION
-                : Constants.ERROR_MQTT_CONNECTION,
-            mqttException
+                mqttException instanceof MqttSecurityException
+                        ? Constants.ERROR_MQTT_AUTHENTICATION
+                        : Constants.ERROR_MQTT_CONNECTION,
+                mqttException
         );
 
         if (this.getRetryCount() >= this.getRetryMax()) {
@@ -480,8 +481,8 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
 
                 try {
                     self.connect(true);
+                } catch (MqttException ignored) {
                 }
-                catch (MqttException ignored) {}
             }
         }, 1000);
 
@@ -499,7 +500,7 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
         /**
          * Notifies listeners that the MqttConnection object has successfully made connection
          *
-         * @param connection the connection object
+         * @param connection   the connection object
          * @param reconnection whether or not this was a reconnection
          */
         void onConnection(MqttConnection connection, boolean reconnection);
@@ -517,8 +518,8 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
          * Notifies listeners that the MqttConnection object has been disconnected.
          *
          * @param connection the connection object
-         * @param exception whatever error occured when client was disconnected. This will be null
-         *                  for clean disconnections.
+         * @param exception  whatever error occured when client was disconnected. This will be null
+         *                   for clean disconnections.
          */
         void onDisconnection(MqttConnection connection, AvarioException exception);
 
@@ -533,7 +534,7 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
          * Notifies listeners that the MqttConnection object has been unable to subscribe.
          *
          * @param connection the connection object
-         * @param exception the error information from the subscription
+         * @param exception  the error information from the subscription
          */
         void onSubscriptionError(MqttConnection connection, AvarioException exception);
 
@@ -541,13 +542,13 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
          * Notifies listeners that the MqttConnection object status has been changed.
          *
          * @param connection the connection object
-         * @param previous the previous {@link Status} value
-         * @param current the current {@link Status} value
+         * @param previous   the previous {@link Status} value
+         * @param current    the current {@link Status} value
          */
         void onStatusChanged(
-            MqttConnection connection,
-            MqttConnection.Status previous,
-            MqttConnection.Status current
+                MqttConnection connection,
+                MqttConnection.Status previous,
+                MqttConnection.Status current
         );
     }
     // endregion

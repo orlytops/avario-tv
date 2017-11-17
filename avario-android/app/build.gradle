@@ -29,14 +29,6 @@ android {
             renderscriptDebuggable false
             pseudoLocalesEnabled false
             zipAlignEnabled true
-            applicationVariants.all { variant ->
-                variant.outputs.each { output ->
-                    output.outputFile = new File(output.outputFile.parent,
-                            output.outputFile.name.replace("app-release", "avario_john_v" +
-                                    defaultConfig.versionName)
-                    )
-                }
-            }
         }
     }
 }

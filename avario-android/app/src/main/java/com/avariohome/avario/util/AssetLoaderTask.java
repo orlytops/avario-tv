@@ -15,6 +15,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -138,6 +139,7 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
             Bitmap bitmap;
 
             try {
+                android.util.Log.v(TAG, "Downloading " + url);
                 bitmap = AssetLoaderTask
                         .picasso(this.context.getApplicationContext())
                         .load(url)

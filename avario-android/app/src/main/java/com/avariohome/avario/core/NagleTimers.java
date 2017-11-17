@@ -25,14 +25,18 @@ public class NagleTimers {
         NagleTimers.invalidate(entityId);
         NagleTimers.runnables.put(entityId, expireRunnable);
 
-        Application.workHandler.postDelayed(expireRunnable, delay);
+        if (Application.workHandler != null) {
+            Application.workHandler.postDelayed(expireRunnable, delay);
+        }
     }
 
     public static void invalidate(String entityId) {
         if (entityId == null || !NagleTimers.runnables.containsKey(entityId))
             return;
 
-        Application.workHandler.removeCallbacks(NagleTimers.runnables.get(entityId));
+        if (Application.workHandler != null) {
+            Application.workHandler.removeCallbacks(NagleTimers.runnables.get(entityId));
+        }
         NagleTimers.forget(entityId);
     }
 

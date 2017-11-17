@@ -31,6 +31,7 @@ public class Config {
     private static final String PREFKEY_LIGHT_ALGO = "algo_light";
     private static final String PREFKEY_IS_KIOSK = "is_kiosk";
     private static final String PREFKEY_IS_TABLET = "is_tablet";
+    private static final String PREFKEY_FCM_TOKEN = "fcm_token";
 
     private static Config instance = null;
 
@@ -130,6 +131,9 @@ public class Config {
 
     public boolean isTablet() {
         return this.fetchBoolean(PREFKEY_IS_TABLET);
+    }
+    public String getFCM() {
+        return this.fetchString(PREFKEY_FCM_TOKEN);
     }
 
     public String getAssetRoot() {
@@ -263,6 +267,10 @@ public class Config {
 
     public void setBootstrap(String bootstrap) {
         this.prefs.edit().putString(PREFKEY_BOOTSTRAP, bootstrap).apply();
+    }
+
+    public void setFCM(String token){
+        this.prefs.edit().putString(PREFKEY_FCM_TOKEN, token).apply();
     }
 
     /**

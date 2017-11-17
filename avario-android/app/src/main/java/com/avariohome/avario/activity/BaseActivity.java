@@ -39,14 +39,19 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.checkPlayServices();
-
-        Application.startWorker(BaseActivity.this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Application.startWorker(BaseActivity.this);
         this.checkPlayServices();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Application.stopWorker();
     }
 
     @Override

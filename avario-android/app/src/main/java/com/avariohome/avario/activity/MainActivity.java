@@ -76,6 +76,7 @@ import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.util.SystemUtil;
+import com.avariohome.avario.widget.BatteryWifi;
 import com.avariohome.avario.widget.DevicesList;
 import com.avariohome.avario.widget.ElementsBar;
 import com.avariohome.avario.widget.MediaList;
@@ -131,6 +132,7 @@ public class MainActivity extends BaseActivity {
     private ImageButton boltIB;
     private ImageButton tempIB;
     private ImageButton activeModeIB;
+    private BatteryWifi battery;
 
     private ImageButton playIB;
     private ImageButton nextIB;
@@ -220,6 +222,7 @@ public class MainActivity extends BaseActivity {
         this.activeModeIB.performClick();
         this.isBluetoothAvailable();
         this.checkNotifications();
+
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(this.bluetoothReceiver, filter);
     }
@@ -241,16 +244,19 @@ public class MainActivity extends BaseActivity {
             fetchCurrentStates();
 
             android.util.Log.v("ProgressDialog", "OnResume");
-            //this.showBusyDialog(null);
-        } else if (!this.settingsOpened && !StateArray.getInstance().isDataEmpty()) {
+            this.showBusyDialog(null);
+        } else if (!this.settingsOpened) {
             this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
         }
+
+       /* if (BluetoothScanner.getInstance().isEnabled())
+            BluetoothScanner.getInstance().scanLeDevice(true);*/
 
         Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(Subscriber<? super Object> subscriber) {
-                if (BluetoothScanner.getInstance().isEnabled())
-                    BluetoothScanner.getInstance().scanLeDevice(true);
+                /*if (BluetoothScanner.getInstance().isEnabled())
+                    BluetoothScanner.getInstance().scanLeDevice(true);*/
                 mAdminComponentName = AvarioReceiver.getComponentName(MainActivity.this);
                 mDevicePolicyManager = (DevicePolicyManager) getSystemService(
                         Context.DEVICE_POLICY_SERVICE);
@@ -304,6 +310,8 @@ public class MainActivity extends BaseActivity {
         Light.addAllAlgo(Config.getInstance().getLightAlgo());
         // delete algo stored to avoid redundancy.
         Config.getInstance().deleteAlgo();
+
+        battery.setIsLan(Connectivity.identifyConnection(MainActivity.this));
     }
 
     @Override
@@ -430,6 +438,8 @@ public class MainActivity extends BaseActivity {
         this.volumeIB = (ImageButton) this.findViewById(R.id.volume);
 
         this.notifIB = (ImageButton) this.findViewById(R.id.notif);
+
+        this.battery = (BatteryWifi) this.findViewById(R.id.battery);
 
         this.dialFragment = (DialFragment) this
                 .getSupportFragmentManager()
@@ -691,7 +701,7 @@ public class MainActivity extends BaseActivity {
         UIListener uiListener = new UIListener();
         WidgetListener widgetListener = new WidgetListener();
 
-        this.homeIB.setOnTouchListener(uiListener);
+        this.battery.setOnTouchListener(uiListener);
         this.contentRL.setOnClickListener(uiListener);
 
         for (ImageButton button : new ImageButton[]{
@@ -1470,18 +1480,19 @@ public class MainActivity extends BaseActivity {
                         Context.ACTIVITY_SERVICE);
 
                 DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Activity.DEVICE_POLICY_SERVICE);
-                if (am.getLockTaskModeState() ==
+                /*if (am.getLockTaskModeState() ==
                         ActivityManager.LOCK_TASK_MODE_LOCKED) {
                     stopLockTask();
                     Config config = Config.getInstance();
                     config.setIsKiosk(false);
-                }
-                self.startActivity(intent);
+                }*/
                 if (devicePolicyManager.isDeviceOwnerApp(getPackageName())) {
                     devicePolicyManager.setLockTaskPackages(mAdminComponentName, new String[]{appId});
                     Config config = Config.getInstance();
                     config.setIsKiosk(false);
                 }
+
+                self.startActivity(intent);
             } else if (URLUtil.isValidUrl(appId)) {
                 loadWebView(appId);
                 drawer.closeDrawers();
@@ -1627,8 +1638,6 @@ public class MainActivity extends BaseActivity {
 
             if (BluetoothScanner.getInstance().isEnabled())
                 BluetoothScanner.getInstance().scanLeDevice(true);
-
-
         }
 
         @Override
@@ -1665,21 +1674,23 @@ public class MainActivity extends BaseActivity {
             super.onResponse(response);
 
             Handler handler = Application.workHandler;
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        StateArray.getInstance()
-                                .updateFromHTTP(response)
-                                .broadcastChanges(null, StateArray.FROM_HTTP);
-                    } catch (AvarioException exception) {
-                        CurrentStateListener.this.reportError(exception);
+            if (handler != null) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            StateArray.getInstance()
+                                    .updateFromHTTP(response)
+                                    .broadcastChanges(null, StateArray.FROM_HTTP);
+                        } catch (AvarioException exception) {
+                            CurrentStateListener.this.reportError(exception);
+                        }
+
                     }
+                });
 
-                }
-            });
-
-            MainActivity.this.hideBusyDialog();
+                MainActivity.this.hideBusyDialog();
+            }
         }
 
         // TODO call super.onErrorResponse() and then override super.forceTimerExpire()

@@ -649,6 +649,7 @@ public class Dial extends FrameLayout {
 
 
     public void changeDialType(int id) throws AvarioException {
+        Log.d("Dialtypechane", "changeDialType");
         JSONObject entityJSON = this.entities.get(0);
         String dialId = "";
         String brightnessId;
@@ -1020,7 +1021,7 @@ public class Dial extends FrameLayout {
         if (this.type == null)
             return;
 
-        this.arc.setBackground(AssetUtil.toDrawable(this.getContext(), R.array.bg__dial__top__flat));
+        //this.arc.setBackground(AssetUtil.toDrawable(this.getContext(), R.array.bg__dial__top__flat));
 
         switch (this.type) {
             case SWITCH:
@@ -1211,8 +1212,6 @@ public class Dial extends FrameLayout {
 
     private void renderLight() {
         final Context context = this.getContext();
-
-        Log.d(TAG, "Rendering light..");
 
         AssetUtil.toDrawable(
                 context,

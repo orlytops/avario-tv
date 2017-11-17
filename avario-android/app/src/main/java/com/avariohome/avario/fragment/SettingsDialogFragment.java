@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -95,6 +96,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private EditText passwordET;
     private CheckBox secureCB;
     private CheckBox kioskCheck;
+    private ImageButton settingsButton;
 
     private Button clearAssetsB, getAssetsB, saveB, cancelB, getBootstrapB;
     private Button enableUninstallButton;
@@ -199,6 +201,7 @@ public class SettingsDialogFragment extends DialogFragment {
         getAssetsB = (Button) view.findViewById(R.id.btnDownloadAssets);
         getBootstrapB = (Button) view.findViewById(R.id.btnDownloadBootstrap);
         bootstrapSource = (TextView) view.findViewById(R.id.tvBootstrapSource);
+        settingsButton = (ImageButton) view.findViewById(R.id.button_settings);
 
         noneFatalMessage = (EditText) view.findViewById(R.id.etNoneFatalMessage);
         sendNoneFatalMessage = (Button) view.findViewById(R.id.btnNoneFatal);
@@ -217,7 +220,7 @@ public class SettingsDialogFragment extends DialogFragment {
         forceCrash.setOnClickListener(new ClickListener());
 
         //set View.VISIBLE on kiosk mode
-        kioskCheck.setVisibility(View.GONE);
+        kioskCheck.setVisibility(View.VISIBLE);
 
         mAdminComponentName = AvarioReceiver.getComponentName(getActivity());
         mDevicePolicyManager = (DevicePolicyManager) getActivity().getSystemService(
@@ -259,7 +262,7 @@ public class SettingsDialogFragment extends DialogFragment {
         try {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version = pInfo.versionName;
-            versionText.setText("Version: avario_john_v" + version);
+            versionText.setText("Version: avario_master_v" + version);
 //            versionText.setText("Version: avario_orly_v" + version);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -277,6 +280,14 @@ public class SettingsDialogFragment extends DialogFragment {
             bootstrapSource.setText("Source: " + this.config.getHttpHost() + ":" + this.config.getHttpPort());
         }
         startKiosk();
+
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0);
+            }
+        });
+
         return view;
     }
 
@@ -579,7 +590,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private void sendFCMToken() {
         APIClient
                 .getInstance()
-                .postFCMToken(null);
+                .postFCMToken(Config.getInstance().getFCM());
     }
 
     /**
@@ -706,18 +717,19 @@ public class SettingsDialogFragment extends DialogFragment {
                     self.toggleError(false, "");
                     self.reloadBootstrap();
                 }
-            } else if (view.getId() == R.id.btnNoneFatal){
+            } else if (view.getId() == R.id.btnNoneFatal) {
+                noneFatalMessage.setText("Test firebase");
                 if (noneFatalMessage.getText() == null
-                        || noneFatalMessage.getText().toString().isEmpty()){
+                        || noneFatalMessage.getText().toString().isEmpty()) {
                     Toast.makeText(view.getContext(), "None Fatal Message should not be empty", Toast.LENGTH_SHORT).show();
                 } else {
                     FirebaseCrash.report(new Throwable(noneFatalMessage.getText().toString()));
                     Toast.makeText(view.getContext(), "None Fatal crash " + noneFatalMessage.getText().toString()
                             + "Has been sent to firebase.", Toast.LENGTH_SHORT).show();
                 }
-            } else if (view.getId() == R.id.btnForceCrash){
+            } else if (view.getId() == R.id.btnForceCrash) {
                 String val = null;
-                if(val.equals("")){
+                if (val.equals("")) {
 
                 }
             }
@@ -949,7 +961,7 @@ public class SettingsDialogFragment extends DialogFragment {
         // set this Activity as a lock task package
 
         mDevicePolicyManager.setLockTaskPackages(mAdminComponentName,
-                active ? new String[]{getActivity().getPackageName()} : new String[]{});
+                active ? new String[]{getActivity().getPackageName(), "com.google.android.youtube"} : new String[]{});
 
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MAIN);
         intentFilter.addCategory(Intent.CATEGORY_HOME);

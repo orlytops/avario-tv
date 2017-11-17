@@ -46,8 +46,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
 
                 <!--Uncomment this if using kiosk mode-->
-                <!--<category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />-->
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
         </activity>

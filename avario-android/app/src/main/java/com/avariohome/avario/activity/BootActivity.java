@@ -89,7 +89,13 @@ public class BootActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        try {
+//            android.util.Log.v("FirebaseReport", getIntent().getStringExtra("data"));
+//        } catch (NullPointerException ex){
+//            FirebaseCrash.report(ex);
+//        }
 
+        EventBus.getDefault().register(this);
         mDevicePolicyManager = (DevicePolicyManager)
                 getSystemService(Context.DEVICE_POLICY_SERVICE);
         builder = new AlertDialog.Builder(BootActivity.this);
@@ -215,9 +221,6 @@ public class BootActivity extends BaseActivity {
         if (alert11 != null && alert11.isShowing()) {
             alert11.hide();
         }
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
         IntentFilter mIntentFilter = new IntentFilter();
         mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
@@ -266,7 +269,7 @@ public class BootActivity extends BaseActivity {
                     if (mWifi.isConnected()) {
                         isHasWifi = true;
                         Connectivity.identifyConnection(getApplicationContext());
-                        //sendFCMToken();
+                        sendFCMToken();
                         connectMQTT(new MqttConnectionListener(), false);
                         progressPD.setMessage(getString(R.string.message__mqtt__connecting));
                         countDownTimer.cancel();
@@ -422,7 +425,7 @@ public class BootActivity extends BaseActivity {
     private void sendFCMToken() {
         APIClient
                 .getInstance()
-                .postFCMToken(null);
+                .postFCMToken(Config.getInstance().getFCM());
     }
 
     protected void startMainActivity() {
@@ -517,7 +520,7 @@ public class BootActivity extends BaseActivity {
         // set this Activity as a lock task package
 
         mDevicePolicyManager.setLockTaskPackages(mAdminComponentName,
-                active ? new String[]{getPackageName()} : new String[]{});
+                active ? new String[]{getPackageName(), "com.google.android.youtube"} : new String[]{});
 
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MAIN);
         intentFilter.addCategory(Intent.CATEGORY_HOME);
