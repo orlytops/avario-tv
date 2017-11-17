@@ -258,55 +258,48 @@ public class BootActivity extends BaseActivity {
         if (progressPD != null) {
             this.progressPD.show();
         }
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (states.hasData()) {
+        if (states.hasData()) {
+            if (mWifi.isConnected()) {
+                isHasWifi = true;
+                Connectivity.identifyConnection(getApplicationContext());
+                sendFCMToken();
+                connectMQTT(new MqttConnectionListener(), false);
+                progressPD.setMessage(getString(R.string.message__mqtt__connecting));
+                countDownTimer.cancel();
+            } else {
+                progressPD.setMessage("Connecting to WiFi...");
+                if (!timerIsStarted) {
+                    final Handler mHandler = new Handler();
 
-                    if (mWifi.isConnected()) {
-                        isHasWifi = true;
-                        Connectivity.identifyConnection(getApplicationContext());
-                        sendFCMToken();
-                        connectMQTT(new MqttConnectionListener(), false);
-                        progressPD.setMessage(getString(R.string.message__mqtt__connecting));
-                        countDownTimer.cancel();
-                    } else {
-                        progressPD.setMessage("Connecting to WiFi...");
-                        if (!timerIsStarted) {
-                            final Handler mHandler = new Handler();
-
-                            new Thread(new Runnable() {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
 
-                                            try {
-                                                timerTimeOut = states.getWifiTimeout();
-                                                Log.d("Timeout", states.getWifiTimeout() + "");
-                                            } catch (AvarioException e) {
-                                                e.printStackTrace();
-                                            }
-                                            countDownTimer.setMillisInFuture(timerTimeOut);
-                                            countDownTimer.start();
-                                            timerIsStarted = true;
-                                        }
-                                    });
+                                    try {
+                                        timerTimeOut = states.getWifiTimeout();
+                                        Log.d("Timeout", states.getWifiTimeout() + "");
+                                    } catch (AvarioException e) {
+                                        e.printStackTrace();
+                                    }
+                                    countDownTimer.setMillisInFuture(timerTimeOut);
+                                    countDownTimer.start();
+                                    timerIsStarted = true;
                                 }
-                            }).start();
+                            });
                         }
-                        if (isHasWifi) {
-                            loadBootstrap();
-                        }
-                    }
-                } else {
-                    progressPD.hide();
-                    showSettingsDialog(settingsListener);
+                    }).start();
+                }
+                if (isHasWifi) {
+                    loadBootstrap();
                 }
             }
-        }, 0);
+        } else {
+            progressPD.hide();
+            showSettingsDialog(settingsListener);
+        }
 
     }
 

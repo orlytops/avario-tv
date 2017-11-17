@@ -733,7 +733,9 @@ public class MainActivity extends BaseActivity {
             this.mediaList.setVisibility(View.GONE);
             disableMediaPlay();
         } else {
-            this.devicesList.setVisibility(View.GONE);
+            if (config.isTablet()) {
+                this.devicesList.setVisibility(View.GONE);
+            }
             this.mediaList.setVisibility(View.VISIBLE);
         }
     }
