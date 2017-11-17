@@ -27,7 +27,7 @@
           android:layout_marginTop="8dp"
           android:duplicateParentState="false"
           android:padding="0dp"
-          android:scaleType="centerCrop"/>
+          android:scaleType="fitXY"/>
         
       <TextView
           android:id="@+id/text"

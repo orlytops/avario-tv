@@ -118,9 +118,8 @@ public class DevicesList extends RelativeLayout {
         this.headerRL = (RelativeLayout) inflater.inflate(R.layout.deviceslist__header, this, false);
 
         params = (RelativeLayout.LayoutParams) this.headerRL.getLayoutParams();
+        params.width = LayoutParams.MATCH_PARENT;
         params.height = this.headerHeight;
-        params.leftMargin = this.contentMargin;
-        params.rightMargin = this.contentMargin;
 
         this.headerRL.setId(this.headerId);
         this.headerRL.setVisibility(View.INVISIBLE);

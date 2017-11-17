@@ -33,7 +33,6 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.bus.WifiChange;
 import com.avariohome.avario.bus.WifiConnected;
-import com.avariohome.avario.core.BluetoothScanner;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
@@ -90,7 +89,6 @@ public class BootActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.setContentView(R.layout.activity__boot);
 //        try {
 //            android.util.Log.v("FirebaseReport", getIntent().getStringExtra("data"));
 //        } catch (NullPointerException ex){
@@ -129,14 +127,14 @@ public class BootActivity extends BaseActivity {
         Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(Subscriber<? super Object> subscriber) {
-                if (BluetoothScanner.getInstance().isEnabled())
-                    BluetoothScanner.getInstance().scanLeDevice(true);
+               /* if (BluetoothScanner.getInstance().isEnabled())
+                    BluetoothScanner.getInstance().scanLeDevice(true);*/
                 mAdminComponentName = AvarioReceiver.getComponentName(BootActivity.this);
                 mDevicePolicyManager = (DevicePolicyManager) getSystemService(
                         Context.DEVICE_POLICY_SERVICE);
                 mPackageManager = getPackageManager();
                 if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
-                    setDefaultCosuPolicies(true);
+                    //setDefaultCosuPolicies(true);
                 }
 
                 subscriber.onNext(new Object());
@@ -179,6 +177,7 @@ public class BootActivity extends BaseActivity {
                         }
                     }
                 });
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -234,11 +233,9 @@ public class BootActivity extends BaseActivity {
 
         }
 
-
         KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE);
         KeyguardManager.KeyguardLock lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
         lock.disableKeyguard();
-        //TOD: lockescreen should be romve during reboot
         Config config = Config.getInstance();
         boolean isConfigSet = config.isSet();
 //        boolean isConfigFetched = config.isResourcesFetched();
@@ -258,7 +255,9 @@ public class BootActivity extends BaseActivity {
 
         final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        this.progressPD.show();
+        if (progressPD != null) {
+            this.progressPD.show();
+        }
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override
@@ -307,7 +306,7 @@ public class BootActivity extends BaseActivity {
                     showSettingsDialog(settingsListener);
                 }
             }
-        }, 500);
+        }, 0);
 
     }
 

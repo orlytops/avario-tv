@@ -36,9 +36,11 @@ import android.graphics.RectF;
 import android.graphics.SweepGradient;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 
 /**
  * SeekArc.java
@@ -782,8 +784,21 @@ public class SeekArc extends View {
         if (thumb != null)
             mThumb = thumb;
 
-        thumbHalfHeight = mThumb.getIntrinsicHeight() / 2;
-        thumbHalfWidth = mThumb.getIntrinsicWidth() / 2;
+        DisplayMetrics metrics = new DisplayMetrics();
+
+        WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(metrics);
+
+        float yInches = metrics.heightPixels / metrics.ydpi;
+        float xInches = metrics.widthPixels / metrics.xdpi;
+        double diagonalInches = Math.sqrt(xInches * xInches + yInches * yInches);
+        if (diagonalInches >= 6.5) {
+            thumbHalfHeight = mThumb.getIntrinsicHeight() / 2;
+            thumbHalfWidth = mThumb.getIntrinsicWidth() / 2;
+        } else {
+            thumbHalfHeight = mThumb.getIntrinsicHeight() / 3;
+            thumbHalfWidth = mThumb.getIntrinsicWidth() / 3;
+        }
 
         mThumb.setBounds(-thumbHalfWidth, -thumbHalfHeight, thumbHalfWidth, thumbHalfHeight);
     }
@@ -950,6 +965,7 @@ public class SeekArc extends View {
 
     public void setEnabled(boolean enabled) {
         this.mEnabled = enabled;
+        Log.d("SetEnabled", enabled + "");
     }
 
     public void setContinuous(boolean continuous) {

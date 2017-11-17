@@ -61,11 +61,10 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
                     (ImageView) view.findViewById(R.id.device)
             );
 
-            AssetUtil.loadImage(
+            AssetUtil.toDrawable(
                     parent.getContext(),
                     R.array.ic__roomselect__media,
-                    new AssetUtil.ImageViewCallback((ImageView) view.findViewById(R.id.media)),
-                    (ImageView) view.findViewById(R.id.media)
+                    new AssetUtil.ImageViewCallback((ImageView) view.findViewById(R.id.media))
             );
         } else {
             view = inflater.inflate(this.itemLayoutId, parent, false);

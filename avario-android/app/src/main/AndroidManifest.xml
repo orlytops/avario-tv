@@ -25,7 +25,7 @@
     <application
         android:name=".Application"
         android:allowBackup="false"
-        android:icon="@mipmap/ic__launcher"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app__name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
@@ -89,7 +89,7 @@
             android:configChanges="keyboardHidden|orientation"
             android:hardwareAccelerated="true"
             android:launchMode="singleTask"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="portrait"
             android:stateNotNeeded="true">
 
         </activity>

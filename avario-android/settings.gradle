@@ -1,6 +1,7 @@
 include ':app',
-        ':seekarc'
+        ':seekarc', ':material-drawer'
 
 // Do not forget to change to the project location of the
 // clone of: https://github.com/jan-ingenuity/SeekArc
 project(':seekarc').projectDir = new File(settingsDir, '../refs/seekarc/library')
+project(':material-drawer').projectDir = new File('library')
