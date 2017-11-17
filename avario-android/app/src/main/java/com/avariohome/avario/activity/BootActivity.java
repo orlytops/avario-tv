@@ -233,11 +233,9 @@ public class BootActivity extends BaseActivity {
 
         }
 
-
         KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE);
         KeyguardManager.KeyguardLock lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
         lock.disableKeyguard();
-        //TOD: lockescreen should be romve during reboot
         Config config = Config.getInstance();
         boolean isConfigSet = config.isSet();
 //        boolean isConfigFetched = config.isResourcesFetched();
@@ -308,7 +306,7 @@ public class BootActivity extends BaseActivity {
                     showSettingsDialog(settingsListener);
                 }
             }
-        }, 500);
+        }, 0);
 
     }
 

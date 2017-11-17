@@ -264,7 +264,7 @@ public class MainActivity extends BaseActivity {
             fetchCurrentStates();
 
             android.util.Log.v("ProgressDialog", "OnResume");
-            this.showBusyDialog(null);
+            //this.showBusyDialog(null);
         } else if (!this.settingsOpened) {
             this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
         }
@@ -1503,7 +1503,7 @@ public class MainActivity extends BaseActivity {
             MainActivity self = MainActivity.this;
             JSONArray devicesJSON;
 
-
+            Log.d("onlist", "command " + entity.selected);
             devicesJSON = entity.data.optJSONArray("list_devices");
 
             if (devicesJSON == null)
@@ -1511,6 +1511,13 @@ public class MainActivity extends BaseActivity {
 
             self.updateDevices(StateArray.getInstance(), devicesJSON);
             self.updateDefaultsForEntity(entity);
+            if (entity.selected) {
+                devicesList.setVisibility(View.VISIBLE);
+                mediaList.setVisibility(View.GONE);
+            } else {
+                self.updateForRoom(self.roomSelector.getSelectedRoom());
+            }
+
         }
         // endregion
 
