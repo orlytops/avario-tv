@@ -7,12 +7,12 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <com.avariohome.avario.widget.Dial
+    <com.avario.home.widget.Dial
         android:id="@+id/dial"
         android:layout_width="360dp"
         android:layout_height="360dp" />
 
-    <com.avariohome.avario.widget.DialButtonBar
+    <com.avario.home.widget.DialButtonBar
         android:id="@+id/dialbuttons"
         android:layout_width="wrap_content"
         android:layout_height="60dp"

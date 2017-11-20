@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="false"
-    tools:context=".activity.MainActivity">
+    tools:context=".home.MainActivity">
 
     <!-- Main Content -->
     <RelativeLayout
@@ -59,7 +59,7 @@
 
                 <fragment
                     android:id="@+id/dial"
-                    android:name="com.avariohome.avario.fragment.DialFragment"
+                    android:name="com.avario.home.fragment.DialFragment"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
@@ -87,7 +87,7 @@
 
         </LinearLayout>
 
-        <com.avariohome.avario.widget.ElementsBar
+        <com.avario.home.widget.ElementsBar
             android:id="@+id/elements"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -200,7 +200,7 @@
 
         </RelativeLayout>
 
-        <com.avariohome.avario.widget.RoomSelector
+        <com.avario.home.widget.RoomSelector
             android:id="@+id/selector"
             android:layout_width="match_parent"
             android:layout_height="300dp"
@@ -223,7 +223,7 @@
     </RelativeLayout>
 
     <!-- Navigation Drawer -->
-    <com.avariohome.avario.widget.MediaSourcesList
+    <com.avario.home.widget.MediaSourcesList
         android:id="@+id/sources"
         android:layout_width="275dp"
         android:layout_height="match_parent"

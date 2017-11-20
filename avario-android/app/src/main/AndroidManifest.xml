@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.avariohome.avario">
+    package="com.avario.home">
 
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -23,7 +22,7 @@
         android:required="true" />
 
     <application
-        android:name=".Application"
+        android:name="com.avario.home.Application"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app__name"
@@ -36,7 +35,7 @@
             android:stateNotNeeded="true"
         -->
         <activity
-            android:name=".activity.BootActivity"
+            android:name="com.avario.home.home.BootActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppTheme.NoActivityAnim">
 
@@ -52,29 +51,23 @@
 
         </activity>
 
-        <!--<receiver android:name=".receiver.BootReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>-->
-
         <receiver
-            android:name=".service.AvarioReceiver"
+            android:name="com.avario.home.service.AvarioReceiver"
             android:description="@string/app__name"
             android:label="@string/app__name"
             android:permission="android.permission.BIND_DEVICE_ADMIN">
-            <meta-data
-                android:name="android.app.device_admin"
-                android:resource="@xml/device_admin_receiver" />
-
             <intent-filter>
                 <action android:name="android.app.action.PROFILE_PROVISIONING_COMPLETE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
+
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin_receiver" />
         </receiver>
 
         <receiver
-            android:name=".receiver.WifiReceiver"
+            android:name="com.avario.home.receiver.WifiReceiver"
             android:label="WifiReceiver"
             android:process=":remote">
 
@@ -85,7 +78,7 @@
         </receiver>
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name="com.avario.home.home.MainActivity"
             android:configChanges="keyboardHidden|orientation"
             android:hardwareAccelerated="true"
             android:launchMode="singleTask"
@@ -96,24 +89,19 @@
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
-        <service android:name=".service.FCMService">
+        <service android:name="com.avario.home.service.FCMService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <service android:name=".service.FCMInstanceService">
+        <service android:name="com.avario.home.service.FCMInstanceService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
-        <service android:name=".service.FCMIntentService" />
-        <service
-            android:name=".service.FloatingViewService"
-            android:enabled="true"
-            android:exported="false" />
-
+        <service android:name="com.avario.home.service.FCMIntentService" />
         <!-- Temporary Values: For Handset mode -->
         <!--
         <meta-data

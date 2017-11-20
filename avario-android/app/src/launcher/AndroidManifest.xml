@@ -1,12 +1,12 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.avariohome.avario">
+    package="com.avario.home">
 
     <application>
 
         <activity
-            android:name=".activity.BootActivity"
+            android:name=".home.BootActivity"
             android:launchMode="singleTask"
             android:stateNotNeeded="true"
             tools:node="merge">
