@@ -228,6 +228,7 @@ public class SettingsDialogFragment extends DialogFragment {
         mPackageManager = getActivity().getPackageManager();
 
         kioskCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
             @TargetApi(Build.VERSION_CODES.M)
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
@@ -248,8 +249,8 @@ public class SettingsDialogFragment extends DialogFragment {
                     config.setIsKiosk(false);
                     getActivity().stopLockTask();
                     getActivity().getPackageManager().clearPackagePreferredActivities(getActivity().getPackageName());
-                    if (mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())) {
-                        mDevicePolicyManager.clearDeviceOwnerApp("avariohome.avario");
+                    if (mDevicePolicyManager.isDeviceOwnerApp("com.avariohome.avario")) {
+                        mDevicePolicyManager.clearDeviceOwnerApp("com.avariohome.avario");
                     }
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_MAIN);
