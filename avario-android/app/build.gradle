@@ -4,11 +4,11 @@ android {
     compileSdkVersion 25
     buildToolsVersion '26.0.2'
     defaultConfig {
-        applicationId "com.avario.home"
+        applicationId "com.avariohome.avario"
         minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
-        versionName "0.15.0"
+        versionName "0.16.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

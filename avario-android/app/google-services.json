@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1018104799090:android:c2d4ff12cbe9151a",
         "android_client_info": {
-          "package_name": "com.avario.home"
+          "package_name": "com.avariohome.avario"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "1018104799090-aecko3h31sddm9dq54r7c9pj70q0ovpt.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.avario.home",
+            "package_name": "com.avariohome.avario",
             "certificate_hash": "5d526e8293d43bcf3e04aaa15c35a873e3fd724d"
           }
         },

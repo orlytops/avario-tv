@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.avario.home">
+    package="com.avariohome.avario">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -22,7 +22,7 @@
         android:required="true" />
 
     <application
-        android:name="com.avario.home.Application"
+        android:name="com.avariohome.avario.Application"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app__name"
@@ -35,7 +35,7 @@
             android:stateNotNeeded="true"
         -->
         <activity
-            android:name="com.avario.home.home.BootActivity"
+            android:name="com.avariohome.avario.home.BootActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppTheme.NoActivityAnim">
 
@@ -52,7 +52,7 @@
         </activity>
 
         <receiver
-            android:name="com.avario.home.service.AvarioReceiver"
+            android:name="com.avariohome.avario.service.AvarioReceiver"
             android:description="@string/app__name"
             android:label="@string/app__name"
             android:permission="android.permission.BIND_DEVICE_ADMIN">
@@ -67,7 +67,7 @@
         </receiver>
 
         <receiver
-            android:name="com.avario.home.receiver.WifiReceiver"
+            android:name="com.avariohome.avario.receiver.WifiReceiver"
             android:label="WifiReceiver"
             android:process=":remote">
 
@@ -78,7 +78,7 @@
         </receiver>
 
         <activity
-            android:name="com.avario.home.home.MainActivity"
+            android:name="com.avariohome.avario.home.MainActivity"
             android:configChanges="keyboardHidden|orientation"
             android:hardwareAccelerated="true"
             android:launchMode="singleTask"
@@ -89,19 +89,19 @@
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
-        <service android:name="com.avario.home.service.FCMService">
+        <service android:name="com.avariohome.avario.service.FCMService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <service android:name="com.avario.home.service.FCMInstanceService">
+        <service android:name="com.avariohome.avario.service.FCMInstanceService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
-        <service android:name="com.avario.home.service.FCMIntentService" />
+        <service android:name="com.avariohome.avario.service.FCMIntentService" />
         <!-- Temporary Values: For Handset mode -->
         <!--
         <meta-data

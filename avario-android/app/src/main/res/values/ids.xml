@@ -12,4 +12,7 @@
     <item name="dialbtn__algo1" type="id" />
     <item name="dialbtn__algo2" type="id" />
     <item name="dialbtn__algo3" type="id" />
+    <item name="dialbtn__home" type="id" />
+    <item name="dialbtn__back" type="id" />
+    <item name="dialbtn__menu" type="id" />
 </resources>
