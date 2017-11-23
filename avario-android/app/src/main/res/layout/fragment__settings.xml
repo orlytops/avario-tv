@@ -132,6 +132,13 @@
                 android:text="@string/kiosk_mode" />
 
             <Button
+                android:id="@+id/button_update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/check_kiosk"
+                android:text="Update" />
+
+            <Button
                 android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

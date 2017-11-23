@@ -1,16 +1,11 @@
 package com.avariohome.avario.util;
 
 
-import com.avariohome.avario.BuildConfig;
-
-
 /**
  * Created by aeroheart-c6 on 22/02/2017.
  */
 public class Log {
     public static void i(String tag, String message, Throwable throwable) {
-        if (!BuildConfig.DEBUG)
-            return;
 
         android.util.Log.i(tag, message, throwable);
     }
@@ -20,8 +15,6 @@ public class Log {
     }
 
     public static void d(String tag, String message, Throwable throwable) {
-        if (!BuildConfig.DEBUG)
-            return;
 
         android.util.Log.d(tag, message, throwable);
     }

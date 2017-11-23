@@ -1,11 +1,14 @@
 package com.avariohome.avario.fragment;
 
 
+import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.SystemUpdatePolicy;
 import android.content.ComponentName;
@@ -13,7 +16,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.BatteryManager;
@@ -24,6 +29,7 @@ import android.os.Looper;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,12 +51,16 @@ import com.android.volley.VolleyError;
 import com.avariohome.avario.Constants;
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
+import com.avariohome.avario.api.component.DaggerUserComponent;
+import com.avariohome.avario.api.component.UserComponent;
+import com.avariohome.avario.apiretro.services.UpdateService;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.home.MainActivity;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
+import com.avariohome.avario.presenters.UpdatePresenter;
 import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.BlindAssetLoader;
@@ -67,12 +77,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
+import okhttp3.ResponseBody;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -89,6 +105,10 @@ import rx.schedulers.Schedulers;
 public class SettingsDialogFragment extends DialogFragment {
     private static final String TAG = "Avario/Settings";
 
+    @Inject
+    UpdateService userService;
+    private UserComponent userComponent;
+
     private LinearLayout workingRL;
     private EditText hostET;
     private EditText portET;
@@ -97,6 +117,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private CheckBox secureCB;
     private CheckBox kioskCheck;
     private ImageButton settingsButton;
+    private Button updateButton;
 
     private Button clearAssetsB, getAssetsB, saveB, cancelB, getBootstrapB;
     private Button enableUninstallButton;
@@ -140,6 +161,9 @@ public class SettingsDialogFragment extends DialogFragment {
         AlertDialog.Builder builder;
         AlertDialog dialog;
 
+        userComponent = DaggerUserComponent.builder().build();
+        userComponent.inject(this);
+
         builder = new AlertDialog.Builder(this.getActivity())
                 .setTitle(R.string.setting__title)
                 .setView(this.setupViews(LayoutInflater.from(this.getActivity()), null));
@@ -152,8 +176,28 @@ public class SettingsDialogFragment extends DialogFragment {
         dialog = builder.create();
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setOnShowListener(new DialogListener());
-
+        verifyStoragePermissions(getActivity());
         return dialog;
+    }
+
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
     }
 
     @Override
@@ -202,6 +246,7 @@ public class SettingsDialogFragment extends DialogFragment {
         getBootstrapB = (Button) view.findViewById(R.id.btnDownloadBootstrap);
         bootstrapSource = (TextView) view.findViewById(R.id.tvBootstrapSource);
         settingsButton = (ImageButton) view.findViewById(R.id.button_settings);
+        updateButton = (Button) view.findViewById(R.id.button_update);
 
         noneFatalMessage = (EditText) view.findViewById(R.id.etNoneFatalMessage);
         sendNoneFatalMessage = (Button) view.findViewById(R.id.btnNoneFatal);
@@ -289,7 +334,151 @@ public class SettingsDialogFragment extends DialogFragment {
             }
         });
 
+        updateButton.setOnClickListener(new View.OnClickListener() {
+
+
+            @Override
+            public void onClick(View v) {
+                workingTV.setText("Downloading update...");
+                toggleWorking(true);
+
+                UpdatePresenter updatePresenter = new UpdatePresenter(userService);
+                updatePresenter.getUpdate(new Observer<ResponseBody>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d("Error Download", e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        writeResponseBodyToDisk(responseBody);
+                    }
+                });
+            }
+        });
+
         return view;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private boolean writeResponseBodyToDisk(ResponseBody body) {
+
+        // todo change the file location/name according to your needs
+        try {
+            File futureStudioIconFile = new File(getActivity().getExternalFilesDir(null) + File.separator + "update.apk");
+
+            File outputFile = new File(futureStudioIconFile, "update.apk");
+
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+
+            try {
+                byte[] fileReader = new byte[4096];
+
+                long fileSize = body.contentLength();
+                long fileSizeDownloaded = 0;
+
+                inputStream = body.byteStream();
+                workingTV.setText("Installing update...");
+                installPackage(getActivity(), inputStream);
+               /* outputStream = new FileOutputStream(futureStudioIconFile);
+
+                while (true) {
+                    int read = inputStream.read(fileReader);
+
+                    if (read == -1) {
+                        break;
+                    }
+
+                    outputStream.write(fileReader, 0, read);
+
+                    fileSizeDownloaded += read;
+
+                    Log.d(TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
+                }
+
+                outputStream.flush();*/
+                return true;
+            } catch (IOException e) {
+                return false;
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+
+                /*final ActivityManager am = (ActivityManager) getActivity().getSystemService(
+                        Context.ACTIVITY_SERVICE);
+
+                if (am.getLockTaskModeState() ==
+                        ActivityManager.LOCK_TASK_MODE_LOCKED) {
+                    getActivity().stopLockTask();
+                    Config config = Config.getInstance();
+                    config.setIsKiosk(false);
+                }*/
+                /*Log.d("Path", futureStudioIconFile.getAbsolutePath());
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.fromFile(new File(futureStudioIconFile.getAbsolutePath())),
+                        "application/vnd.android.package-archive");
+                getActivity().startActivityForResult(intent, 0);*/
+                //installPackage(getActivity(), inputStream);
+            }
+
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void installPackage(Context context, InputStream inputStream)
+            throws IOException {
+        PackageInstaller packageInstaller = context.getPackageManager().getPackageInstaller();
+        int sessionId = packageInstaller.createSession(new PackageInstaller
+                .SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL));
+        PackageInstaller.Session session = packageInstaller.openSession(sessionId);
+
+        long sizeBytes = 0;
+
+        OutputStream out = null;
+        out = session.openWrite("my_app_session", 0, sizeBytes);
+
+        int total = 0;
+        byte[] buffer = new byte[65536];
+        int c;
+        while ((c = inputStream.read(buffer)) != -1) {
+            total += c;
+            out.write(buffer, 0, c);
+        }
+        session.fsync(out);
+        inputStream.close();
+        out.close();
+
+        // fake intent
+        IntentSender statusReceiver = null;
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+                1337111117, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        session.commit(pendingIntent.getIntentSender());
+        session.close();
+    }
+
+    private static IntentSender createIntentSender(Context context, int sessionId) {
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                sessionId,
+                new Intent("com.avariohome.avario.INSTALL_COMPLETE"),
+                0);
+        return pendingIntent.getIntentSender();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -557,6 +746,10 @@ public class SettingsDialogFragment extends DialogFragment {
                 .getBootstrapJSON(new BootstrapListener(), null);
     }
 
+    private void loadUpdate() {
+
+    }
+
     private void loadAssets() {
         Context context = this.getActivity();
         Resources res = context.getResources();
@@ -797,6 +990,52 @@ public class SettingsDialogFragment extends DialogFragment {
         }
     }
 
+    private class UpdateListener extends APIClient.UpdateListener {
+        @Override
+        public void onResponse(JSONObject response) {
+            SettingsDialogFragment self = SettingsDialogFragment.this;
+
+            Log.i(TAG, "Bootstrap received!");
+
+            self.unsubscribeFCM();
+            self.deleteBootstrapCache();
+            StateArray
+                    .getInstance()
+                    .setData(response);
+            Connectivity.identifyConnection(getActivity());
+            self.config.setBootstrapFetched(true);
+            if (reboot) {
+                try {
+                    StateArray.getInstance().save();
+                } catch (AvarioException e) {
+                    e.printStackTrace();
+                }
+                SystemUtil.rebootApp(self.getActivity());
+            } else {
+                self.sendFCMToken();
+                self.connectMQTT();
+            }
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            SettingsDialogFragment self = SettingsDialogFragment.this;
+            AvarioException exception = new AvarioException(
+                    error instanceof AuthFailureError ? Constants.ERROR_BOOTSTRAP_AUTHENTICATION :
+                            error instanceof ParseError ? Constants.ERROR_BOOTSTRAP_INVALID :
+                                    Constants.ERROR_BOOTSTRAP_UNREACHABLE,
+
+                    error
+            );
+
+            self.config.restore();
+            self.applySnapshot();
+            self.toggleWorking(false);
+            self.toggleError(true, exception);
+            self.setEnabled(true);
+        }
+    }
+
 
     /*
      ***********************************************************************************************
@@ -933,6 +1172,12 @@ public class SettingsDialogFragment extends DialogFragment {
     * FOR THE KIOSK MODE
     * ***************************************************************************************************************
     * */
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void clearMyRestrictions(Context context) {
+        setUserRestriction(UserManager.DISALLOW_INSTALL_APPS, false);
+        setUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, false);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void setDefaultCosuPolicies(boolean active) {

@@ -382,4 +382,8 @@ public class APIClient {
     public static abstract class BootstrapListener implements Response.Listener<JSONObject>,
             Response.ErrorListener {
     }
+
+    public static abstract class UpdateListener implements Response.Listener<JSONObject>,
+            Response.ErrorListener {
+    }
 }

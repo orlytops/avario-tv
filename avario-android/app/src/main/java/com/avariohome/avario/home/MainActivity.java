@@ -415,6 +415,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d("Result---------------", requestCode + " " + requestCode + " ");
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK)
             BluetoothScanner.getInstance().scanLeDevice(true);
     }
