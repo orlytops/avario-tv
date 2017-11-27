@@ -8,6 +8,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.KeyguardManager;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.SystemUpdatePolicy;
@@ -30,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
@@ -209,6 +211,12 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
         super.setContentView(R.layout.activity__main);
         this.savedInstanceState = savedInstanceState;
         EventBus.getDefault().register(this);
@@ -369,6 +377,18 @@ public class MainActivity extends BaseActivity {
         if (config.isTablet()) {
             battery.setIsLan(Connectivity.identifyConnection(MainActivity.this));
         }
+        PowerManager.WakeLock wl;
+        KeyguardManager.KeyguardLock kl;
+
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
+                | PowerManager.ACQUIRE_CAUSES_WAKEUP
+                | PowerManager.ON_AFTER_RELEASE, "INFO");
+        wl.acquire();
+
+        KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+        kl = km.newKeyguardLock("name");
+        kl.disableKeyguard();
     }
 
     @Override
@@ -790,7 +810,10 @@ public class MainActivity extends BaseActivity {
         WidgetListener widgetListener = new WidgetListener();
         if (config.isTablet()) {
             this.battery.setOnTouchListener(uiListener);
+        } else {
+            this.homeIB.setOnTouchListener(uiListener);
         }
+
         this.contentRL.setOnClickListener(uiListener);
 
         for (ImageButton button : new ImageButton[]{
@@ -806,6 +829,7 @@ public class MainActivity extends BaseActivity {
         })
             button.setOnClickListener(uiListener);
 
+        battery.setOnClickListener(uiListener);
         this.notifIB.setOnClickListener(uiListener);
 
         this.roomSelector.setSelectionListener(widgetListener);
@@ -833,41 +857,7 @@ public class MainActivity extends BaseActivity {
         this.contentWV.setWebViewClient(new WebViewClient() {
             @Override
             public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                String message = "SSL Certificate error.";
-                switch (error.getPrimaryError()) {
-                    case SslError.SSL_UNTRUSTED:
-                        message = "The certificate authority is not trusted.";
-                        break;
-                    case SslError.SSL_EXPIRED:
-                        message = "The certificate has expired.";
-                        break;
-                    case SslError.SSL_IDMISMATCH:
-                        message = "The certificate Hostname mismatch.";
-                        break;
-                    case SslError.SSL_NOTYETVALID:
-                        message = "The certificate is not yet valid.";
-                        break;
-                }
-                message += " Do you want to continue anyway?";
-
-                builder.setTitle("SSL Certificate Error");
-                builder.setMessage(message);
-
-                builder.setPositiveButton("continue", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        handler.proceed();
-                    }
-                });
-                builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        handler.cancel();
-                    }
-                });
-                final AlertDialog dialog = builder.create();
-                dialog.show();
+                handler.proceed();
             }
         });
         this.contentWV.loadUrl(url);
@@ -1235,9 +1225,16 @@ public class MainActivity extends BaseActivity {
 
         adapter.notifyItemRangeInserted(oldSize, newSize);
 
-        if (config.isTablet()) {
-            return;
+        if (!config.isTablet()) {
+            try {
+                handleCrossFader();
+            } catch (Exception e) {
+
+            }
         }
+    }
+
+    private void handleCrossFader() {
 
         result = new DrawerBuilder()
                 .withActivity(this)
@@ -1565,7 +1562,6 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onRoomMediaSelected(RoomSelector selector) {
             handleMediaSelected();
-
         }
 
         // endregion
@@ -1636,7 +1632,6 @@ public class MainActivity extends BaseActivity {
             MainActivity self = MainActivity.this;
             if (self.mediaList.getVisibility() == View.VISIBLE)
                 self.updateDialFromSelections(self.mediaList);
-            enableMediaPlay();
         }
 
         @Override
@@ -1650,8 +1645,6 @@ public class MainActivity extends BaseActivity {
             if (state.equals(Constants.ENTITY_MEDIA_STATE_STOPPED)) {
                 disableMediaPlay();
                 Log.d("State", "Idle");
-            } else {
-                enableMediaPlay();
             }
 
         }
@@ -2077,7 +2070,6 @@ public class MainActivity extends BaseActivity {
                         self.reportError(new AvarioException(code, error));
                     } else if (code != Constants.ERROR_CURRENTSTATE_NETWORK)
                         self.reportError(new AvarioException(code, error));
-
                     self.retries++;
                     activity.fetchCurrentStates();
                 }
@@ -2306,6 +2298,9 @@ public class MainActivity extends BaseActivity {
         setUserRestriction(UserManager.DISALLOW_ADJUST_VOLUME, active);
 
         // disable keyguard and status bar
+        KeyguardManager km = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+        Log.d("Device Policy", km.isDeviceLocked() + " " + km.isDeviceSecure() + " " +
+                km.isKeyguardLocked() + " " + km.isKeyguardSecure());
         mDevicePolicyManager.setKeyguardDisabled(mAdminComponentName, active);
         mDevicePolicyManager.setStatusBarDisabled(mAdminComponentName, active);
 

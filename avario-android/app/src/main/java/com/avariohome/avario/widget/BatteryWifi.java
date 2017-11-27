@@ -183,7 +183,6 @@ public class BatteryWifi extends FrameLayout {
         @Override
         public void onReceive(Context context, Intent intent) {
             int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-            Log.d("Level battery", level + "");
             setBatteryLevel(level);
         }
     }

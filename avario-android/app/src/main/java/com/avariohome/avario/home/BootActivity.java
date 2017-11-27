@@ -2,7 +2,6 @@ package com.avariohome.avario.home;
 
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
@@ -23,11 +22,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Window;
+import android.view.WindowManager;
 
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
@@ -88,6 +89,10 @@ public class BootActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 //        try {
 //            android.util.Log.v("FirebaseReport", getIntent().getStringExtra("data"));
 //        } catch (NullPointerException ex){
@@ -115,7 +120,7 @@ public class BootActivity extends BaseActivity {
                 Context.DEVICE_POLICY_SERVICE);
         mPackageManager = getPackageManager();
         if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
-//            setDefaultCosuPolicies(true);
+            setDefaultCosuPolicies(true);
         } else {
         }
 
@@ -208,6 +213,7 @@ public class BootActivity extends BaseActivity {
         android.util.Log.v(TAG, "onPause");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Override
     protected void onResume() {
         super.onResume();
@@ -228,9 +234,19 @@ public class BootActivity extends BaseActivity {
 
         }
 
-        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE);
-        KeyguardManager.KeyguardLock lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
-        lock.disableKeyguard();
+        PowerManager.WakeLock wl;
+        KeyguardManager.KeyguardLock kl;
+
+        Log.d(getClass().getName(), "On reboot completed");
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
+                | PowerManager.ACQUIRE_CAUSES_WAKEUP
+                | PowerManager.ON_AFTER_RELEASE, "INFO");
+        wl.acquire();
+
+        KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+        kl = km.newKeyguardLock("name");
+        kl.disableKeyguard();
         Config config = Config.getInstance();
         boolean isConfigSet = config.isSet();
 //        boolean isConfigFetched = config.isResourcesFetched();
@@ -489,6 +505,9 @@ public class BootActivity extends BaseActivity {
         setUserRestriction(UserManager.DISALLOW_ADJUST_VOLUME, active);
 
         // disable keyguard and status bar
+        KeyguardManager km = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+        Log.d("Device Policy", km.isDeviceLocked() + " " + km.isDeviceSecure() + " " +
+                km.isKeyguardLocked() + " " + km.isKeyguardSecure());
         mDevicePolicyManager.setKeyguardDisabled(mAdminComponentName, active);
         mDevicePolicyManager.setStatusBarDisabled(mAdminComponentName, active);
 

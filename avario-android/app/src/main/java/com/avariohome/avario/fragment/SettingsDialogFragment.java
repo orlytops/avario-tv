@@ -702,7 +702,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
         host = host.replaceAll("^.+?://", "");
 
-//        boolean isResourceFetched = !this.config.isResourcesFetched();
+        //boolean isResourceFetched = !this.config.isResourcesFetched();
         boolean isConnected = !manager.isConnected();
         boolean isHostEqual = !host.equals(this.config.getHttpHost());
         boolean isPortEqual = !port.equals(this.config.getHttpPort());
@@ -744,10 +744,6 @@ public class SettingsDialogFragment extends DialogFragment {
         APIClient
                 .getInstance(this.getActivity().getApplicationContext())
                 .getBootstrapJSON(new BootstrapListener(), null);
-    }
-
-    private void loadUpdate() {
-
     }
 
     private void loadAssets() {
