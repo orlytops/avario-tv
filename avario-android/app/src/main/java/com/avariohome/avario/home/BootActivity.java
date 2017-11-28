@@ -38,6 +38,7 @@ import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.mqtt.MqttConnection;
+import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.receiver.WifiReceiver;
 import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.util.Connectivity;
@@ -104,6 +105,12 @@ public class BootActivity extends BaseActivity {
                 getSystemService(Context.DEVICE_POLICY_SERVICE);
         builder = new AlertDialog.Builder(BootActivity.this);
         alert11 = builder.create();
+
+        if (MqttManager.getInstance().isConnected()) {
+            this.startMainActivity();
+            return;
+        }
+
 
         this.progressPD = new ProgressDialog(this);
         this.progressPD.requestWindowFeature(Window.FEATURE_NO_TITLE);

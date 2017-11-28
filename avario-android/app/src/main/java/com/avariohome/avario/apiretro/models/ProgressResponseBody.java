@@ -53,6 +53,9 @@ public class ProgressResponseBody extends ResponseBody {
                 // read() returns the number of bytes read, or -1 if this source is exhausted.
                 totalBytesRead += bytesRead != -1 ? bytesRead : 0;
                 Log.d("Bytes", totalBytesRead + " " + responseBody.contentLength() + " ");
+
+                int percent = (int) ((totalBytesRead * 100) / responseBody.contentLength());
+                Log.d("Percentage", percent + "");
                 return bytesRead;
             }
         };

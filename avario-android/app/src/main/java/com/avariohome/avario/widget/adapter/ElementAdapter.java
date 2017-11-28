@@ -73,14 +73,14 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         Entity element = this.elements.get(position);
 
         this.bindSelection(holder, element);
-
-        if (this.mode == ElementAdapter.MODE_HOME)
+        if (this.mode == ElementAdapter.MODE_HOME) {
             holder.textTV.setText(element.data.optString("name"));
-        else
+        } else {
             holder.textTV.setText(element.data.optString(
                     "name_climate",
                     element.data.optString("name")
             ));
+        }
 
         try {
             AssetUtil.loadImage(

@@ -53,14 +53,13 @@ public class ElementsBar extends RecyclerView {
 
         if (attributes != null) {
             TypedArray array = this.getContext().obtainStyledAttributes(
-                attributes,
-                R.styleable.ElementsBar,
-                defaultStyleAttr,
-                0
+                    attributes,
+                    R.styleable.ElementsBar,
+                    defaultStyleAttr,
+                    0
             );
 
             pageSize = array.getInteger(R.styleable.ElementsBar_pageSize, this.pageSize);
-
             array.recycle();
         }
 
@@ -70,9 +69,9 @@ public class ElementsBar extends RecyclerView {
         this.addOnItemTouchListener(new ItemListener(this.getContext()));
         this.setHasFixedSize(true);
         this.setLayoutManager(new LinearLayoutManager(
-            this.getContext(),
-            LinearLayoutManager.HORIZONTAL,
-            false
+                this.getContext(),
+                LinearLayoutManager.HORIZONTAL,
+                false
         ));
         this.setAdapter(this.adapter);
 
@@ -82,8 +81,8 @@ public class ElementsBar extends RecyclerView {
         animator.setRemoveDuration(0);
 
         LocalBroadcastManager
-            .getInstance(this.getContext())
-            .registerReceiver(new StateReceiver(), new IntentFilter(Constants.BROADCAST_STATE_CHANGED));
+                .getInstance(this.getContext())
+                .registerReceiver(new StateReceiver(), new IntentFilter(Constants.BROADCAST_STATE_CHANGED));
     }
 
     /*
@@ -137,7 +136,7 @@ public class ElementsBar extends RecyclerView {
      ***********************************************************************************************
      */
     private class ItemListener extends GestureDetector.SimpleOnGestureListener
-                               implements RecyclerView.OnItemTouchListener {
+            implements RecyclerView.OnItemTouchListener {
         TapDetector detector;
 
         ItemListener(Context context) {
@@ -151,10 +150,12 @@ public class ElementsBar extends RecyclerView {
         }
 
         @Override
-        public void onTouchEvent(RecyclerView source, MotionEvent event) {}
+        public void onTouchEvent(RecyclerView source, MotionEvent event) {
+        }
 
         @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        }
 
         // endregion
 
@@ -212,8 +213,8 @@ public class ElementsBar extends RecyclerView {
          * Runs the GUI commands of the involved entity
          *
          * @param entity the Entity in the adapter
-         * @param view the item view in the RecyclerView
-         * @param type the kind of interaction being done
+         * @param view   the item view in the RecyclerView
+         * @param type   the kind of interaction being done
          */
         private void runGUICommands(Entity entity, View view, String type) {
             ElementsBar self = ElementsBar.this;
@@ -263,7 +264,7 @@ public class ElementsBar extends RecyclerView {
 
             String entityId = intent.getStringExtra("entity_id");
             int length = adapter.getItemCount(),
-                index;
+                    index;
 
             if (entityId == null) {
                 for (index = 0; index < length; index++) {
@@ -273,14 +274,12 @@ public class ElementsBar extends RecyclerView {
                         element = adapter.get(index);
                         element.data = states.getEntity(element.id);
                         APITimers.invalidate(element.id);
-                    }
-                    catch (AvarioException ignored) {
+                    } catch (AvarioException ignored) {
                     }
                 }
 
                 adapter.notifyItemRangeChanged(0, length);
-            }
-            else {
+            } else {
                 for (index = 0; index < length; index++) {
                     Entity element = adapter.get(index);
 
@@ -291,8 +290,8 @@ public class ElementsBar extends RecyclerView {
                         element.data = states.getEntity(element.id);
                         adapter.notifyItemChanged(index);
                         APITimers.invalidate(element.id);
+                    } catch (AvarioException ignored) {
                     }
-                    catch (AvarioException ignored) {}
                 }
             }
         }

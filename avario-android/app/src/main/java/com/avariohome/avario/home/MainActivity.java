@@ -278,6 +278,8 @@ public class MainActivity extends BaseActivity {
 
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(this.bluetoothReceiver, filter);
+        Log.d("MainActivity", "onCreate");
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -389,6 +391,7 @@ public class MainActivity extends BaseActivity {
         KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         kl = km.newKeyguardLock("name");
         kl.disableKeyguard();
+        Log.d("MainActivity", "onResume");
     }
 
     @Override
@@ -829,7 +832,9 @@ public class MainActivity extends BaseActivity {
         })
             button.setOnClickListener(uiListener);
 
-        battery.setOnClickListener(uiListener);
+        if (config.isTablet()) {
+            battery.setOnClickListener(uiListener);
+        }
         this.notifIB.setOnClickListener(uiListener);
 
         this.roomSelector.setSelectionListener(widgetListener);
@@ -1155,6 +1160,8 @@ public class MainActivity extends BaseActivity {
         }
 
         adapter.notifyItemRangeInserted(oldSize, newSize);
+
+        Log.d("Element", adapter.size() + "");
     }
 
     private void updateDevices(StateArray state, JSONArray controlsJSON) {
