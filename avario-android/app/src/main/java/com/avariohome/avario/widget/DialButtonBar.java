@@ -223,10 +223,13 @@ public class DialButtonBar extends LinearLayout {
             if (this.findViewById(R.id.dialbtn__switch) == null) {
                 this.addView(button);
             }
-            YoYo.with(Techniques.ZoomIn)
-                    .interpolate(new BounceInterpolator())
-                    .duration(500)
-                    .playOn(button);
+
+            if (!this.mediaMode) {
+                YoYo.with(Techniques.ZoomIn)
+                        .interpolate(new BounceInterpolator())
+                        .duration(500)
+                        .playOn(button);
+            }
         }
 
         // get reference to the `states` root object (algo state)
@@ -453,7 +456,8 @@ public class DialButtonBar extends LinearLayout {
         this.buttons.put(button, buttonEntity);
         this.addView(button);
         Log.d("Has button bellow", hasButton + "");
-        if (!hasButton) {
+        if (!hasButton &&
+                !this.mediaMode) {
             YoYo.with(Techniques.ZoomIn)
                     .interpolate(new BounceInterpolator())
                     .duration(500)

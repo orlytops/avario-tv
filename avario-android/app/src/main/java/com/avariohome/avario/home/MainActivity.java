@@ -1072,11 +1072,11 @@ public class MainActivity extends BaseActivity {
         if (view == this.mediaList) {
             MediaAdapter adapter = this.mediaList.getAdapter();
             Entity media = adapter.getSelected();
-            this.dialFragment.setMediaEntity(media.id);
-            /*if (media != null) {
-                isMediaAvailable = true;
+            //this.dialFragment.setMediaEntity(media.id);
+            if (media != null) {
+                //isMediaAvailable = true;
                 this.dialFragment.setMediaEntity(media.id);
-            }*/
+            }
         }
         // devices list
         else {
