@@ -76,7 +76,11 @@ public class Application extends android.app.Application {
     public void onCreate() {
         super.onCreate();
         FirebaseApp.initializeApp(this);
-        FirebaseCrash.setCrashCollectionEnabled(true);
+        if (BuildConfig.DEBUG) {
+            FirebaseCrash.setCrashCollectionEnabled(false);
+        } else {
+            FirebaseCrash.setCrashCollectionEnabled(true);
+        }
         VolleyLog.setTag("AvarioVolley");
 
         Application.mainHandler = new Handler(Looper.getMainLooper());

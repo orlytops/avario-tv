@@ -1068,15 +1068,15 @@ public class MainActivity extends BaseActivity {
             return;
 
         // media list
-        isMediaAvailable = false;
+        //isMediaAvailable = false;
         if (view == this.mediaList) {
             MediaAdapter adapter = this.mediaList.getAdapter();
             Entity media = adapter.getSelected();
-
-            if (media != null) {
+            this.dialFragment.setMediaEntity(media.id);
+            /*if (media != null) {
                 isMediaAvailable = true;
                 this.dialFragment.setMediaEntity(media.id);
-            }
+            }*/
         }
         // devices list
         else {
@@ -2163,7 +2163,6 @@ public class MainActivity extends BaseActivity {
                         .getBootstrapJSON(new BootstrapListener(), intent.getStringExtra("bs_name"));
             } else {
                 Notification notification = intent.getParcelableExtra("notification");
-
                 if (self.settingsOpened)
                     return;
 
