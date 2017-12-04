@@ -94,6 +94,7 @@ import com.avariohome.avario.widget.ElementsBar;
 import com.avariohome.avario.widget.MediaList;
 import com.avariohome.avario.widget.MediaSourcesList;
 import com.avariohome.avario.widget.RoomSelector;
+import com.avariohome.avario.widget.UnCaughtException;
 import com.avariohome.avario.widget.adapter.DeviceAdapter;
 import com.avariohome.avario.widget.adapter.ElementAdapter;
 import com.avariohome.avario.widget.adapter.Entity;
@@ -206,6 +207,7 @@ public class MainActivity extends BaseActivity {
     private boolean isHasWifi = false;
 
     private WifiReceiver wifiReceiver = new WifiReceiver();
+    private static Thread.UncaughtExceptionHandler mDefaultUncaughtExceptionHandler;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -280,18 +282,25 @@ public class MainActivity extends BaseActivity {
         registerReceiver(this.bluetoothReceiver, filter);
         Log.d("MainActivity", "onCreate");
 
+        Thread.setDefaultUncaughtExceptionHandler(new UnCaughtException(MainActivity.this));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onResume() {
         super.onResume();
+        timerIsStarted = false;
+
         try {
             EventBus.getDefault().register(this);
         } catch (Exception e) {
 
         }
         this.visible = true;
+
+        /*if (alert11.isShowing()) {
+            alert11.cancel();
+        }*/
 
         final StateArray states = StateArray.getInstance(this.getApplicationContext());
 
@@ -312,7 +321,13 @@ public class MainActivity extends BaseActivity {
             android.util.Log.v("ProgressDialog", "OnResume");
             //this.showBusyDialog(null);
         } else if (!this.settingsOpened) {
-            this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
+            ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            if (!mWifi.isConnected()) {
+                handleNoWifi();
+            } else {
+                this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
+            }
         }
 
        /* if (BluetoothScanner.getInstance().isEnabled())
@@ -1498,7 +1513,6 @@ public class MainActivity extends BaseActivity {
             Entity media = self.mediaList
                     .getAdapter()
                     .getSelected();
-
             if (media == null)
                 return;
 
@@ -1521,7 +1535,7 @@ public class MainActivity extends BaseActivity {
                 default:
                     return;
             }
-
+            Log.d("media", media.id);
             NagleTimers.reset(
                     media.id,
                     new MediaNagleRunnable(media, directive),
@@ -1733,13 +1747,22 @@ public class MainActivity extends BaseActivity {
             super.onDialogDetached();
 
             MqttManager manager = MqttManager.getInstance();
-
-            if (manager.isConnected())
+            Log.d("On Detach", "detach");
+            if (manager.isConnected()) {
+                isHasWifi = true;
                 manager
                         .getConnection()
                         .setListener(self.mqttListener);
-            else
-                self.connectMQTT(self.getString(R.string.message__mqtt__connecting));
+            } else {
+                ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                if (!mWifi.isConnected()) {
+                    handleNoWifi();
+                } else {
+                    isHasWifi = true;
+                    self.connectMQTT(self.getString(R.string.message__mqtt__connecting));
+                }
+            }
         }
     }
 
@@ -1776,35 +1799,26 @@ public class MainActivity extends BaseActivity {
 
             final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            if (mWifi.isConnected()) {
-                // max retries not reached: silently retry
-                if (connection.getRetryCount() < connection.getRetryMax())
-                    return;
 
-                // express to user the error
-                try {
-                    message = StateArray
-                            .getInstance()
-                            .getErrorMessage(exception.getCode());
-                } catch (NullPointerException nullE) {
-                    message = null;
-                }
-                self.connectMQTT(message);
-            } else {
-                IntentFilter mIntentFilter = new IntentFilter();
-                mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-                mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-                mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-                mIntentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
-                mIntentFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-                try {
-                    registerReceiver(wifiReceiver, mIntentFilter);
-                } catch (Exception e) {
+            // max retries not reached: silently retry
+            if (connection.getRetryCount() < 10)
+                return;
 
-                }
-
-                handleNoWifi();
+            // express to user the error
+            try {
+                message = StateArray
+                        .getInstance()
+                        .getErrorMessage(exception.getCode());
+            } catch (NullPointerException nullE) {
+                message = null;
             }
+
+            if (!mWifi.isConnected()) {
+                showBusyDialog("Connecting to WiFi...");
+            } else {
+                self.connectMQTT(message);
+            }
+
         }
 
         @Override
@@ -1834,7 +1848,7 @@ public class MainActivity extends BaseActivity {
             self.showBusyDialog(null);
             self.fetchCurrentStates();
 
-            MqttManager manager = MqttManager.getInstance();
+            /*MqttManager manager = MqttManager.getInstance();
 
             if (manager.isConnected()) {
                 manager
@@ -1850,7 +1864,7 @@ public class MainActivity extends BaseActivity {
             }
 
             if (BluetoothScanner.getInstance().isEnabled())
-                BluetoothScanner.getInstance().scanLeDevice(true);
+                BluetoothScanner.getInstance().scanLeDevice(true);*/
         }
 
         @Override
@@ -1868,10 +1882,23 @@ public class MainActivity extends BaseActivity {
     }
 
     private void handleNoWifi() {
-        final StateArray states = StateArray.getInstance(this.getApplicationContext());
-        if (progressPD != null) {
-            progressPD.setMessage("Connecting to WiFi...");
+
+        IntentFilter mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+        mIntentFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+        try {
+            registerReceiver(wifiReceiver, mIntentFilter);
+        } catch (Exception e) {
+
         }
+
+
+        showBusyDialog("Connecting to WiFi...");
+
+        final StateArray states = StateArray.getInstance(this.getApplicationContext());
         if (!timerIsStarted) {
             final Handler mHandler = new Handler();
 
@@ -1889,8 +1916,10 @@ public class MainActivity extends BaseActivity {
                                 e.printStackTrace();
                             }
                             countDownTimer.setMillisInFuture(timerTimeOut);
-                            countDownTimer.start();
-                            timerIsStarted = true;
+                            if (!timerIsStarted) {
+                                timerIsStarted = true;
+                                countDownTimer.start();
+                            }
                         }
                     });
                 }
@@ -1936,9 +1965,25 @@ public class MainActivity extends BaseActivity {
                                             "Ok",
                                             new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int id) {
-                                                    dialog.cancel();
                                                     wifi.setWifiEnabled(true);
-                                                    timerIsStarted = false;
+                                                    timerIsStarted = true;
+                                                    countDownTimer.start();
+                                                    if (alert11.isShowing()) {
+                                                        alert11.cancel();
+                                                    }
+
+                                                    try {
+                                                        timerTimeOut = states.getWifiTimeout();
+                                                        Log.d("Timeout", states.getWifiTimeout() + "");
+                                                    } catch (AvarioException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    countDownTimer.setMillisInFuture(timerTimeOut);
+                                                    if (!timerIsStarted) {
+                                                        timerIsStarted = true;
+                                                        countDownTimer.start();
+                                                    }
+                                                    dialog.cancel();
                                                 }
                                             });
 
@@ -1947,7 +1992,6 @@ public class MainActivity extends BaseActivity {
                                     if (!alert11.isShowing()) {
                                         alert11.show();
                                     }
-                                    return;
                                 }
                             }
                         });
@@ -2384,10 +2428,10 @@ public class MainActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(WifiConnected event) {
         if (event.isConnected()) {
-            Log.d("Wifi", "Connected");
-            connectMQTT(this.getString(R.string.message__mqtt__connecting));
+            Log.d("MainActivity", "Connected");
             countDownTimer.cancel();
             isHasWifi = true;
+            connectMQTT(this.getString(R.string.message__mqtt__connecting));
         }
     }
 }

@@ -100,7 +100,6 @@ public class BootActivity extends BaseActivity {
 //            FirebaseCrash.report(ex);
 //        }
 
-        EventBus.getDefault().register(this);
         mDevicePolicyManager = (DevicePolicyManager)
                 getSystemService(Context.DEVICE_POLICY_SERVICE);
         builder = new AlertDialog.Builder(BootActivity.this);
@@ -224,7 +223,11 @@ public class BootActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        try {
+            EventBus.getDefault().register(this);
+        } catch (Exception e) {
 
+        }
         android.util.Log.v(TAG, "onResume");
         if (alert11 != null && alert11.isShowing()) {
             alert11.hide();
@@ -286,6 +289,7 @@ public class BootActivity extends BaseActivity {
                 progressPD.setMessage(getString(R.string.message__mqtt__connecting));
                 countDownTimer.cancel();
             } else {
+                Log.d("Wifi", "Attempting connect WIFI");
                 progressPD.setMessage("Connecting to WiFi...");
                 if (!timerIsStarted) {
                     final Handler mHandler = new Handler();
@@ -304,8 +308,10 @@ public class BootActivity extends BaseActivity {
                                         e.printStackTrace();
                                     }
                                     countDownTimer.setMillisInFuture(timerTimeOut);
-                                    countDownTimer.start();
-                                    timerIsStarted = true;
+                                    if (!timerIsStarted) {
+                                        timerIsStarted = true;
+                                        countDownTimer.start();
+                                    }
                                 }
                             });
                         }
@@ -331,7 +337,7 @@ public class BootActivity extends BaseActivity {
             long seconds = millisUntilFinished / 1000;
             Log.i("Seconds", "seconds remaining: " + millisUntilFinished / 1000);
 
-            if (seconds == 28) {
+            if (seconds == 26) {
                 @SuppressLint("WifiManagerLeak") final WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
                 final Handler mHandler = new Handler();
@@ -362,7 +368,8 @@ public class BootActivity extends BaseActivity {
                                                 public void onClick(DialogInterface dialog, int id) {
                                                     dialog.cancel();
                                                     wifi.setWifiEnabled(true);
-                                                    timerIsStarted = false;
+                                                    timerIsStarted = true;
+                                                    countDownTimer.start();
                                                 }
                                             });
 
@@ -371,7 +378,6 @@ public class BootActivity extends BaseActivity {
                                     if (!alert11.isShowing()) {
                                         alert11.show();
                                     }
-                                    return;
                                 }
                             }
                         });
@@ -592,9 +598,10 @@ public class BootActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(WifiConnected event) {
         if (event.isConnected()) {
-            loadBootstrap();
+            Log.d("BootActivity", "Connected");
             countDownTimer.cancel();
             isHasWifi = true;
+            loadBootstrap();
         }
 
     }

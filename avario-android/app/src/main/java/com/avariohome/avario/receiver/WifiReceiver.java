@@ -37,7 +37,6 @@ public class WifiReceiver extends BroadcastReceiver {
         if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
             Log.d("WifiReceiver", ">>>>SUPPLICANT_STATE_CHANGED_ACTION<<<<<<");
             SupplicantState supl_state = ((SupplicantState) intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE));
-            EventBus.getDefault().post(new WifiConnected(true));
             switch (supl_state) {
                 case ASSOCIATED:
                     Log.i("SupplicantState", "ASSOCIATED");
@@ -50,6 +49,7 @@ public class WifiReceiver extends BroadcastReceiver {
                     break;
                 case COMPLETED:
                     Log.i("SupplicantState", "Connected");
+                    EventBus.getDefault().post(new WifiConnected(true));
                     break;
                 case DISCONNECTED:
                     Log.i("SupplicantState", "Disconnected");

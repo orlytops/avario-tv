@@ -16,6 +16,7 @@ package com.avariohome.avario.util;/*
 
 //add your package declaration here
 
+import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -46,6 +47,8 @@ import android.os.SystemClock;
  * compared to the countdown interval.
  */
 public abstract class MyCountDownTimer {
+
+    private boolean hasStarted = false;
 
     /**
      * Millis since epoch when alarm should stop.
@@ -100,6 +103,10 @@ public abstract class MyCountDownTimer {
         return this;
     }
 
+    public boolean hasRunStarted() {
+        return this.hasStarted;
+    }
+
 
     /**
      * Callback fired on regular interval.
@@ -118,6 +125,7 @@ public abstract class MyCountDownTimer {
 
 
     // handles counting down
+    @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
 
         @Override
@@ -134,7 +142,7 @@ public abstract class MyCountDownTimer {
                 } else {
                     long lastTickStart = SystemClock.elapsedRealtime();
                     onTick(millisLeft);
-
+                    hasStarted = true;
                     // take into account user's onTick taking time to execute
                     long delay = lastTickStart + mCountdownInterval - SystemClock.elapsedRealtime();
 

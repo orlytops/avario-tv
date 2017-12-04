@@ -41,6 +41,8 @@ public class Application extends android.app.Application {
     public static WorkerThread worker;
     public static TickerRunnable tickerRunnable;
 
+    private static Thread.UncaughtExceptionHandler mDefaultUncaughtExceptionHandler;
+
     /**
      * Tries to start the worker thread just in case it was killed off before
      */
@@ -100,7 +102,62 @@ public class Application extends android.app.Application {
                 .getInstance()
                 .setContext(this);
         startService(new Intent(this, KioskService.class));
+
+        /*mDefaultUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);*/
     }
+
+
+    private Thread.UncaughtExceptionHandler exceptionHandler = new Thread.UncaughtExceptionHandler() {
+        @Override
+        public void uncaughtException(Thread t, final Throwable e) {
+            /*final AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+            new Thread() {
+                @Override
+                public void run() {
+                    Looper.prepare();
+                    builder.setTitle("Sorry...!");
+                    builder.create();
+                    builder.setNegativeButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    System.exit(0);
+                                }
+                            });
+                    builder.setPositiveButton("Report",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    Intent sendIntent = new Intent(
+                                            Intent.ACTION_SEND);
+                                    String subject = "Your App crashed! Fix it!";
+                                    StringBuilder body = new StringBuilder("Yoddle");
+                                    body.append('\n').append('\n');
+                                    body.append(e.getMessage()).append('\n')
+                                            .append('\n');
+                                    // sendIntent.setType("text/plain");
+                                    sendIntent.setType("message/rfc822");
+                                    sendIntent.putExtra(Intent.EXTRA_EMAIL,
+                                            new String[]{"coderzheaven@gmail.com"});
+                                    sendIntent.putExtra(Intent.EXTRA_TEXT,
+                                            body.toString());
+                                    sendIntent.putExtra(Intent.EXTRA_SUBJECT,
+                                            subject);
+                                    sendIntent.setType("message/rfc822");
+                                    getApplicationContext().startActivity(sendIntent);
+                                    System.exit(0);
+                                }
+                            });
+                    builder.setMessage("Oops,Your application has crashed");
+                    builder.show();
+                    Looper.loop();
+                }
+            }.start();*/
+        }
+    };
 
     private static class TickerRunnable implements Runnable {
         private Context context;

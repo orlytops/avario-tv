@@ -292,7 +292,6 @@ public class APIClient {
                     return headers;
                 }
             };
-            ;
             request.setShouldCache(false);
             request.setRetryPolicy(new DefaultRetryPolicy(5000, 2, 1.5f));
         } catch (JSONException exception) {
@@ -315,7 +314,6 @@ public class APIClient {
         }
 
         // get request spec
-
         JSONObject requestJSON;
 
         try {

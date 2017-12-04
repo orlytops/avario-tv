@@ -828,16 +828,6 @@ public class Dial extends FrameLayout {
                     }
 
                 } catch (JSONException e) {
-                    AvarioException exception = new AvarioException(
-                            Constants.ERROR_STATE_MISSINGKEY, e,
-                            new Object[]{
-                                    String.format("%s.dial.dial_type", entity.optString("entity_id"))
-                            }
-                    );
-
-                    PlatformUtil
-                            .getErrorToast(this.getContext(), exception)
-                            .show();
                 }
             } else {
 

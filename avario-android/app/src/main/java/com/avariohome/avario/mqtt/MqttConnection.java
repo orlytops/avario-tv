@@ -82,7 +82,7 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
         this.ssl = ssl;
 
         this.options = new MqttConnectOptions();
-        this.options.setConnectionTimeout(10);
+        this.options.setConnectionTimeout(30);
         this.options.setCleanSession(true);
         this.options.setAutomaticReconnect(false);
 

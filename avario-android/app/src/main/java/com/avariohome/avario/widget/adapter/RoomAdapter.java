@@ -115,7 +115,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
         Config config = Config.getInstance();
         String name = config.getRoomSelected();
 
-        if (name == null) {
+       /* if (name == null) {
             holder.mediaIV.setSelected(room.selectedMedia);
         } else if (name.equals(room.name)) {
             holder.mediaIV.setSelected(true);
@@ -123,7 +123,8 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
         } else {
             holder.mediaIV.setSelected(false);
             room.selectedMedia = false;
-        }
+        }*/
+        holder.mediaIV.setSelected(room.selectedMedia);
     }
 
     public List<RoomEntity> getMediaSelections() {
