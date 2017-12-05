@@ -136,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/check_kiosk"
                 android:text="Update"
-                android:visibility="gone" />
+                android:visibility="visible" />
 
             <Button
                 android:id="@+id/btnSave"
@@ -258,7 +258,7 @@
             android:id="@+id/rlCrashReport"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <View
                 android:id="@+id/vCrashReportBorder"

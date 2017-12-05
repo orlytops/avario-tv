@@ -35,6 +35,10 @@ public class BatteryWifi extends FrameLayout {
     private boolean isLan = false;
     private int levelWifi = 0;
 
+
+    private BatteryBroadcastReceiver mReceiver;
+    private WifiBroadcastReceiver wifiBroadcastReceiver;
+
     public BatteryWifi(@NonNull Context context) {
         super(context);
         init();
@@ -60,6 +64,9 @@ public class BatteryWifi extends FrameLayout {
         arc = (SeekArc) this.findViewById(R.id.arc);
         wifiImage = (ImageView) findViewById(R.id.image_wifi);
         percentText = (TextView) findViewById(R.id.text_percent);
+
+        mReceiver = new BatteryBroadcastReceiver();
+        wifiBroadcastReceiver = new WifiBroadcastReceiver();
 
         arc.setEnabled(false);
         arc.setMax(100);
@@ -123,6 +130,13 @@ public class BatteryWifi extends FrameLayout {
         setWifiLevel(levelWifi);
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        getContext().unregisterReceiver(mReceiver);
+        getContext().unregisterReceiver(wifiBroadcastReceiver);
+    }
+
     private void setBatteryLevel(int level) {
         arc.setProgress(level);
         if (level >= 0 && level <= 5) {
@@ -167,16 +181,23 @@ public class BatteryWifi extends FrameLayout {
 
 
     private void registerReceiver() {
-        BatteryBroadcastReceiver mReceiver = new BatteryBroadcastReceiver();
-        WifiBroadcastReceiver wifiBroadcastReceiver = new WifiBroadcastReceiver();
         IntentFilter mIntentFilter = new IntentFilter();
         mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         mIntentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
         mIntentFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-        getContext().registerReceiver(mReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        getContext().registerReceiver(wifiBroadcastReceiver, mIntentFilter);
+        try {
+            getContext().registerReceiver(mReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        } catch (Exception e) {
+
+        }
+
+        try {
+            getContext().registerReceiver(wifiBroadcastReceiver, mIntentFilter);
+        } catch (Exception e) {
+
+        }
     }
 
     private class BatteryBroadcastReceiver extends BroadcastReceiver {

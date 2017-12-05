@@ -2,7 +2,10 @@ package com.avariohome.avario.apiretro.models;
 
 import android.os.RecoverySystem;
 
+import com.avariohome.avario.bus.UpdateDownload;
 import com.avariohome.avario.util.Log;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
@@ -43,7 +46,7 @@ public class ProgressResponseBody extends ResponseBody {
         return bufferedSource;
     }
 
-    private Source source(Source source) {
+    private Source source(final Source source) {
         return new ForwardingSource(source) {
             long totalBytesRead = 0L;
 
@@ -55,7 +58,9 @@ public class ProgressResponseBody extends ResponseBody {
                 Log.d("Bytes", totalBytesRead + " " + responseBody.contentLength() + " ");
 
                 int percent = (int) ((totalBytesRead * 100) / responseBody.contentLength());
-                Log.d("Percentage", percent + "");
+                if (!responseBody.contentType().subtype().equals("json")) {
+                    EventBus.getDefault().post(new UpdateDownload(percent));
+                }
                 return bytesRead;
             }
         };

@@ -5,10 +5,12 @@ package com.avariohome.avario.home;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.KeyguardManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.SystemUpdatePolicy;
@@ -19,7 +21,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -32,6 +36,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
@@ -63,6 +68,11 @@ import com.avariohome.avario.Constants;
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
+import com.avariohome.avario.api.component.DaggerUserComponent;
+import com.avariohome.avario.api.component.UserComponent;
+import com.avariohome.avario.apiretro.services.UpdateService;
+import com.avariohome.avario.bus.TriggerUpdate;
+import com.avariohome.avario.bus.UpdateDownload;
 import com.avariohome.avario.bus.WifiChange;
 import com.avariohome.avario.bus.WifiConnected;
 import com.avariohome.avario.core.BluetoothScanner;
@@ -78,6 +88,8 @@ import com.avariohome.avario.fragment.NotifListDialogFragment;
 import com.avariohome.avario.fragment.NotificationDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
+import com.avariohome.avario.presenters.UpdatePresenter;
+import com.avariohome.avario.receiver.AlarmReceiver;
 import com.avariohome.avario.receiver.WifiReceiver;
 import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.util.AssetUtil;
@@ -94,7 +106,6 @@ import com.avariohome.avario.widget.ElementsBar;
 import com.avariohome.avario.widget.MediaList;
 import com.avariohome.avario.widget.MediaSourcesList;
 import com.avariohome.avario.widget.RoomSelector;
-import com.avariohome.avario.widget.UnCaughtException;
 import com.avariohome.avario.widget.adapter.DeviceAdapter;
 import com.avariohome.avario.widget.adapter.ElementAdapter;
 import com.avariohome.avario.widget.adapter.Entity;
@@ -118,9 +129,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import okhttp3.ResponseBody;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -134,6 +152,13 @@ import rx.schedulers.Schedulers;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class MainActivity extends BaseActivity {
+
+    @Inject
+    UpdateService userService;
+    private UserComponent userComponent;
+    private UpdatePresenter updatePresenter;
+
+
     public static final String TAG = "Avario/MainActivity";
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -209,6 +234,11 @@ public class MainActivity extends BaseActivity {
     private WifiReceiver wifiReceiver = new WifiReceiver();
     private static Thread.UncaughtExceptionHandler mDefaultUncaughtExceptionHandler;
 
+    private AlertDialog.Builder builderUpdate;
+    private AlertDialog alertUpdate;
+
+    private ProgressDialog progressDownload;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,6 +256,11 @@ public class MainActivity extends BaseActivity {
         config = Config.getInstance();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        userComponent = DaggerUserComponent.builder().build();
+        userComponent.inject(this);
+        updatePresenter = new UpdatePresenter(userService);
+
+        progressDownload = new ProgressDialog(this);
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -245,6 +280,8 @@ public class MainActivity extends BaseActivity {
 
         builder = new AlertDialog.Builder(MainActivity.this);
         alert11 = builder.create();
+
+        builderUpdate = new AlertDialog.Builder(this);
 
         this.handler = Application.mainHandler;
 
@@ -282,7 +319,13 @@ public class MainActivity extends BaseActivity {
         registerReceiver(this.bluetoothReceiver, filter);
         Log.d("MainActivity", "onCreate");
 
-        Thread.setDefaultUncaughtExceptionHandler(new UnCaughtException(MainActivity.this));
+        //Thread.setDefaultUncaughtExceptionHandler(new UnCaughtException(MainActivity.this));
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(this, 123, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pi);
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 24 * 60 * 1000, pi);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -2416,6 +2459,90 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private Observer<ResponseBody> observerUpdate = new Observer<ResponseBody>() {
+        @Override
+        public void onCompleted() {
+
+        }
+
+        @Override
+        public void onError(Throwable e) {
+
+        }
+
+        public void onNext(ResponseBody responseBody) {
+            writeResponseBodyToDisk(responseBody);
+        }
+    };
+
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private boolean writeResponseBodyToDisk(ResponseBody body) {
+
+        // todo change the file location/name according to your needs
+        try {
+            File futureStudioIconFile = new File(getExternalFilesDir(null) + File.separator + "app-release.apk");
+
+            File outputFile = new File(futureStudioIconFile, "app-release.apk");
+
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+
+            try {
+                inputStream = body.byteStream();
+                installPackage(this, inputStream);
+                return true;
+            } catch (IOException e) {
+                return false;
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
+
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void installPackage(Context context, InputStream inputStream)
+            throws IOException {
+        PackageInstaller packageInstaller = context.getPackageManager().getPackageInstaller();
+        int sessionId = packageInstaller.createSession(new PackageInstaller
+                .SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL));
+        PackageInstaller.Session session = packageInstaller.openSession(sessionId);
+
+        long sizeBytes = 0;
+
+        OutputStream out = null;
+        out = session.openWrite("my_app_session", 0, sizeBytes);
+
+        int total = 0;
+        byte[] buffer = new byte[65536];
+        int c;
+        while ((c = inputStream.read(buffer)) != -1) {
+            total += c;
+            out.write(buffer, 0, c);
+        }
+        session.fsync(out);
+        inputStream.close();
+        out.close();
+
+        // fake intent
+        IntentSender statusReceiver = null;
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+                1337111117, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        session.commit(pendingIntent.getIntentSender());
+        session.close();
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(WifiChange event) {
         if (event.isAuthError()) {
@@ -2432,6 +2559,56 @@ public class MainActivity extends BaseActivity {
             countDownTimer.cancel();
             isHasWifi = true;
             connectMQTT(this.getString(R.string.message__mqtt__connecting));
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUpdateTrigger(TriggerUpdate triggerUpdate) {
+        builderUpdate.setTitle("New update Available!");
+        builderUpdate.setMessage(getResources().getString(R.string.update_availabe));
+        builderUpdate.setCancelable(false);
+
+        builderUpdate.setPositiveButton(
+                "Update",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                        updatePresenter.getUpdate(observerUpdate);
+                    }
+                });
+
+        builderUpdate.setNegativeButton(
+                "Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        if (alertUpdate == null) {
+            alertUpdate = builderUpdate.create();
+        }
+        if (!alertUpdate.isShowing()) {
+            alertUpdate.show();
+        }
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUpdateProgress(UpdateDownload updateDownload) {
+        progressDownload.setMessage("Downloading Update...");
+
+        if (!progressDownload.isShowing()) {
+            progressDownload.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDownload.show();
+        }
+        progressDownload.setProgress(updateDownload.getProgress());
+
+        if (updateDownload.getProgress() == 100) {
+            progressDownload.cancel();
+            progressDownload = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
+            progressDownload.setMessage("Installing Update...");
+            progressDownload.show();
         }
     }
 }

@@ -78,26 +78,34 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:enabled="true" android:exported="true" android:label="InstallReceiver" android:name=".receiver.InstallReceiver">
+        <receiver
+            android:name=".receiver.AlarmReceiver"
+            android:exported="true"></receiver>
+
+        <receiver
+            android:name=".receiver.InstallReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="InstallReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <data android:scheme="package"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <data android:scheme="package" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_ADDED"/>
-                <data android:scheme="package"/>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <data android:scheme="package" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_INSTALL"/>
-                <data android:scheme="package"/>
+                <action android:name="android.intent.action.PACKAGE_INSTALL" />
+                <data android:scheme="package" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_CHANGED"/>
-                <data android:scheme="package"/>
+                <action android:name="android.intent.action.PACKAGE_CHANGED" />
+                <data android:scheme="package" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
-                <data android:scheme="package"/>
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
 

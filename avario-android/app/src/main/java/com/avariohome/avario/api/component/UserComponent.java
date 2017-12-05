@@ -3,6 +3,8 @@ package com.avariohome.avario.api.component;
 
 import com.avariohome.avario.apiretro.ApiModule;
 import com.avariohome.avario.fragment.SettingsDialogFragment;
+import com.avariohome.avario.home.MainActivity;
+import com.avariohome.avario.receiver.AlarmReceiver;
 
 import javax.inject.Singleton;
 
@@ -16,5 +18,9 @@ import dagger.Component;
 public interface UserComponent {
 
     void inject(SettingsDialogFragment settingsDialogFragment);
+
+    void inject(AlarmReceiver alarmReceiver);
+
+    void inject(MainActivity mainActivity);
 
 }

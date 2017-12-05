@@ -53,6 +53,7 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.component.DaggerUserComponent;
 import com.avariohome.avario.api.component.UserComponent;
+import com.avariohome.avario.apiretro.models.Version;
 import com.avariohome.avario.apiretro.services.UpdateService;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
@@ -138,10 +139,14 @@ public class SettingsDialogFragment extends DialogFragment {
     private int negativeId;
     private int neutralId;
 
-
     private ComponentName mAdminComponentName;
     private DevicePolicyManager mDevicePolicyManager;
     private PackageManager mPackageManager;
+
+
+    private AlertDialog.Builder builderUpdate;
+    private AlertDialog alertUpdate;
+
 
     private boolean reboot = false;
 
@@ -176,7 +181,6 @@ public class SettingsDialogFragment extends DialogFragment {
         dialog = builder.create();
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setOnShowListener(new DialogListener());
-        verifyStoragePermissions(getActivity());
         return dialog;
     }
 
@@ -186,7 +190,7 @@ public class SettingsDialogFragment extends DialogFragment {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
-    public static void verifyStoragePermissions(Activity activity) {
+    private boolean verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
@@ -198,6 +202,8 @@ public class SettingsDialogFragment extends DialogFragment {
                     REQUEST_EXTERNAL_STORAGE
             );
         }
+
+        return permission == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -220,6 +226,8 @@ public class SettingsDialogFragment extends DialogFragment {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private View setupViews(LayoutInflater inflater, ViewGroup container) {
+        builderUpdate = new AlertDialog.Builder(getActivity());
+
         View view = inflater.inflate(R.layout.fragment__settings, container, false);
 
         this.config = Config.getInstance(view.getContext());
@@ -339,30 +347,145 @@ public class SettingsDialogFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-                workingTV.setText("Downloading update...");
-                toggleWorking(true);
 
-                UpdatePresenter updatePresenter = new UpdatePresenter(userService);
-                updatePresenter.getUpdate(new Observer<ResponseBody>() {
-                    @Override
-                    public void onCompleted() {
+                if (!verifyStoragePermissions(getActivity())) {
+                    return;
+                }
 
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.d("Error Download", e.getMessage());
-                    }
-
-                    @Override
-                    public void onNext(ResponseBody responseBody) {
-                        writeResponseBodyToDisk(responseBody);
-                    }
-                });
+                currentVersion();
             }
         });
 
         return view;
+    }
+
+    private Observer<ResponseBody> observerUpdate = new Observer<ResponseBody>() {
+        @Override
+        public void onCompleted() {
+
+        }
+
+        @Override
+        public void onError(Throwable e) {
+
+        }
+
+        public void onNext(ResponseBody responseBody) {
+            writeResponseBodyToDisk(responseBody);
+        }
+    };
+
+
+    private void currentVersion() {
+        final UpdatePresenter updatePresenter = new UpdatePresenter(userService);
+
+        updatePresenter.getVersion(new Observer<Version>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(Version version) {
+                if (needsUpdate(getActivity(), version.getVersion())) {
+                    builderUpdate.setTitle("New update Available!");
+                    builderUpdate.setMessage(getResources().getString(R.string.update_availabe));
+
+                    builderUpdate.setPositiveButton(
+                            "Update",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+
+                                    workingTV.setText("Downloading update...");
+                                    toggleWorking(true);
+
+                                    updatePresenter.getUpdate(observerUpdate);
+                                }
+                            });
+
+                    builderUpdate.setNegativeButton(
+                            "Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                } else {
+                    builderUpdate.setTitle("No update available!");
+                    builderUpdate.setMessage(getResources().getString(R.string.no_update));
+                    builderUpdate.setNegativeButton(
+                            "Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                }
+
+                builderUpdate.setCancelable(false);
+                alertUpdate = builderUpdate.create();
+                if (!alertUpdate.isShowing()) {
+                    alertUpdate.show();
+                }
+            }
+        });
+    }
+
+    private boolean needsUpdate(Context context, String version) {
+        try {
+
+            //get current Version Code
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            String currentVersionName = info.versionName;
+
+            if (!version.equals(currentVersionName)) {
+                //version string not the same, version is NOT up to date
+
+                Boolean updateNeeded = false;
+                String[] currentVersionCodeArray = currentVersionName.split("\\.");
+                String[] storeVersionCodeArray = version.split("\\.");
+
+                int maxLength = currentVersionCodeArray.length;
+                if (storeVersionCodeArray.length > maxLength) {
+                    maxLength = storeVersionCodeArray.length;
+                }
+
+                for (int i = 0; i < maxLength; i++) {
+
+                    try {
+                        if (Integer.parseInt(storeVersionCodeArray[i]) > Integer.parseInt(currentVersionCodeArray[i])) {
+                            updateNeeded = true;
+                            continue;
+                        }
+                    } catch (IndexOutOfBoundsException e) {
+                        //store version code length > current version length = version needs to be updated
+                        //if store version length is shorter, the if-statement already did the job
+                        if (storeVersionCodeArray.length > currentVersionCodeArray.length) {
+                            updateNeeded = true;
+                        }
+                    }
+                }
+
+                if (updateNeeded) {
+                    return true;
+                }
+
+            } else {
+                return false;
+            }
+
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -372,7 +495,7 @@ public class SettingsDialogFragment extends DialogFragment {
         try {
             File futureStudioIconFile = new File(getActivity().getExternalFilesDir(null) + File.separator + "update.apk");
 
-            File outputFile = new File(futureStudioIconFile, "update.apk");
+            File outputFile = new File(futureStudioIconFile, "app-release.apk");
 
             InputStream inputStream = null;
             OutputStream outputStream = null;

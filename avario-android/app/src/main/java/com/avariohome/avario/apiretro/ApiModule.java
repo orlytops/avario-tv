@@ -42,16 +42,16 @@ public class ApiModule {
 
         config = Config.getInstance();
 
-        String domain = "";
-        domain = config.getHttpDomain();
-        if (config.getHttpDomain() != null) {
+        String domain = "https://192.168.0.18:21443/";
+        if (config.getHttpHost() != null) {
             Log.d("Domain", config.getHttpDomain());
+            domain = config.getHttpDomain();
         }
 
         //use BuildConfig.BASEURL for freelancer API
         //use BuildConfig.MOCKURL for freelancer API
         return new Retrofit.Builder()
-                .baseUrl("https://192.168.0.18:22443/")
+                .baseUrl(domain)
                 .client(getClient())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -86,6 +86,7 @@ public class ApiModule {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Response originalResponse = chain.proceed(chain.request());
+                Log.d("Headers", originalResponse.headers().toString());
                 return originalResponse.newBuilder()
                         .body(new ProgressResponseBody(originalResponse.body(), null))
                         .build();
