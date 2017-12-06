@@ -5,4 +5,14 @@ package com.avariohome.avario.bus;
  */
 
 public class TriggerUpdate {
+
+    private String version;
+
+    public TriggerUpdate(String version) {
+        this.version = version;
+    }
+
+    public String getVersion() {
+        return version;
+    }
 }

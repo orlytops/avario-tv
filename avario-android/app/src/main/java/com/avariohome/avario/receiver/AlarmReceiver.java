@@ -11,6 +11,7 @@ import com.avariohome.avario.api.component.UserComponent;
 import com.avariohome.avario.apiretro.models.Version;
 import com.avariohome.avario.apiretro.services.UpdateService;
 import com.avariohome.avario.bus.TriggerUpdate;
+import com.avariohome.avario.core.Config;
 import com.avariohome.avario.presenters.UpdatePresenter;
 import com.avariohome.avario.util.Log;
 
@@ -37,6 +38,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
+        final Config config = Config.getInstance();
 
         UpdatePresenter updatePresenter = new UpdatePresenter(userService);
 
@@ -62,8 +64,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                     e.printStackTrace();
                 }
 
-                if (needsUpdate(context, version.getVersion())) {
-                    EventBus.getDefault().post(new TriggerUpdate());
+                if (needsUpdate(context, version.getVersion()) && !version.getVersion().equals(config.getToIgnore())) {
+                    EventBus.getDefault().post(new TriggerUpdate(version.getVersion()));
                 }
             }
         });

@@ -344,7 +344,7 @@ public class StateArray {
         }
     }
 
-    public String getStringsWifi(String name) throws AvarioException {
+    public String getStringMessage(String name) throws AvarioException {
         if (!this.hasData())
             return null;
 

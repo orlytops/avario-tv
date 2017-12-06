@@ -33,6 +33,7 @@ public class Config {
     private static final String PREFKEY_IS_KIOSK = "is_kiosk";
     private static final String PREFKEY_IS_TABLET = "is_tablet";
     private static final String PREFKEY_FCM_TOKEN = "fcm_token";
+    private static final String PREFKEY_TO_IGNORE = "to_ignore";
 
     private static Config instance = null;
 
@@ -50,6 +51,7 @@ public class Config {
     private String temppassword;
     private String tempBootstrap;
     private String roomSelected;
+    private String toIgnore;
 
     public static Config getInstance() {
         return Config.instance;
@@ -85,6 +87,7 @@ public class Config {
         tempUsername = fetchString(PREFKEY_USERNAME);
         temppassword = fetchString(PREFKEY_PASSWORD);
         tempBootstrap = fetchString(PREFKEY_BOOTSTRAP);
+        toIgnore = fetchString(PREFKEY_TO_IGNORE);
         roomSelected = fetchString(PREFKEY_ROOM_SELECTED);
     }
 
@@ -142,6 +145,10 @@ public class Config {
 
     public String getFCM() {
         return this.fetchString(PREFKEY_FCM_TOKEN);
+    }
+
+    public String getToIgnore() {
+        return this.fetchString(PREFKEY_TO_IGNORE);
     }
 
     public String getAssetRoot() {
@@ -281,6 +288,10 @@ public class Config {
         this.prefs.edit().putString(PREFKEY_FCM_TOKEN, token).apply();
     }
 
+    public void setToIgnore(String version) {
+        this.prefs.edit().putString(PREFKEY_TO_IGNORE, version).apply();
+    }
+
     public void setRoomSelected(String roomSelected) {
         this.prefs.edit().putString(PREFKEY_ROOM_SELECTED, roomSelected).apply();
     }
@@ -299,6 +310,7 @@ public class Config {
         this.prefs.edit().putString(PREFKEY_USERNAME, tempUsername).apply();
         this.prefs.edit().putString(PREFKEY_BOOTSTRAP, tempBootstrap).apply();
         this.prefs.edit().putString(PREFKEY_ROOM_SELECTED, roomSelected).apply();
+        this.prefs.edit().putString(PREFKEY_TO_IGNORE, toIgnore).apply();
     }
 
     public void clear() {
@@ -321,6 +333,7 @@ public class Config {
         tempUsername = fetchString(PREFKEY_USERNAME);
         tempBootstrap = fetchString(PREFKEY_BOOTSTRAP);
         roomSelected = fetchString(PREFKEY_ROOM_SELECTED);
+        toIgnore = fetchString(PREFKEY_TO_IGNORE);
     }
 
     private boolean fetchBoolean(String key) {

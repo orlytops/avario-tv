@@ -325,7 +325,7 @@ public class MainActivity extends BaseActivity {
         Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
         PendingIntent pi = PendingIntent.getBroadcast(this, 123, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pi);
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 24 * 60 * 1000, pi);
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 1000 * 60 * 60 * 24, pi);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -367,8 +367,10 @@ public class MainActivity extends BaseActivity {
             ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (!mWifi.isConnected()) {
+                Log.d("MainActivity", "handle no wifi");
                 handleNoWifi();
             } else {
+                Log.d("MainActivity", "connectMQTT");
                 this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
             }
         }
@@ -1891,7 +1893,7 @@ public class MainActivity extends BaseActivity {
             self.showBusyDialog(null);
             self.fetchCurrentStates();
 
-            /*MqttManager manager = MqttManager.getInstance();
+            MqttManager manager = MqttManager.getInstance();
 
             if (manager.isConnected()) {
                 manager
@@ -1907,7 +1909,7 @@ public class MainActivity extends BaseActivity {
             }
 
             if (BluetoothScanner.getInstance().isEnabled())
-                BluetoothScanner.getInstance().scanLeDevice(true);*/
+                BluetoothScanner.getInstance().scanLeDevice(true);
         }
 
         @Override
@@ -1995,7 +1997,7 @@ public class MainActivity extends BaseActivity {
                                     String message = "";
                                     countDownTimer.cancel();
                                     try {
-                                        message = states.getStringsWifi("0x03010");
+                                        message = states.getStringMessage("0x03010");
                                     } catch (AvarioException e) {
                                         e.printStackTrace();
                                     }
@@ -2056,8 +2058,8 @@ public class MainActivity extends BaseActivity {
                     String message = "";
 
                     try {
-                        title = states.getStringsWifi("0x03020");
-                        message = states.getStringsWifi("0x03030");
+                        title = states.getStringMessage("0x03020");
+                        message = states.getStringMessage("0x03030");
                     } catch (AvarioException e) {
                         e.printStackTrace();
                     }
@@ -2563,9 +2565,20 @@ public class MainActivity extends BaseActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onUpdateTrigger(TriggerUpdate triggerUpdate) {
+    public void onUpdateTrigger(final TriggerUpdate triggerUpdate) {
+
+        final StateArray states = StateArray.getInstance(getBaseContext());
+
+        String updateAvailableMessage = "";
+        countDownTimer.cancel();
+        try {
+            updateAvailableMessage = states.getStringMessage("0x03040");
+        } catch (AvarioException e) {
+            e.printStackTrace();
+        }
+
         builderUpdate.setTitle("New update Available!");
-        builderUpdate.setMessage(getResources().getString(R.string.update_availabe));
+        builderUpdate.setMessage(updateAvailableMessage);
         builderUpdate.setCancelable(false);
 
         builderUpdate.setPositiveButton(
@@ -2588,6 +2601,15 @@ public class MainActivity extends BaseActivity {
         if (alertUpdate == null) {
             alertUpdate = builderUpdate.create();
         }
+
+        alertUpdate.setButton(AlertDialog.BUTTON_NEUTRAL, "Don't show again", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                config.setToIgnore(triggerUpdate.getVersion());
+                dialog.cancel();
+            }
+        });
+
         if (!alertUpdate.isShowing()) {
             alertUpdate.show();
         }

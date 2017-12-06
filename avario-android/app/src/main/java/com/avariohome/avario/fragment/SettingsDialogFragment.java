@@ -493,7 +493,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
         // todo change the file location/name according to your needs
         try {
-            File futureStudioIconFile = new File(getActivity().getExternalFilesDir(null) + File.separator + "update.apk");
+            File futureStudioIconFile = new File(getActivity().getExternalFilesDir(null) + File.separator + "app-release.apk");
 
             File outputFile = new File(futureStudioIconFile, "app-release.apk");
 

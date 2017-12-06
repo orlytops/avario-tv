@@ -353,7 +353,7 @@ public class BootActivity extends BaseActivity {
                                     String message = "";
                                     countDownTimer.cancel();
                                     try {
-                                        message = states.getStringsWifi("0x03010");
+                                        message = states.getStringMessage("0x03010");
                                     } catch (AvarioException e) {
                                         e.printStackTrace();
                                     }
@@ -399,8 +399,8 @@ public class BootActivity extends BaseActivity {
                     String message = "";
 
                     try {
-                        title = states.getStringsWifi("0x03020");
-                        message = states.getStringsWifi("0x03030");
+                        title = states.getStringMessage("0x03020");
+                        message = states.getStringMessage("0x03030");
                     } catch (AvarioException e) {
                         e.printStackTrace();
                     }
