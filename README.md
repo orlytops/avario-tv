@@ -1,7 +1,7 @@
 # avarioHome_android
 Avario Home App for Android
 
-Testing the app update:
+## Testing the app update:
 
 1. Install first the `v0.22.0` apk.
 2. Create a folder named `tablet` on `www/local` this is where the bootstrap.json is located to.
@@ -15,7 +15,7 @@ App should be in kiosk mode.
 
 There are two ways on how to update the app first is through the interval checking for the updates, it will popup the Alert Dialog. Second is through the Settings.
 
-Instructions for kiosk mode:
+## Instructions for kiosk mode:
 
 1. First install the apk.
 2. Remove logged in account in settings to allow setting device owner.
