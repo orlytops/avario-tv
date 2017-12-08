@@ -5,10 +5,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.HttpAuthHandler;
+import android.webkit.MimeTypeMap;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -17,21 +22,25 @@ import android.widget.TextView;
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
+import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.Notification;
 import com.avariohome.avario.core.NotificationArray;
 import com.avariohome.avario.exception.AvarioException;
+import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.RefStringUtil;
 
+import org.eclipse.paho.client.mqttv3.internal.websocket.Base64;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
 /**
  * Dialog to be shown when receiving the push notification from Firebase.
- *
+ * <p>
  * Created by aeroheart-c6 on 07/07/2017.
  */
 public class NotificationDialogFragment extends DialogFragment {
@@ -75,7 +84,7 @@ public class NotificationDialogFragment extends DialogFragment {
 
         Activity activity = this.getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(activity)
-            .setView(this.setupViews(LayoutInflater.from(activity)));
+                .setView(this.setupViews(LayoutInflater.from(activity)));
 
         AlertDialog dialog = builder.create();
 
@@ -102,8 +111,8 @@ public class NotificationDialogFragment extends DialogFragment {
         Notification notification = arguments.getParcelable("notification");
 
         this.renderMessage(
-            this.getDialog(),
-            notification
+                this.getDialog(),
+                notification
         );
     }
 
@@ -119,8 +128,9 @@ public class NotificationDialogFragment extends DialogFragment {
 
             JSONArray buttonsJSON = notification.data.getJSONArray("buttons");
             this.setupButtons(buttonsJSON);
-            this.messageTV.setOnClickListener(buttonsJSON.length() == 0 ? this.clickListener: null);
-        } catch (JSONException ignored) {}
+            this.messageTV.setOnClickListener(buttonsJSON.length() == 0 ? this.clickListener : null);
+        } catch (JSONException ignored) {
+        }
 
         this.buttonsLL.setVisibility(View.VISIBLE);
         this.messageHolderSV.setVisibility(View.VISIBLE);
@@ -132,11 +142,11 @@ public class NotificationDialogFragment extends DialogFragment {
     private View setupViews(LayoutInflater inflater) {
         View view = inflater.inflate(R.layout.fragment__notifdialog, null, false);
 
-        this.messageHolderSV = (ScrollView)view.findViewById(R.id.message__holder);
-        this.messageTV = (TextView)view.findViewById(R.id.message);
-        this.buttonsLL = (LinearLayout)view.findViewById(R.id.buttons__holder);
-        this.webview = (WebView)view.findViewById(R.id.webview);
-        this.closeB = (Button)view.findViewById(R.id.close);
+        this.messageHolderSV = (ScrollView) view.findViewById(R.id.message__holder);
+        this.messageTV = (TextView) view.findViewById(R.id.message);
+        this.buttonsLL = (LinearLayout) view.findViewById(R.id.buttons__holder);
+        this.webview = (WebView) view.findViewById(R.id.webview);
+        this.closeB = (Button) view.findViewById(R.id.close);
 
         this.closeB.setOnClickListener(this.clickListener);
 
@@ -158,8 +168,7 @@ public class NotificationDialogFragment extends DialogFragment {
 
             try {
                 buttonJSON = buttonsJSON.getJSONObject(index);
-            }
-            catch (JSONException exception) {
+            } catch (JSONException exception) {
                 continue;
             }
 
@@ -175,8 +184,8 @@ public class NotificationDialogFragment extends DialogFragment {
         Button button;
 
         params = new LinearLayout.LayoutParams(
-            0,
-            this.getResources().getDimensionPixelSize(R.dimen.dialog__notifbutton__height)
+                0,
+                this.getResources().getDimensionPixelSize(R.dimen.dialog__notifbutton__height)
         );
         params.weight = 1;
 
@@ -194,24 +203,23 @@ public class NotificationDialogFragment extends DialogFragment {
 
         try {
             requestJSON = new JSONObject(
-                buttonJSON
-                    .getJSONObject("api")
-                    .toString()
+                    buttonJSON
+                            .getJSONObject("api")
+                            .toString()
             );
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             return;
         }
 
         try {
             APIClient.getInstance().executeRequest(
-                requestJSON,
-                NotificationDialogFragment.TIMER_ID,
-                NotificationDialogFragment.TIMER_ID,
-                new APIListener()
+                    requestJSON,
+                    NotificationDialogFragment.TIMER_ID,
+                    NotificationDialogFragment.TIMER_ID,
+                    new APIListener()
             );
+        } catch (AvarioException ignored) {
         }
-        catch (AvarioException ignored) {}
     }
 
     /**
@@ -226,8 +234,8 @@ public class NotificationDialogFragment extends DialogFragment {
             return;
 
         NotificationArray
-            .getInstance()
-            .deleteNotification(notification);
+                .getInstance()
+                .deleteNotification(notification);
     }
 
     /**
@@ -239,12 +247,12 @@ public class NotificationDialogFragment extends DialogFragment {
      */
     private void openWebview(JSONObject buttonJSON) throws Exception {
         JSONObject webviewJSON;
-        Map<String, String> urlConf;
+        final Map<String, String> urlConf;
 
         webviewJSON = new JSONObject(
-            buttonJSON
-                .getJSONObject("webview")
-                .toString()
+                buttonJSON
+                        .getJSONObject("webview")
+                        .toString()
         );
 
         urlConf = RefStringUtil.processUrl(webviewJSON.getString("url"));
@@ -254,8 +262,61 @@ public class NotificationDialogFragment extends DialogFragment {
 
         this.closeB.setVisibility(View.VISIBLE);
         this.webview.setVisibility(View.VISIBLE);
+        Log.d("URL Notification", urlConf.get("url"));
+        final Config config = Config.getInstance();
+
+        final Map<String, String> headers = new HashMap<>();
+
+        headers.put("Authorization", String.format("Basic %s", Base64.encode(String.format(
+                "%s:%s",
+                config.getUsername(),
+                config.getPassword()
+        ))));
+
+        Log.d("Authorization", String.format("Basic %s", Base64.encode(String.format(
+                "%s:%s",
+                config.getUsername(),
+                config.getPassword()
+        ))));
+        webview.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
+                android.util.Log.d(TAG, "onReceivedHttpAuthRequest: ");
+                handler.proceed("avario", "avario");
+            }
+
+            @Override
+            public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+                handler.proceed();
+            }
+        });
+
         this.webview.loadUrl(urlConf.get("url"));
     }
+
+    public String getMimeType(String url) {
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            if (extension.equals("js")) {
+                return "text/javascript";
+            } else if (extension.equals("woff")) {
+                return "application/font-woff";
+            } else if (extension.equals("woff2")) {
+                return "application/font-woff2";
+            } else if (extension.equals("ttf")) {
+                return "application/x-font-ttf";
+            } else if (extension.equals("eot")) {
+                return "application/vnd.ms-fontobject";
+            } else if (extension.equals("svg")) {
+                return "image/svg+xml";
+            }
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        return type;
+    }
+
 
     public void setListener(Listener listener) {
         this.listener = listener;
@@ -272,20 +333,19 @@ public class NotificationDialogFragment extends DialogFragment {
             NotificationDialogFragment self = NotificationDialogFragment.this;
             JSONObject buttonJSON;
 
-            if (view.getId() == R.id.close || view.getId() ==  R.id.message) {
+            if (view.getId() == R.id.close || view.getId() == R.id.message) {
                 self.dismiss();
                 return;
             }
 
-            buttonJSON = (JSONObject)view.getTag(R.id.tag__notifbtn__data);
+            buttonJSON = (JSONObject) view.getTag(R.id.tag__notifbtn__data);
 
             self.sendAPI(buttonJSON);
             self.deleteOnClick(buttonJSON);
 
             try {
                 self.openWebview(buttonJSON);
-            }
-            catch (Exception exception) {
+            } catch (Exception exception) {
                 self.dismiss();
             }
         }
@@ -294,14 +354,16 @@ public class NotificationDialogFragment extends DialogFragment {
     private class APIListener extends APIRequestListener<String> {
         public APIListener() {
             super(
-                NotificationDialogFragment.TIMER_ID,
-                new String[] { NotificationDialogFragment.TIMER_ID }
+                    NotificationDialogFragment.TIMER_ID,
+                    new String[]{NotificationDialogFragment.TIMER_ID}
             );
         }
 
-        protected void forceTimerExpire() {}
+        protected void forceTimerExpire() {
+        }
 
-        protected void startTimer() {}
+        protected void startTimer() {
+        }
     }
 
     /*

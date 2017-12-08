@@ -283,7 +283,7 @@ public class BootActivity extends BaseActivity {
             if (mWifi.isConnected()) {
                 isHasWifi = true;
                 Connectivity.identifyConnection(getApplicationContext());
-                //sendFCMToken();
+                sendFCMToken();
                 Log.d("Connect Mqtt", "Bootactivity");
                 connectMQTT(new MqttConnectionListener(), false);
                 progressPD.setMessage(getString(R.string.message__mqtt__connecting));

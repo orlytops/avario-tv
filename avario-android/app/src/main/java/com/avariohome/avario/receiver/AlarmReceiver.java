@@ -8,11 +8,13 @@ import android.content.pm.PackageManager;
 
 import com.avariohome.avario.api.component.DaggerUserComponent;
 import com.avariohome.avario.api.component.UserComponent;
-import com.avariohome.avario.apiretro.models.Version;
+import com.avariohome.avario.apiretro.models.Updates;
 import com.avariohome.avario.apiretro.services.UpdateService;
+import com.avariohome.avario.apiretro.services.VersionService;
 import com.avariohome.avario.bus.TriggerUpdate;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.presenters.UpdatePresenter;
+import com.avariohome.avario.presenters.VersionPresenter;
 import com.avariohome.avario.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
@@ -29,6 +31,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Inject
     UpdateService userService;
+
+    @Inject
+    VersionService versionService;
+
     private UserComponent userComponent;
 
     public AlarmReceiver() {
@@ -41,8 +47,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         final Config config = Config.getInstance();
 
         UpdatePresenter updatePresenter = new UpdatePresenter(userService);
-
-        updatePresenter.getVersion(new Observer<Version>() {
+        final VersionPresenter versionPresenter = new VersionPresenter(versionService);
+        versionPresenter.getVersion(new Observer<Updates>() {
             @Override
             public void onCompleted() {
 
@@ -54,8 +60,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
 
             @Override
-            public void onNext(Version version) {
-                Log.d("Version", version.getVersion());
+            public void onNext(Updates version) {
+                Log.d("Version", version.getVersion().getTablet());
                 try {
                     PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
                     String versionName = pInfo.versionName;
@@ -64,8 +70,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                     e.printStackTrace();
                 }
 
-                if (needsUpdate(context, version.getVersion()) && !version.getVersion().equals(config.getToIgnore())) {
-                    EventBus.getDefault().post(new TriggerUpdate(version.getVersion()));
+                if (needsUpdate(context, version.getVersion().getTablet()) && !version.getVersion().getTablet().equals(config.getToIgnore())) {
+                    EventBus.getDefault().post(new TriggerUpdate(version.getVersion().getTablet()));
                 }
             }
         });

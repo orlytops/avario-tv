@@ -173,7 +173,7 @@ public class DialButtonBar extends LinearLayout {
             }
         }
 
-        if (areAllTrue(shouldShowList) && areSameTypes(dialTypes) && entityJSONs.size() > 1 && !mediaMode) {
+        /*if (areAllTrue(shouldShowList) && areSameTypes(dialTypes) && entityJSONs.size() > 1 && !mediaMode) {
             ImageButton button;
 
             button = this.generateButton();
@@ -192,7 +192,7 @@ public class DialButtonBar extends LinearLayout {
                     .interpolate(new BounceInterpolator())
                     .duration(500)
                     .playOn(button);
-        }
+        }*/
 
         if (areSameLightTypes(dialTypes) && entityJSONs.size() > 1 && !mediaMode && !areAllTrue(shouldShowList)) {
             DialButtonBar self = DialButtonBar.this;
@@ -909,7 +909,7 @@ public class DialButtonBar extends LinearLayout {
                     setupButton(buttonEntity, hasButton(buttonEntity.buttonJSON.optString("entity_id")));
                 }
 
-                ImageButton button;
+                /*ImageButton button;
 
                 button = generateButton();
                 button.setId(R.id.dialbtn__switch);
@@ -923,7 +923,7 @@ public class DialButtonBar extends LinearLayout {
 
                 if (findViewById(R.id.dialbtn__switch) == null) {
                     addView(button);
-                }
+                }*/
             } else {
                 switch (dial.getType()) {
                     case LIGHT:

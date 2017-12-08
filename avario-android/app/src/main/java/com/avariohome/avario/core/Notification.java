@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Represents a single notification object to be saved into the file and loaded back in. This will
  * be the object the app will primarily interact now
- *
+ * <p>
  * Created by aeroheart-c6 on 7/11/17.
  */
 public class Notification implements Parcelable {
@@ -28,8 +28,7 @@ public class Notification implements Parcelable {
 
             try {
                 instance.data = new JSONObject(source.readString());
-            }
-            catch (JSONException exception) {
+            } catch (JSONException exception) {
                 instance.data = new JSONObject();
             }
 
@@ -45,20 +44,23 @@ public class Notification implements Parcelable {
     /**
      * data - the entire JSON data representing the Notification. This contains the following
      * properties:
-     *      * message_id - [String] message id from firebase
-     *      * title - [String] title from the notifications payload
-     *      * body - [String] content from the notifications payload
-     *      * date_sent - [long] the time in milliseconds that the message was sent
-     *      * ttl - [long] time in milliseconds to expend before it expires.
-     *              APPARENTLY, RemoteMessage.getTtl() always returns 0 and is unreliable.
-     *      * is_read - [boolean] in-app flag to determine if user has read this notification or not
+     * * message_id - [String] message id from firebase
+     * * title - [String] title from the notifications payload
+     * * body - [String] content from the notifications payload
+     * * date_sent - [long] the time in milliseconds that the message was sent
+     * * ttl - [long] time in milliseconds to expend before it expires.
+     * APPARENTLY, RemoteMessage.getTtl() always returns 0 and is unreliable.
+     * * is_read - [boolean] in-app flag to determine if user has read this notification or not
      */
     public JSONObject data;
 
     public Notification() {
         this(new JSONObject());
     }
-    public Notification(JSONObject data) { this.data = data; }
+
+    public Notification(JSONObject data) {
+        this.data = data;
+    }
 
     public static Notification fromRemoteMessage(RemoteMessage message) {
         Notification instance = new Notification();
@@ -78,26 +80,25 @@ public class Notification implements Parcelable {
             json.put("is_read", false);
 
             json.put("ttl",
-                data.containsKey("ttl")
-                    ? data.get("ttl")
-                    : 24 * 7 * 4 * 1000 // 4 weeks - default for FCM
+                    data.containsKey("ttl")
+                            ? data.get("ttl")
+                            : 604800 * 4 // 4 weeks - default for FCM
             );
 
-            json.put("category",
+           /* json.put("category",
                 data.containsKey("category")
                     ? data.get("category")
                     : JSONObject.NULL
-            );
+            );*/
 
             json.put("buttons",
-                data.containsKey("buttons")
-                    ? new JSONArray(data.get("buttons"))
-                    : new JSONArray()
+                    data.containsKey("buttons")
+                            ? new JSONArray(data.get("buttons"))
+                            : new JSONArray()
             );
 
             // compute when this notification will expire
-        }
-        catch (JSONException ignored) {
+        } catch (JSONException ignored) {
             Log.d(TAG, "remote message error!", ignored);
         }
 

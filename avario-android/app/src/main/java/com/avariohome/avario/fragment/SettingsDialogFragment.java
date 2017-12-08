@@ -53,8 +53,9 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.component.DaggerUserComponent;
 import com.avariohome.avario.api.component.UserComponent;
-import com.avariohome.avario.apiretro.models.Version;
+import com.avariohome.avario.apiretro.models.Updates;
 import com.avariohome.avario.apiretro.services.UpdateService;
+import com.avariohome.avario.apiretro.services.VersionService;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
@@ -62,6 +63,7 @@ import com.avariohome.avario.home.MainActivity;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.presenters.UpdatePresenter;
+import com.avariohome.avario.presenters.VersionPresenter;
 import com.avariohome.avario.service.AvarioReceiver;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.BlindAssetLoader;
@@ -108,6 +110,10 @@ public class SettingsDialogFragment extends DialogFragment {
 
     @Inject
     UpdateService userService;
+
+    @Inject
+    VersionService versionService;
+
     private UserComponent userComponent;
 
     private LinearLayout workingRL;
@@ -379,6 +385,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private void currentVersion() {
 
         final UpdatePresenter updatePresenter = new UpdatePresenter(userService);
+        final VersionPresenter versionPresenter = new VersionPresenter(versionService);
         final StateArray states = StateArray.getInstance(getActivity());
 
         String latestVersion = "";
@@ -389,7 +396,7 @@ public class SettingsDialogFragment extends DialogFragment {
         }
 
         final String finalLatestVersion = latestVersion;
-        updatePresenter.getVersion(new Observer<Version>() {
+        versionPresenter.getVersion(new Observer<Updates>() {
             @Override
             public void onCompleted() {
 
@@ -401,8 +408,9 @@ public class SettingsDialogFragment extends DialogFragment {
             }
 
             @Override
-            public void onNext(Version version) {
-                if (needsUpdate(getActivity(), version.getVersion())) {
+            public void onNext(Updates version) {
+                Log.d("Version", version.getVersion().getTablet());
+                if (needsUpdate(getActivity(), version.getVersion().getTablet())) {
                     builderUpdate.setTitle("New update Available!");
                     builderUpdate.setMessage(getResources().getString(R.string.update_availabe));
 

@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Stores notifications from FCM into a file that is represented here, in this class. Naming for
  * slight consistency with StateArray
- *
+ * <p>
  * Created by aeroheart-c6 on 7/11/17.
  */
 public class NotificationArray {
@@ -35,8 +35,8 @@ public class NotificationArray {
 
     public void setContext(Context context) {
         this.context = context instanceof Application
-                     ? context
-                     : context.getApplicationContext();
+                ? context
+                : context.getApplicationContext();
     }
 
     /**
@@ -74,11 +74,11 @@ public class NotificationArray {
      */
     public void deleteExpired() {
         Iterator<Notification> iterator = this.data.iterator();
-        long now = System.currentTimeMillis();
+        long now = System.currentTimeMillis() / 1000;
 
         while (iterator.hasNext()) {
             Notification notification = iterator.next();
-            long expires = notification.data.optLong("date_sent") + notification.data.optLong("ttl");
+            long expires = notification.data.optLong("date_sent") + notification.data.optLong("ttl") / 1000;
 
             if (now >= expires) {
                 Log.d(TAG, "removing...");

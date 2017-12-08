@@ -36,7 +36,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
@@ -71,6 +70,7 @@ import com.avariohome.avario.api.APIRequestListener;
 import com.avariohome.avario.api.component.DaggerUserComponent;
 import com.avariohome.avario.api.component.UserComponent;
 import com.avariohome.avario.apiretro.services.UpdateService;
+import com.avariohome.avario.bus.ShowNotification;
 import com.avariohome.avario.bus.TriggerUpdate;
 import com.avariohome.avario.bus.UpdateDownload;
 import com.avariohome.avario.bus.WifiChange;
@@ -134,6 +134,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -323,9 +324,14 @@ public class MainActivity extends BaseActivity {
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
-        PendingIntent pi = PendingIntent.getBroadcast(this, 123, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.cancel(pi);
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 1000 * 60 * 60 * 24, pi);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 123, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 4);
+        calendar.set(Calendar.MINUTE, 30);
+        calendar.set(Calendar.SECOND, 00);
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, calendar.getTimeInMillis(), 24 * 60 * 60 * 1000, pendingIntent);
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -371,7 +377,6 @@ public class MainActivity extends BaseActivity {
                 handleNoWifi();
             } else {
                 Log.d("MainActivity", "connectMQTT");
-                this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
             }
         }
 
@@ -1480,6 +1485,33 @@ public class MainActivity extends BaseActivity {
                 case R.id.bolt:
                 case R.id.temperature:
                     this.handleModeClicks(view);
+
+
+                    /*byte[] buffer;
+                    try {
+                        InputStream is = getAssets().open("notif.json");
+                        int size = 0;
+
+                        size = is.available();
+
+                        buffer = new byte[size];
+                        is.read(buffer);
+                        is.close();
+
+
+                        String myJson = new String(buffer, "UTF-8");
+
+
+                        try {
+                            JSONObject obj = new JSONObject(myJson);
+                            Notification notification = new Notification(obj);
+                            showNotifDialog(notification);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }*/
                     break;
 
                 case R.id.play:
@@ -2252,11 +2284,12 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+
     /*
-     ***********************************************************************************************
-     * Receivers
-     ***********************************************************************************************
-     */
+             ***********************************************************************************************
+             * Receivers
+             ***********************************************************************************************
+             */
     private class NotificationReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -2269,11 +2302,7 @@ public class MainActivity extends BaseActivity {
                         .getBootstrapJSON(new BootstrapListener(), intent.getStringExtra("bs_name"));
             } else {
                 Notification notification = intent.getParcelableExtra("notification");
-                if (self.settingsOpened)
-                    return;
-
-                if (!self.isNotifListVisible())
-                    self.showNotifDialog(notification);
+                EventBus.getDefault().post(new ShowNotification(notification));
             }
         }
     }
@@ -2652,5 +2681,15 @@ public class MainActivity extends BaseActivity {
             progressDownload.setMessage("Installing Update...");
             progressDownload.show();
         }
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onOpenNotif(ShowNotification notification) {
+        if (settingsOpened)
+            return;
+
+        if (!isNotifListVisible())
+            showNotifDialog(notification.getNotification());
     }
 }
