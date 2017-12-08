@@ -884,6 +884,8 @@ public class StateArray {
      */
     public JSONObject getMQTTSettings() throws AvarioException {
         Log.d("Has data", hasData() + "");
+        Log.d("LAN connect", Connectivity.isConnectedToLan() + "");
+        Log.d("LAN connect 2", Connectivity.identifyConnection(context) + "");
         try {
             return Connectivity.isConnectedToLan() ?
                     this.data.getJSONObject("settings")

@@ -283,7 +283,7 @@ public class BootActivity extends BaseActivity {
             if (mWifi.isConnected()) {
                 isHasWifi = true;
                 Connectivity.identifyConnection(getApplicationContext());
-                sendFCMToken();
+                //sendFCMToken();
                 Log.d("Connect Mqtt", "Bootactivity");
                 connectMQTT(new MqttConnectionListener(), false);
                 progressPD.setMessage(getString(R.string.message__mqtt__connecting));
@@ -464,12 +464,18 @@ public class BootActivity extends BaseActivity {
     private class MqttConnectionListener implements MqttConnection.Listener {
         @Override
         public void onConnection(MqttConnection connection, boolean reconnection) {
+            Log.d(TAG, "Connection");
+            BootActivity self = BootActivity.this;
+
+            connection.setListener(null);
+            self.progressPD.dismiss();
+            self.startMainActivity();
         }
 
         @Override
         public void onConnectionFailed(MqttConnection connection, AvarioException exception) {
             BootActivity self = BootActivity.this;
-
+            Log.d("Error mqtt connect", exception.getMessage());
             if (connection.getRetryCount() < connection.getRetryMax())
                 return;
 

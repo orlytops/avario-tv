@@ -377,8 +377,18 @@ public class SettingsDialogFragment extends DialogFragment {
 
 
     private void currentVersion() {
-        final UpdatePresenter updatePresenter = new UpdatePresenter(userService);
 
+        final UpdatePresenter updatePresenter = new UpdatePresenter(userService);
+        final StateArray states = StateArray.getInstance(getActivity());
+
+        String latestVersion = "";
+        try {
+            latestVersion = states.getStringMessage("0x03050");
+        } catch (AvarioException e) {
+            e.printStackTrace();
+        }
+
+        final String finalLatestVersion = latestVersion;
         updatePresenter.getVersion(new Observer<Version>() {
             @Override
             public void onCompleted() {
@@ -401,10 +411,6 @@ public class SettingsDialogFragment extends DialogFragment {
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     dialog.cancel();
-
-                                    workingTV.setText("Downloading update...");
-                                    toggleWorking(true);
-
                                     updatePresenter.getUpdate(observerUpdate);
                                 }
                             });
@@ -418,7 +424,8 @@ public class SettingsDialogFragment extends DialogFragment {
                             });
                 } else {
                     builderUpdate.setTitle("No update available!");
-                    builderUpdate.setMessage(getResources().getString(R.string.no_update));
+                    builderUpdate.setMessage(finalLatestVersion);
+                    builderUpdate.setPositiveButton("", null);
                     builderUpdate.setNegativeButton(
                             "Cancel",
                             new DialogInterface.OnClickListener() {

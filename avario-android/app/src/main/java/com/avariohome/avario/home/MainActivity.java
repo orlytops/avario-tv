@@ -1128,13 +1128,13 @@ public class MainActivity extends BaseActivity {
             return;
 
         // media list
-        //isMediaAvailable = false;
+        isMediaAvailable = false;
         if (view == this.mediaList) {
             MediaAdapter adapter = this.mediaList.getAdapter();
             Entity media = adapter.getSelected();
-            //this.dialFragment.setMediaEntity(media.id);
+
             if (media != null) {
-                //isMediaAvailable = true;
+                isMediaAvailable = true;
                 this.dialFragment.setMediaEntity(media.id);
             }
         }
@@ -1859,9 +1859,12 @@ public class MainActivity extends BaseActivity {
             }
 
             if (!mWifi.isConnected()) {
-                showBusyDialog("Connecting to WiFi...");
+                handleNoWifi();
             } else {
-                self.connectMQTT(message);
+                Connectivity.identifyConnection(getApplicationContext());
+                showBusyDialog(getString(R.string.message__mqtt__connecting));
+                Log.d("Connect Mqtt", "Main Activity");
+                connectMQTT(getString(R.string.message__mqtt__connecting));
             }
 
         }
@@ -1870,6 +1873,10 @@ public class MainActivity extends BaseActivity {
         public void onDisconnection(MqttConnection connection, AvarioException exception) {
             android.util.Log.v("ProgressDialog", "onDisconnection");
             MainActivity self = MainActivity.this;
+
+            final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
 
             if (exception == null || self.settingsOpened)
                 return; // disconnected with no errors or we just shouldn't care because settings is opened
@@ -1883,7 +1890,17 @@ public class MainActivity extends BaseActivity {
             } catch (NullPointerException e) {
                 message = null;
             }
-            self.connectMQTT(message);
+            if (!mWifi.isConnected()) {
+                handleNoWifi();
+            } else {
+                //self.connectMQTT(message);
+
+                Connectivity.identifyConnection(getApplicationContext());
+                showBusyDialog(getString(R.string.message__mqtt__connecting));
+                Log.d("Connect Mqtt", "Main Activity");
+                connectMQTT(getString(R.string.message__mqtt__connecting));
+
+            }
         }
 
         @Override
@@ -1981,7 +1998,7 @@ public class MainActivity extends BaseActivity {
             long seconds = millisUntilFinished / 1000;
             Log.i("Seconds", "seconds remaining: " + millisUntilFinished / 1000);
 
-            if (seconds == 28) {
+            if (seconds == 26) {
                 @SuppressLint("WifiManagerLeak") final WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
                 final Handler mHandler = new Handler();
@@ -2353,7 +2370,7 @@ public class MainActivity extends BaseActivity {
             self.toggleLeftView(self.mediaList);
             self.updateDialFromSelections(self.mediaList);
 
-            if (isMediaAvailable) {
+            if (!isMediaAvailable) {
                 try {
                     RoomEntity roomSelection = MainActivity.this.roomSelector
                             .getAdapter().getRoomSelection();
@@ -2560,7 +2577,10 @@ public class MainActivity extends BaseActivity {
             Log.d("MainActivity", "Connected");
             countDownTimer.cancel();
             isHasWifi = true;
-            connectMQTT(this.getString(R.string.message__mqtt__connecting));
+            //connectMQTT(this.getString(R.string.message__mqtt__connecting));
+            Connectivity.identifyConnection(getApplicationContext());
+            showBusyDialog(getString(R.string.message__mqtt__connecting));
+            connectMQTT(getString(R.string.message__mqtt__connecting));
         }
     }
 

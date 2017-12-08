@@ -38,7 +38,7 @@ repositories {
 dependencies {
     def versions = [
             'fcm'              : '11.0.2',
-            'mqtt'             : '1.1.1',
+            'mqtt'             : '1.2.0',
             'okhttp'           : '3.8.0',
             'okhttp3downloader': '1.1.0',
             'playservices'     : '11.0.2',
@@ -57,7 +57,7 @@ dependencies {
     compile "com.android.support:appcompat-v7:${versions['supt']}"
     compile "com.android.support:recyclerview-v7:${versions['supt']}"
     compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${versions['mqtt']}"
-    compile "org.eclipse.paho:org.eclipse.paho.android.service:${versions['mqtt']}"
+    compile "org.eclipse.paho:org.eclipse.paho.android.service:1.1.1"
     compile "com.google.android.gms:play-services-gcm:${versions['playservices']}"
     compile "com.google.firebase:firebase-messaging:${versions['fcm']}"
     compile "com.jakewharton.picasso:picasso2-okhttp3-downloader:${versions['okhttp3downloader']}"
@@ -105,6 +105,9 @@ dependencies {
 
     compile 'com.google.dagger:dagger:2.2'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.2'
+
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -20,6 +20,7 @@ import com.avariohome.avario.service.KioskService;
 import com.avariohome.avario.util.RefStringUtil;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.crash.FirebaseCrash;
+import com.squareup.leakcanary.LeakCanary;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,6 +80,13 @@ public class Application extends android.app.Application {
         super.onCreate();
         FirebaseApp.initializeApp(this);
         if (BuildConfig.DEBUG) {
+            if (LeakCanary.isInAnalyzerProcess(this)) {
+                // This process is dedicated to LeakCanary for heap analysis.
+                // You should not init your app in this process.
+                return;
+            }
+            LeakCanary.install(this);
+
             FirebaseCrash.setCrashCollectionEnabled(false);
         } else {
             FirebaseCrash.setCrashCollectionEnabled(true);

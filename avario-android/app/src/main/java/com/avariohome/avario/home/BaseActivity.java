@@ -13,6 +13,7 @@ import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.fragment.SettingsDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
+import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -81,6 +82,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void connectMQTTNaive(MqttConnection.Listener listener, boolean refresh) throws JSONException, MqttException {
+        MqttManager.getInstance();
         MqttManager manager = MqttManager.getInstance();
         MqttConnection connection;
         JSONObject mqttJSON;
@@ -89,6 +91,8 @@ public abstract class BaseActivity extends AppCompatActivity {
             mqttJSON = StateArray
                     .getInstance()
                     .getMQTTSettings();
+            Log.d("MqttSettings", mqttJSON.toString());
+
         } catch (AvarioException exception) {
             PlatformUtil
                     .getErrorToast(this, exception)
@@ -97,7 +101,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         connection = manager.getConnection();
-
         if (connection == null) {
             connection = MqttManager.createConnection(
                     this.getApplicationContext(),
@@ -109,17 +112,34 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         connection.setListener(listener);
 
+        String newHost = mqttJSON.getString("host");
+
+        Log.d(TAG, "Host: " + newHost + " " + connection.getHost() + " " + manager.isConnected() + " " + connection.getStatus());
+        if (!newHost.equals(connection.getHost())) {
+            refresh = true;
+        }
+
         if (refresh) {
             if (connection.getStatus() == MqttConnection.Status.CONNECTED) {
+                Log.d(TAG, "not reset");
                 connection.disconnect();
                 return;
             } else {
-                MqttManager.updateConnection(connection, mqttJSON);
+                Log.d(TAG, "reset");
+                /*MqttManager.updateConnection(connection, mqttJSON);
+                connection.reset();*/
+                connection = MqttManager.createConnection(
+                        this.getApplicationContext(),
+                        mqttJSON
+                );
+
+                manager.setConnection(connection);
                 connection.reset();
             }
         }
 
         connection.connect();
+
     }
 
     protected void connectMQTT(MqttConnection.Listener listener, boolean refresh) {
