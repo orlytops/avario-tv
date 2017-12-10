@@ -21,5 +21,9 @@
       "txt": "No",
       "delete_on_click": false
     }
-  ]
+  ],
+  "additional_data": {
+    "finished_keyword": "*OK*",
+    "apk_pending": true
+  }
 }

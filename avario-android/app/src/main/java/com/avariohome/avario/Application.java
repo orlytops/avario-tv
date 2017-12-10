@@ -86,7 +86,7 @@ public class Application extends android.app.Application {
             }
             LeakCanary.install(this);
 */
-            FirebaseCrash.setCrashCollectionEnabled(false);
+            FirebaseCrash.setCrashCollectionEnabled(true);
         } else {
             FirebaseCrash.setCrashCollectionEnabled(true);
         }

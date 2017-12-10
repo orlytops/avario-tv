@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.FragmentTransaction;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
+import com.avariohome.avario.bus.TriggerUpdate;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.Notification;
 import com.avariohome.avario.core.NotificationArray;
@@ -30,6 +32,7 @@ import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.RefStringUtil;
 
 import org.eclipse.paho.client.mqttv3.internal.websocket.Base64;
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,6 +49,7 @@ import java.util.Map;
 public class NotificationDialogFragment extends DialogFragment {
     private static final String TAG = "Avario/NotifDialog";
     private static final String TIMER_ID = "notifdialog";
+    public static boolean shown = false;
 
     /*
     To: null
@@ -69,6 +73,8 @@ public class NotificationDialogFragment extends DialogFragment {
     private ClickListener clickListener;
     private Listener listener;
     private Notification notification;
+
+    private boolean isUpdateApp = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,10 +106,29 @@ public class NotificationDialogFragment extends DialogFragment {
     }
 
     @Override
+    public int show(FragmentTransaction transaction, String tag) {
+        shown = true;
+        return super.show(transaction, tag);
+    }
+
+
+    @Override
     public void onDetach() {
         if (this.listener != null)
             this.listener.onDialogDetached();
+        try {
+            webview.clearCache(true);
+            getActivity().deleteDatabase("webview.db");
+            getActivity().deleteDatabase("webviewCache.db");
+        } catch (Exception e) {
 
+        }
+
+        if (isUpdateApp) {
+            EventBus.getDefault().post(new TriggerUpdate("0.24.0"));
+        }
+        shown = false;
+        isUpdateApp = false;
         super.onDetach();
     }
 
@@ -129,6 +154,7 @@ public class NotificationDialogFragment extends DialogFragment {
             JSONArray buttonsJSON = notification.data.getJSONArray("buttons");
             this.setupButtons(buttonsJSON);
             this.messageTV.setOnClickListener(buttonsJSON.length() == 0 ? this.clickListener : null);
+            this.flagNotification(notification.data.getJSONObject("additional_data"));
         } catch (JSONException ignored) {
         }
 
@@ -173,6 +199,22 @@ public class NotificationDialogFragment extends DialogFragment {
             }
 
             this.buttonsLL.addView(this.createButton(buttonJSON));
+        }
+    }
+
+
+    /**
+     * Creates a flag if the apk notification would be shown
+     *
+     * @param buttonsJSON
+     */
+    private void flagNotification(JSONObject buttonsJSON) {
+        try {
+            boolean isUpdate = buttonsJSON.getBoolean("apk_pending");
+            Log.d("isUpdate ", isUpdate + " ");
+            isUpdateApp = isUpdate;
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -285,7 +327,7 @@ public class NotificationDialogFragment extends DialogFragment {
             @Override
             public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
                 android.util.Log.d(TAG, "onReceivedHttpAuthRequest: ");
-                handler.proceed("avario", "avario");
+                handler.proceed(config.getUsername(), config.getPassword());
             }
 
             @Override

@@ -55,7 +55,7 @@ public class BatteryWifi extends FrameLayout {
     }
 
     private void init() {
-        isLan = Connectivity.identifyConnection(getContext());
+        isLan = Connectivity.isConnectedToLan();
         LayoutInflater inflater;
 
         inflater = LayoutInflater.from(this.getContext());
@@ -212,7 +212,7 @@ public class BatteryWifi extends FrameLayout {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("Signal Level", getWifiSignalStrength(getContext()) + "");
-            setIsLan(Connectivity.identifyConnection(getContext()));
+            setIsLan(Connectivity.isConnectedToLan());
             levelWifi = getWifiSignalStrength(getContext());
             setWifiLevel(levelWifi);
         }

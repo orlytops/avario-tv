@@ -1389,13 +1389,17 @@ public class MainActivity extends BaseActivity {
         NotificationDialogFragment notificationFragment;
         Bundle bundle;
 
+
         bundle = new Bundle();
         bundle.putParcelable("notification", notification);
 
         notificationFragment = (NotificationDialogFragment) manager.findFragmentByTag(
                 fragmentTag);
 
-        if (notificationFragment == null) {
+
+        Log.d("Notif is null", NotificationDialogFragment.shown + " ");
+
+        if (!NotificationDialogFragment.shown) {
             FragmentTransaction transaction = manager.beginTransaction();
 
             notificationFragment = new NotificationDialogFragment();
@@ -1403,8 +1407,9 @@ public class MainActivity extends BaseActivity {
             notificationFragment.setCancelable(false);
             notificationFragment.setArguments(bundle);
             notificationFragment.show(transaction, fragmentTag);
-        } else
+        } else if (notificationFragment != null) {
             notificationFragment.resetArguments(bundle);
+        }
     }
 
     private void showBusyDialog(String message) {
@@ -1485,33 +1490,6 @@ public class MainActivity extends BaseActivity {
                 case R.id.bolt:
                 case R.id.temperature:
                     this.handleModeClicks(view);
-
-
-                    /*byte[] buffer;
-                    try {
-                        InputStream is = getAssets().open("notif.json");
-                        int size = 0;
-
-                        size = is.available();
-
-                        buffer = new byte[size];
-                        is.read(buffer);
-                        is.close();
-
-
-                        String myJson = new String(buffer, "UTF-8");
-
-
-                        try {
-                            JSONObject obj = new JSONObject(myJson);
-                            Notification notification = new Notification(obj);
-                            showNotifDialog(notification);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }*/
                     break;
 
                 case R.id.play:
@@ -1580,7 +1558,34 @@ public class MainActivity extends BaseActivity {
                     break;
 
                 case R.id.temperature:
-                    self.activateModeClimate();
+                    //self.activateModeClimate();
+
+                    byte[] buffer;
+                    try {
+                        InputStream is = getAssets().open("notif.json");
+                        int size = 0;
+
+                        size = is.available();
+
+                        buffer = new byte[size];
+                        is.read(buffer);
+                        is.close();
+
+
+                        String myJson = new String(buffer, "UTF-8");
+
+
+                        try {
+                            JSONObject obj = new JSONObject(myJson);
+                            Notification notification = new Notification(obj);
+                            showNotifDialog(notification);
+                            showNotifDialog(notification);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
             }
         }

@@ -97,6 +97,12 @@ public class Notification implements Parcelable {
                             : new JSONArray()
             );
 
+            json.put("additional_data",
+                    data.containsKey("additional_data")
+                            ? new JSONObject(data.get("additional_data"))
+                            : new JSONObject()
+            );
+
             // compute when this notification will expire
         } catch (JSONException ignored) {
             Log.d(TAG, "remote message error!", ignored);
