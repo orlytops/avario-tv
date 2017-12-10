@@ -6,11 +6,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.HttpAuthHandler;
+import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
@@ -121,15 +123,21 @@ public class NotificationDialogFragment extends DialogFragment {
             getActivity().deleteDatabase("webview.db");
             getActivity().deleteDatabase("webviewCache.db");
         } catch (Exception e) {
-
+            Log.d("Error in clearing", e.getMessage());
         }
 
+        destroyWebView();
         if (isUpdateApp) {
             EventBus.getDefault().post(new TriggerUpdate("0.24.0"));
         }
         shown = false;
         isUpdateApp = false;
         super.onDetach();
+    }
+
+
+    private interface WebUpdateListener {
+        void updateCompleted();
     }
 
     public void resetArguments(Bundle arguments) {
@@ -140,6 +148,38 @@ public class NotificationDialogFragment extends DialogFragment {
                 notification
         );
     }
+
+    public void destroyWebView() {
+
+        // Make sure you remove the WebView from its parent view before doing anything.
+        webview.removeAllViews();
+
+        webview.clearHistory();
+
+        // NOTE: clears RAM cache, if you pass true, it will also clear the disk cache.
+        // Probably not a great idea to pass true if you have other WebViews still alive.
+        webview.clearCache(true);
+
+        // Loading a blank page is optional, but will ensure that the WebView isn't doing anything when you destroy it.
+        webview.loadUrl("about:blank");
+
+        webview.onPause();
+        webview.removeAllViews();
+        webview.destroyDrawingCache();
+
+        // NOTE: This pauses JavaScript execution for ALL WebViews,
+        // do not use if you have other WebViews still alive.
+        // If you create another WebView after calling this,
+        // make sure to call mWebView.resumeTimers().
+        webview.pauseTimers();
+
+        // NOTE: This can occasionally cause a segfault below API 17 (4.2)
+        webview.destroy();
+
+        // Null out the reference so that you don't end up re-using it.
+        webview = null;
+    }
+
 
     private void renderMessage(Dialog dialog, Notification notification) {
         if (notification == null)
@@ -176,8 +216,49 @@ public class NotificationDialogFragment extends DialogFragment {
 
         this.closeB.setOnClickListener(this.clickListener);
 
+        this.webview.addJavascriptInterface(new WebAppInterface(getActivity(), webUpdateListener), "Android");
+
         return view;
     }
+
+
+    public class WebAppInterface {
+        private Context mContext;
+        private WebUpdateListener webUpdateListener;
+
+        /**
+         * Instantiate the interface and set the context
+         */
+        WebAppInterface(Context c, WebUpdateListener webUpdateListener) {
+            mContext = c;
+            this.webUpdateListener = webUpdateListener;
+        }
+
+        /**
+         * Show a toast from the web page
+         */
+
+        @JavascriptInterface
+        public void updateCompleted() {
+            if (webUpdateListener != null) {
+                Log.d("Update finished", "DONE");
+                webUpdateListener.updateCompleted();
+            }
+        }
+    }
+
+    private WebUpdateListener webUpdateListener = new WebUpdateListener() {
+        @Override
+        public void updateCompleted() {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    closeB.setEnabled(true);
+                    closeB.setTextColor(getResources().getColor(R.color.black__60));
+                }
+            });
+        }
+    };
 
     /**
      * Creates and adds the buttons according to the "buttons" directive received from the
@@ -386,6 +467,9 @@ public class NotificationDialogFragment extends DialogFragment {
 
             self.sendAPI(buttonJSON);
             self.deleteOnClick(buttonJSON);
+
+            closeB.setEnabled(false);
+            closeB.setTextColor(getResources().getColor(R.color.gray1));
 
             try {
                 self.openWebview(buttonJSON);
