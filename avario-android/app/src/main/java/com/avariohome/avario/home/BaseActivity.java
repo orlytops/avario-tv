@@ -126,15 +126,15 @@ public abstract class BaseActivity extends AppCompatActivity {
                 return;
             } else {
                 Log.d(TAG, "reset");
-                /*MqttManager.updateConnection(connection, mqttJSON);
-                connection.reset();*/
-                connection = MqttManager.createConnection(
+                MqttManager.updateConnection(connection, mqttJSON);
+                connection.reset();
+                /*connection = MqttManager.createConnection(
                         this.getApplicationContext(),
                         mqttJSON
                 );
 
                 manager.setConnection(connection);
-                connection.reset();
+                connection.reset();*/
             }
         }
 

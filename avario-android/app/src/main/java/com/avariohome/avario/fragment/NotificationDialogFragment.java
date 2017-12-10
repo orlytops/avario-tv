@@ -262,6 +262,8 @@ public class NotificationDialogFragment extends DialogFragment {
 
         this.closeB.setVisibility(View.VISIBLE);
         this.webview.setVisibility(View.VISIBLE);
+        webview.getSettings().setJavaScriptEnabled(true);
+        webview.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
         Log.d("URL Notification", urlConf.get("url"));
         final Config config = Config.getInstance();
 

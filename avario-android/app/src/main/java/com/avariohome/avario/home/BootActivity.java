@@ -90,10 +90,9 @@ public class BootActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+        getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 //        try {
 //            android.util.Log.v("FirebaseReport", getIntent().getStringExtra("data"));
 //        } catch (NullPointerException ex){
@@ -248,12 +247,12 @@ public class BootActivity extends BaseActivity {
         KeyguardManager.KeyguardLock kl;
 
         Log.d(getClass().getName(), "On reboot completed");
-        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+       /* PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
                 | PowerManager.ACQUIRE_CAUSES_WAKEUP
                 | PowerManager.ON_AFTER_RELEASE, "INFO");
         wl.acquire();
-
+*/
         KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         kl = km.newKeyguardLock("name");
         kl.disableKeyguard();
@@ -464,12 +463,6 @@ public class BootActivity extends BaseActivity {
     private class MqttConnectionListener implements MqttConnection.Listener {
         @Override
         public void onConnection(MqttConnection connection, boolean reconnection) {
-            Log.d(TAG, "Connection");
-            BootActivity self = BootActivity.this;
-
-            connection.setListener(null);
-            self.progressPD.dismiss();
-            self.startMainActivity();
         }
 
         @Override
@@ -494,7 +487,7 @@ public class BootActivity extends BaseActivity {
         @Override
         public void onSubscription(MqttConnection connection) {
             BootActivity self = BootActivity.this;
-
+            Log.d(TAG, "onSubscription");
             connection.setListener(null);
             self.progressPD.dismiss();
             self.startMainActivity();

@@ -82,7 +82,7 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
         this.ssl = ssl;
 
         this.options = new MqttConnectOptions();
-        this.options.setConnectionTimeout(30);
+        this.options.setConnectionTimeout(10);
         this.options.setCleanSession(true);
         this.options.setAutomaticReconnect(false);
 
@@ -124,6 +124,10 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
         return this;
     }
 
+    public String getHost() {
+        return host;
+    }
+
     MqttConnection setKeepAlive(int seconds) {
         this.options.setKeepAliveInterval(seconds);
         return this;
@@ -146,10 +150,6 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
         return this.retriesMax;
     }
 
-    public String getHost() {
-        return host;
-    }
-
     /**
      * Resets the connection. Closes an existing client before creating a new one.
      *
@@ -157,7 +157,6 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
      */
     public MqttConnection reset() {
         try {
-            this.client.unregisterResources();
             this.client.setCallback(null);
             this.client.close();
         } catch (NullPointerException exception) {
@@ -299,8 +298,6 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
     private void connect(boolean retry) throws MqttException {
         if (!retry && this.hasPendingAction())
             return;
-
-        client.connect();
 
         this.setRetryCount(retry ? this.getRetryCount() + 1 : 0);
 

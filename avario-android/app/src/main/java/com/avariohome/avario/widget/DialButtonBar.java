@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.BounceInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,8 +29,6 @@ import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.util.RefStringUtil;
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -224,12 +221,12 @@ public class DialButtonBar extends LinearLayout {
                 this.addView(button);
             }
 
-            if (!this.mediaMode) {
+            /*if (!this.mediaMode) {
                 YoYo.with(Techniques.ZoomIn)
                         .interpolate(new BounceInterpolator())
                         .duration(500)
                         .playOn(button);
-            }
+            }*/
         }
 
         // get reference to the `states` root object (algo state)
@@ -428,7 +425,7 @@ public class DialButtonBar extends LinearLayout {
             case "brightness":
                 id = R.id.dialbtn__brightness;
                 break;
-            case "temprature":
+            case "temperature":
                 id = R.id.dialbtn__temprature;
                 break;
             case "lightalgo1":
@@ -456,13 +453,13 @@ public class DialButtonBar extends LinearLayout {
         this.buttons.put(button, buttonEntity);
         this.addView(button);
         Log.d("Has button bellow", hasButton + "");
-        if (!hasButton &&
+        /*if (!hasButton &&
                 !this.mediaMode) {
             YoYo.with(Techniques.ZoomIn)
                     .interpolate(new BounceInterpolator())
                     .duration(500)
                     .playOn(button);
-        }
+        }*/
         previousButtons.add(buttonEntity.buttonJSON.optString("entity_id"));
 
         if (!previousButtons.isEmpty() && previousButtons.size() >= 6) {

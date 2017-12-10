@@ -245,10 +245,9 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+        getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 
         super.setContentView(R.layout.activity__main);
         this.savedInstanceState = savedInstanceState;
@@ -377,6 +376,7 @@ public class MainActivity extends BaseActivity {
                 handleNoWifi();
             } else {
                 Log.d("MainActivity", "connectMQTT");
+                this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
             }
         }
 
@@ -447,12 +447,12 @@ public class MainActivity extends BaseActivity {
         PowerManager.WakeLock wl;
         KeyguardManager.KeyguardLock kl;
 
-        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        /*PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
                 | PowerManager.ACQUIRE_CAUSES_WAKEUP
                 | PowerManager.ON_AFTER_RELEASE, "INFO");
         wl.acquire();
-
+*/
         KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         kl = km.newKeyguardLock("name");
         kl.disableKeyguard();
@@ -2399,7 +2399,7 @@ public class MainActivity extends BaseActivity {
             self.toggleLeftView(self.mediaList);
             self.updateDialFromSelections(self.mediaList);
 
-            if (!isMediaAvailable) {
+            if (isMediaAvailable) {
                 try {
                     RoomEntity roomSelection = MainActivity.this.roomSelector
                             .getAdapter().getRoomSelection();

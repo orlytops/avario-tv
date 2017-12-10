@@ -4,7 +4,6 @@ import android.app.KeyguardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.PowerManager;
 
 /**
  * Handles events related to the managed profile.
@@ -27,10 +26,10 @@ public class AvarioReceiver extends android.app.admin.DeviceAdminReceiver {
         final KeyguardManager.KeyguardLock kl = km.newKeyguardLock("MyKeyguardLock");
         kl.disableKeyguard();
 
-        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+       /* PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
                 | PowerManager.ACQUIRE_CAUSES_WAKEUP
                 | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
-        wakeLock.acquire();
+        wakeLock.acquire();*/
     }
 }

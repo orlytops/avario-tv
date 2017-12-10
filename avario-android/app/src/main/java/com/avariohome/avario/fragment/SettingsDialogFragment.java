@@ -129,6 +129,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private Button clearAssetsB, getAssetsB, saveB, cancelB, getBootstrapB;
     private Button enableUninstallButton;
     private TextView workingTV, errorTV, versionText, bootstrapSource;
+    private TextView accessPointText;
 
     private EditText noneFatalMessage;
     private Button sendNoneFatalMessage, forceCrash;
@@ -243,6 +244,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
         this.workingRL = (LinearLayout) view.findViewById(R.id.working__holder);
         this.workingTV = (TextView) this.workingRL.findViewById(R.id.working__label);
+        this.accessPointText = (TextView) view.findViewById(R.id.text_access_point);
 
         this.errorTV = (TextView) view.findViewById(R.id.error);
 
@@ -328,6 +330,10 @@ public class SettingsDialogFragment extends DialogFragment {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+
+
+        String accessPointMac = Connectivity.getAccessPointMac(getActivity());
+        accessPointText.setText("Access Point Mac: " + accessPointMac);
 
         if (this.config.isSet()) {
             this.hostET.setText(this.config.getHttpHost());
@@ -1245,7 +1251,7 @@ public class SettingsDialogFragment extends DialogFragment {
         public void onSubscription(MqttConnection connection) {
             SettingsDialogFragment self = SettingsDialogFragment.this;
             StateArray states = StateArray.getInstance();
-
+            Log.d(TAG, "Onsubscribe");
             connection.setListener(null);
 
             try {
@@ -1264,6 +1270,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 self.listener.onSettingsChange();
 
             self.dismiss();
+            Log.d(TAG, "Onsubscribe");
         }
 
         @Override

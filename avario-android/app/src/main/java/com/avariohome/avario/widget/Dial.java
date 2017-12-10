@@ -82,7 +82,7 @@ public class Dial extends FrameLayout {
         MEDIADPAD("dial.mediapad"),
         SATURATION("dial.saturation"),
         COLOUR("dial.colour"),
-        TEMPERATURE("dial.temprature");
+        TEMPERATURE("dial.temperature");
 
         /**
          * Iterates through the available values to find a match. Should there be no
@@ -725,7 +725,7 @@ public class Dial extends FrameLayout {
                 try {
                     tempratureId = entityJSON
                             .getJSONObject("dials")
-                            .getJSONObject("temprature")
+                            .getJSONObject("temperature")
                             .getString("dial_type");
                 } catch (JSONException exception) {
                     String[] msgArgs = new String[]{String.format(
@@ -1194,7 +1194,9 @@ public class Dial extends FrameLayout {
                 arcColourStart = dial.optString("arc_colour_start");
                 arcColourEnd = dial.optString("arc_colour_end");
                 /*handled bootstrap colors*/
-                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+                if (arcColourStart != null && !arcColourStart.isEmpty()) {
+                    arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+                }
             }
         }
         this.switchHolder.setVisibility(View.VISIBLE);
@@ -1230,12 +1232,16 @@ public class Dial extends FrameLayout {
                 arcColourStart = dials.getJSONObject("brightness").getString("arc_colour_start");
                 arcColourEnd = dials.getJSONObject("brightness").getString("arc_colour_end");
                 //handled bootstrap colors
-                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+                if (arcColourStart != null) {
+                    arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+                }
             } else if (dial != null) {
                 arcColourStart = dial.getString("arc_colour_start");
                 arcColourEnd = dial.getString("arc_colour_end");
                 //handled bootstrap colors
-                arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+                if (arcColourStart != null) {
+                    arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+                }
             }
 
         } catch (JSONException e) {
