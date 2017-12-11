@@ -53,7 +53,7 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.component.DaggerUserComponent;
 import com.avariohome.avario.api.component.UserComponent;
-import com.avariohome.avario.apiretro.models.Updates;
+import com.avariohome.avario.apiretro.models.Version;
 import com.avariohome.avario.apiretro.services.UpdateService;
 import com.avariohome.avario.apiretro.services.VersionService;
 import com.avariohome.avario.core.Config;
@@ -402,7 +402,7 @@ public class SettingsDialogFragment extends DialogFragment {
         }
 
         final String finalLatestVersion = latestVersion;
-        versionPresenter.getVersion(new Observer<Updates>() {
+        updatePresenter.getVersion(new Observer<Version>() {
             @Override
             public void onCompleted() {
 
@@ -414,9 +414,9 @@ public class SettingsDialogFragment extends DialogFragment {
             }
 
             @Override
-            public void onNext(Updates version) {
-                Log.d("Version", version.getVersion().getTablet());
-                if (needsUpdate(getActivity(), version.getVersion().getTablet())) {
+            public void onNext(Version version) {
+                Log.d("Version", version.getVersion());
+                if (needsUpdate(getActivity(), version.getVersion())) {
                     builderUpdate.setTitle("New update Available!");
                     builderUpdate.setMessage(getResources().getString(R.string.update_availabe));
 

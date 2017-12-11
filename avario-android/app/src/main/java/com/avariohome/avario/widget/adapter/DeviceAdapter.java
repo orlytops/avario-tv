@@ -13,7 +13,6 @@ import com.avariohome.avario.R;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.EntityUtil;
-import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.RefStringUtil;
 
 import org.json.JSONException;
@@ -126,7 +125,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         } catch (NumberFormatException ignored) {
         }
 
-        Log.d("Device value", value + " " + type);
+        //Log.d("Device value", value + " " + type);
         holder.valueTV.setText(value);
     }
 

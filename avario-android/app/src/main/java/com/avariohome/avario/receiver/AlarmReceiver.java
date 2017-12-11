@@ -8,7 +8,7 @@ import android.content.pm.PackageManager;
 
 import com.avariohome.avario.api.component.DaggerUserComponent;
 import com.avariohome.avario.api.component.UserComponent;
-import com.avariohome.avario.apiretro.models.Updates;
+import com.avariohome.avario.apiretro.models.Version;
 import com.avariohome.avario.apiretro.services.UpdateService;
 import com.avariohome.avario.apiretro.services.VersionService;
 import com.avariohome.avario.bus.TriggerUpdate;
@@ -48,7 +48,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         UpdatePresenter updatePresenter = new UpdatePresenter(userService);
         final VersionPresenter versionPresenter = new VersionPresenter(versionService);
-        versionPresenter.getVersion(new Observer<Updates>() {
+        updatePresenter.getVersion(new Observer<Version>() {
             @Override
             public void onCompleted() {
 
@@ -60,8 +60,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
 
             @Override
-            public void onNext(Updates version) {
-                Log.d("Version", version.getVersion().getTablet());
+            public void onNext(Version version) {
+                Log.d("Version", version.getVersion());
                 try {
                     PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
                     String versionName = pInfo.versionName;
@@ -70,8 +70,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                     e.printStackTrace();
                 }
 
-                if (needsUpdate(context, version.getVersion().getTablet()) && !version.getVersion().getTablet().equals(config.getToIgnore())) {
-                    EventBus.getDefault().post(new TriggerUpdate(version.getVersion().getTablet()));
+                if (needsUpdate(context, version.getVersion()) && !version.getVersion().equals(config.getToIgnore())) {
+                    EventBus.getDefault().post(new TriggerUpdate(version.getVersion()));
                 }
             }
         });

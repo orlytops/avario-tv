@@ -1,5 +1,6 @@
 package com.avariohome.avario.presenters;
 
+import com.avariohome.avario.apiretro.models.Version;
 import com.avariohome.avario.apiretro.services.UpdateService;
 
 import okhttp3.ResponseBody;
@@ -21,6 +22,13 @@ public class UpdatePresenter {
 
     public void getUpdate(Observer<ResponseBody> userObserver) {
         updateService.getUpdate()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(userObserver);
+    }
+
+    public void getVersion(Observer<Version> userObserver) {
+        updateService.getVersion()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(userObserver);

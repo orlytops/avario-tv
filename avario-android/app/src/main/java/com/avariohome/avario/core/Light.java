@@ -65,7 +65,7 @@ public class Light {
             boolean skip = false;
             for (int i = 0; i < getInstance().algos.size(); i++) {
                 if (getInstance().algos.get(i).name.equals(alg.name)) {
-                    Log.v(TAG, "Skipping " + name);
+                    //Log.v(TAG, "Skipping " + name);
                     skip = true;
                     break;
                 }
@@ -92,7 +92,7 @@ public class Light {
             boolean skip = false;
             for (int i = 0; i < getInstance().algos.size(); i++) {
                 if (getInstance().algos.get(i).name.equals(alg.name)) {
-                    Log.v(TAG, "Skipping " + name);
+                    //Log.v(TAG, "Skipping " + name);
                     skip = true;
                     if (payload != null && !payload.isEmpty()) {
                         Log.v(TAG, "Updating " + name + " payload " + payload);
@@ -122,7 +122,7 @@ public class Light {
      */
     public static boolean isStateSame(String entityIDs, String state) {
         boolean result = false;
-        Log.v(TAG, "Check state");
+        //Log.v(TAG, "Check state");
         for (Algo item : getInstance().algos) {
             if (item.name.equals(entityIDs)) {
                 if (item.option != null && item.option.equalsIgnoreCase(state)) {
