@@ -12,7 +12,7 @@ import com.avariohome.avario.util.Log;
  * Created by aeroheart-c6 on 08/02/2017.
  */
 public abstract class APIRequestListener<T> implements Response.Listener<T>,
-                                                       Response.ErrorListener {
+        Response.ErrorListener {
     private static final String TAG = "Avario/APIListener";
 
     protected String timerId;

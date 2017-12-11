@@ -78,6 +78,8 @@ public class NotificationDialogFragment extends DialogFragment {
 
     private boolean isUpdateApp = false;
 
+    private JSONObject buttonJSON;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -215,9 +217,9 @@ public class NotificationDialogFragment extends DialogFragment {
         this.closeB = (Button) view.findViewById(R.id.close);
 
         this.closeB.setOnClickListener(this.clickListener);
-
         this.webview.addJavascriptInterface(new WebAppInterface(getActivity(), webUpdateListener), "Android");
 
+        webview.resumeTimers();
         return view;
     }
 
@@ -456,7 +458,6 @@ public class NotificationDialogFragment extends DialogFragment {
         @Override
         public void onClick(View view) {
             NotificationDialogFragment self = NotificationDialogFragment.this;
-            JSONObject buttonJSON;
 
             if (view.getId() == R.id.close || view.getId() == R.id.message) {
                 self.dismiss();
@@ -471,11 +472,7 @@ public class NotificationDialogFragment extends DialogFragment {
             closeB.setEnabled(false);
             closeB.setTextColor(getResources().getColor(R.color.gray1));
 
-            try {
-                self.openWebview(buttonJSON);
-            } catch (Exception exception) {
-                self.dismiss();
-            }
+
         }
     }
 
@@ -485,6 +482,17 @@ public class NotificationDialogFragment extends DialogFragment {
                     NotificationDialogFragment.TIMER_ID,
                     new String[]{NotificationDialogFragment.TIMER_ID}
             );
+        }
+
+        @Override
+        public void onResponse(String response) {
+            super.onResponse(response);
+
+            try {
+                openWebview(buttonJSON);
+            } catch (Exception exception) {
+                dismiss();
+            }
         }
 
         protected void forceTimerExpire() {
