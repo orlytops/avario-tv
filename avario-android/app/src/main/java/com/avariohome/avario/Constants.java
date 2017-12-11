@@ -82,6 +82,7 @@ public interface Constants {
 //    int ERROR_CURRENTSTATE_HTTP_METHOD = 0x02405;
 //    int ERROR_CURRENTSTATE_HTTP_UNACCEPTABLE = 0x02406;
     int ERROR_CURRENTSTATE_HTTP_SERVER = 0x02500;
+    int ERROR_HOME_ASSISTANT_FAILED = 0x02502;
 
     // Broadcast Event Intent Filters
     String BROADCAST_NOTIF = "com.avariohome.avario.PUSH_NOTIFICATION";

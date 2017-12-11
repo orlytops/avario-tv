@@ -127,8 +127,14 @@ public class DialButtonBar extends LinearLayout {
             }
 
             try {
-                dialTypes.add(entityJSON.getJSONObject("dial")
-                        .getString("dial_type"));
+                if (entityJSON.has("dial")) {
+                    dialTypes.add(entityJSON.getJSONObject("dial")
+                            .getString("dial_type"));
+                } else if (entityJSON.has("dials")) {
+                    dialTypes.add(entityJSON.getJSONObject("dials")
+                            .getJSONObject("brightness")
+                            .getString("dial_type"));
+                }
             } catch (JSONException exception) {
 
             }
@@ -352,8 +358,13 @@ public class DialButtonBar extends LinearLayout {
      * this button.
      */
     private void setupEntity(JSONObject entityJSON) throws AvarioException {
+
         try {
-            this.setupFromSpec(entityJSON.getJSONObject("dial"), entityJSON);
+            if (entityJSON.has("dial")) {
+                this.setupFromSpec(entityJSON.getJSONObject("dial"), entityJSON);
+            } else if (entityJSON.has("dials")) {
+                this.setupFromSpec(entityJSON.getJSONObject("dials").getJSONObject("brightness"), entityJSON);
+            }
         } catch (JSONException exception) {
             throw new AvarioException(
                     Constants.ERROR_STATE_MISSINGKEY,
@@ -788,6 +799,7 @@ public class DialButtonBar extends LinearLayout {
         public APIListener(String[] entityIds) {
             super(DialButtonBar.TIMER_ID, entityIds);
         }
+
     }
 
 

@@ -1767,7 +1767,7 @@ public class Dial extends FrameLayout {
     private void refreshLight(int value, boolean fromUser, String units) {
         if (fromUser)
             this.progressPrev = value;
-
+        Log.d("User value", value + " " + fromUser);
         this.lightPowerIB.setActivated(value > 0);
         this.lightPercentTV.setText(this.getResources().getString(
                 R.string.dial__powervalue,
@@ -1923,6 +1923,7 @@ public class Dial extends FrameLayout {
 
             case LIGHT:
                 this.computeValueLight(source);
+                Log.d("Sourcesss", source + "");
                 break;
 
             case VOLUME:
@@ -2063,7 +2064,8 @@ public class Dial extends FrameLayout {
         List<Float> values = new ArrayList<>();
         float value;
         int valueArc;
-
+        int oldState;
+        int newState;
         for (JSONObject entityJSON : this.entities) {
             try {
                 values.add(Float.parseFloat(RefStringUtil.processCode(
@@ -2074,9 +2076,30 @@ public class Dial extends FrameLayout {
             }
         }
 
-        String algorithm;
 
         try {
+            newState = entities.get(0).getJSONObject("event_data")
+                    .getJSONObject("new_state")
+                    .getJSONObject("attributes")
+                    .getInt("brightness");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            oldState = entities.get(0).getJSONObject("event_data")
+                    .getJSONObject("old_state")
+                    .getJSONObject("attributes")
+                    .getInt("brightness");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        String algorithm = "aligned";
+        Log.d("Enitity Id", algoEntityId);
+
+        /*try {
             JSONObject algoJSON = StateArray
                     .getInstance()
                     .getDialButtonState(algoEntityId);
@@ -2093,8 +2116,23 @@ public class Dial extends FrameLayout {
                 );
             }
         } catch (AvarioException exception) {
+            Log.d("Exception algo", exception.getMessage());
             algorithm = "aligned";
+        }*/
+
+        for (Light.Algo item : Light.getInstance().algos) {
+            if (item.name.equals(entitiesId)) {
+                if (item.option != null) {
+                    Light.getInstance().currentAlgo = item.option;
+                    android.util.Log.v(TAG, "Algorithm Calculate: " + Light.getInstance().currentAlgo);
+                    algorithm = Light.getInstance().currentAlgo.toLowerCase();
+                }
+                break;
+            }
         }
+
+
+        Log.d("Alogssss", algorithm);
 
         switch (algorithm) {
             case "aligned":
@@ -2106,6 +2144,12 @@ public class Dial extends FrameLayout {
                         Collections.min(values),
                         Collections.max(values)
                 );
+
+                if (source == Dial.SOURCE_MQTT) {
+                    this.updateDial(arc.getValue(), source, true);
+                    this.refreshControls(arc.getValue(), false);
+                    return;
+                }
                 break;
 
             case "relative":
@@ -2113,6 +2157,12 @@ public class Dial extends FrameLayout {
                         Collections.min(values),
                         Collections.max(values)
                 );
+
+                if (source == Dial.SOURCE_MQTT) {
+                    this.updateDial(arc.getValue(), source, true);
+                    this.refreshControls(arc.getValue(), false);
+                    return;
+                }
                 break;
 
             default:
@@ -2122,6 +2172,7 @@ public class Dial extends FrameLayout {
         value = value / Constants.MAX_VALUE_NUMBER * 100.00f;
         valueArc = Math.round(value);
 
+        Log.d("Value Dial", value + " " + valueArc);
         if (source == Dial.SOURCE_USER)
             this.progressPrev = valueArc;
 
@@ -2198,8 +2249,10 @@ public class Dial extends FrameLayout {
 
     // region Formulas
     private float applyFormulaConverge(float min, float max) {
-        return max * 100.00f / (100.00f + max - min);
+        Log.d("Value min max", min + " " + max);
+        return max * 100.00f / (100.00f + (max - min));
     }
+
 
     private float applyFormulaRelative(float min, float max) {
         return this.applyFormulaConverge(min, max);

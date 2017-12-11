@@ -535,7 +535,7 @@ public class StateArray {
 
     public String getErrorMessage(String errorCode) {
         String message;
-
+        Log.d("Error code", errorCode);
         try {
             return this.data
                     .getJSONObject("strings")

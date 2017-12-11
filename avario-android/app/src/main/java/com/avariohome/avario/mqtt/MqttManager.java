@@ -2,7 +2,8 @@ package com.avariohome.avario.mqtt;
 
 
 import android.content.Context;
-import android.provider.Settings;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,10 +23,12 @@ public class MqttManager {
 
     public static MqttConnection createConnection(Context context, JSONObject mqttJSON) throws JSONException {
         MqttConnection connection;
-
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wInfo = wifiManager.getConnectionInfo();
+        String macAddress = wInfo.getMacAddress();
         connection = new MqttConnection(
                 context,
-                Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID),
+                macAddress,
                 mqttJSON.getString("host"),
                 mqttJSON.getString("port"),
                 mqttJSON.getBoolean("ssl")
