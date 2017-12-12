@@ -28,6 +28,7 @@ import com.avariohome.avario.bus.TriggerUpdate;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.Notification;
 import com.avariohome.avario.core.NotificationArray;
+import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.RefStringUtil;
@@ -38,7 +39,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -372,15 +375,16 @@ public class NotificationDialogFragment extends DialogFragment {
      * @throws Exception
      */
     private void openWebview(JSONObject buttonJSON) throws Exception {
-        JSONObject webviewJSON;
+        final JSONObject webviewJSON;
         final Map<String, String> urlConf;
+        final Config config = Config.getInstance();
+
 
         webviewJSON = new JSONObject(
                 buttonJSON
                         .getJSONObject("webview")
                         .toString()
         );
-
         urlConf = RefStringUtil.processUrl(webviewJSON.getString("url"));
 
         this.buttonsLL.setVisibility(View.GONE);
@@ -391,8 +395,6 @@ public class NotificationDialogFragment extends DialogFragment {
         webview.getSettings().setJavaScriptEnabled(true);
         webview.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
         Log.d("URL Notification", urlConf.get("url"));
-        final Config config = Config.getInstance();
-
         final Map<String, String> headers = new HashMap<>();
 
         headers.put("Authorization", String.format("Basic %s", Base64.encode(String.format(
@@ -411,7 +413,33 @@ public class NotificationDialogFragment extends DialogFragment {
             @Override
             public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
                 android.util.Log.d(TAG, "onReceivedHttpAuthRequest: ");
-                handler.proceed(config.getUsername(), config.getPassword());
+
+                final List<String> keys = new ArrayList<>();
+                String username = "";
+                String password = "";
+
+                try {
+                    RefStringUtil.extractMarkers(webviewJSON.getString("url"), keys);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                String confId = keys.isEmpty() ? "ip1" : keys.get(0);
+
+                try {
+                    username = StateArray.getInstance().getHTTPUsername(confId);
+                } catch (AvarioException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    password = StateArray.getInstance().getHTTPPassword(confId);
+                } catch (AvarioException e) {
+                    e.printStackTrace();
+                }
+
+                Log.d("Username/Password", username + " " + password);
+
+                handler.proceed(username, password);
             }
 
             @Override
