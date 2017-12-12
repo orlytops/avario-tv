@@ -1408,7 +1408,7 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (!arcColourStart.isEmpty())
+            if (arcColourStart != null && !arcColourStart.isEmpty())
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
         }
@@ -1451,7 +1451,7 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (!arcColourStart.isEmpty())
+            if (arcColourStart != null && !arcColourStart.isEmpty())
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
         }
@@ -1490,8 +1490,11 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (!arcColourStart.isEmpty())
+            try {
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            } catch (Exception e) {
+
+            }
 
         }
         this.coverHolder.setVisibility(View.VISIBLE);
@@ -1533,7 +1536,7 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (!arcColourStart.isEmpty())
+            if (arcColourStart != null && !arcColourStart.isEmpty())
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
         }
@@ -1571,7 +1574,7 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (!arcColourStart.isEmpty())
+            if (arcColourStart != null && !arcColourStart.isEmpty())
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
 
         }
@@ -1608,7 +1611,7 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (!arcColourStart.isEmpty())
+            if (arcColourStart != null && !arcColourStart.isEmpty())
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
         }
     }
@@ -1923,7 +1926,6 @@ public class Dial extends FrameLayout {
 
             case LIGHT:
                 this.computeValueLight(source);
-                Log.d("Sourcesss", source + "");
                 break;
 
             case VOLUME:
@@ -1952,7 +1954,7 @@ public class Dial extends FrameLayout {
                 this.computeValueSaturation(source);
                 break;
             case TEMPERATURE:
-                this.computeValueTemprature(source);
+                this.computeValueTemperature(source);
                 break;
         }
     }
@@ -2010,8 +2012,15 @@ public class Dial extends FrameLayout {
 
         int hue = (int) hsv[0];
         this.updateDial(360, source, false);
-        this.arc.setThumbPosition(hue);
-        this.refreshControls(hue, false);
+
+        Log.d("Entities/Count", entities.size() + "");
+        if (entities.size() > 1) {
+            this.arc.setThumbPosition(0);
+            this.refreshControls(0, false);
+        } else {
+            this.arc.setThumbPosition(hue);
+            this.refreshControls(hue, false);
+        }
     }
 
     private void computeValueSaturation(int source) {
@@ -2032,7 +2041,7 @@ public class Dial extends FrameLayout {
         this.refreshControls(value, false);
     }
 
-    private void computeValueTemprature(int source) {
+    private void computeValueTemperature(int source) {
         int value;
         try {
             value = this.entities.get(0)
@@ -2064,8 +2073,6 @@ public class Dial extends FrameLayout {
         List<Float> values = new ArrayList<>();
         float value;
         int valueArc;
-        int oldState;
-        int newState;
         for (JSONObject entityJSON : this.entities) {
             try {
                 values.add(Float.parseFloat(RefStringUtil.processCode(
@@ -2076,29 +2083,7 @@ public class Dial extends FrameLayout {
             }
         }
 
-
-        try {
-            newState = entities.get(0).getJSONObject("event_data")
-                    .getJSONObject("new_state")
-                    .getJSONObject("attributes")
-                    .getInt("brightness");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            oldState = entities.get(0).getJSONObject("event_data")
-                    .getJSONObject("old_state")
-                    .getJSONObject("attributes")
-                    .getInt("brightness");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
         String algorithm = "aligned";
-        Log.d("Enitity Id", algoEntityId);
-
         /*try {
             JSONObject algoJSON = StateArray
                     .getInstance()
@@ -2124,15 +2109,11 @@ public class Dial extends FrameLayout {
             if (item.name.equals(entitiesId)) {
                 if (item.option != null) {
                     Light.getInstance().currentAlgo = item.option;
-                    android.util.Log.v(TAG, "Algorithm Calculate: " + Light.getInstance().currentAlgo);
                     algorithm = Light.getInstance().currentAlgo.toLowerCase();
                 }
                 break;
             }
         }
-
-
-        Log.d("Alogssss", algorithm);
 
         switch (algorithm) {
             case "aligned":

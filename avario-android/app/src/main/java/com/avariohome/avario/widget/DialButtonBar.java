@@ -145,7 +145,7 @@ public class DialButtonBar extends LinearLayout {
 
                 if (mediaMode || (entityJSON.has("dials") && areAllTrue(shouldShowList))) {
                     this.setupEntityMedia(entityJSON);
-                } else if (areSameTypes(dialTypes)) {
+                } else if (areSameTypes(dialTypes, entityJSONs)) {
                     this.setupEntity(entityJSON);
                 }
 
@@ -269,8 +269,12 @@ public class DialButtonBar extends LinearLayout {
         return true;
     }
 
-    private boolean areSameTypes(ArrayList<String> array) {
+    private boolean areSameTypes(ArrayList<String> array, List<JSONObject> entityJSONs) {
         for (int i = 0; i < array.size(); i++) {
+            if (!entityJSONs.get(i).has("dials")) {
+                return false;
+            }
+
             if (i != 0 && !(array.get(i).equals(array.get(i - 1)))) {
                 return false;
             }

@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.HttpAuthHandler;
 import android.webkit.JavascriptInterface;
-import android.webkit.MimeTypeMap;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -90,7 +89,13 @@ public class NotificationDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle arguments = this.getArguments();
-        Notification notification = arguments.getParcelable("notification");
+        Notification notification = null;
+        try {
+            notification = arguments.getParcelable("notification");
+        } catch (Exception e) {
+            Log.d(TAG, e.getMessage());
+
+        }
 
         Activity activity = this.getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(activity)
@@ -418,29 +423,6 @@ public class NotificationDialogFragment extends DialogFragment {
         this.webview.loadUrl(urlConf.get("url"));
     }
 
-    public String getMimeType(String url) {
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
-            if (extension.equals("js")) {
-                return "text/javascript";
-            } else if (extension.equals("woff")) {
-                return "application/font-woff";
-            } else if (extension.equals("woff2")) {
-                return "application/font-woff2";
-            } else if (extension.equals("ttf")) {
-                return "application/x-font-ttf";
-            } else if (extension.equals("eot")) {
-                return "application/vnd.ms-fontobject";
-            } else if (extension.equals("svg")) {
-                return "image/svg+xml";
-            }
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        }
-        return type;
-    }
-
-
     public void setListener(Listener listener) {
         this.listener = listener;
     }
@@ -454,6 +436,14 @@ public class NotificationDialogFragment extends DialogFragment {
         @Override
         public void onClick(View view) {
             NotificationDialogFragment self = NotificationDialogFragment.this;
+
+            if (view instanceof Button) {
+                Button button = (Button) view;
+                if (button.getText().equals("No")) {
+                    self.dismiss();
+                    return;
+                }
+            }
 
             if (view.getId() == R.id.close || view.getId() == R.id.message) {
                 self.dismiss();

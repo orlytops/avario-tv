@@ -1560,7 +1560,7 @@ public class MainActivity extends BaseActivity {
                 case R.id.temperature:
                     self.activateModeClimate();
 
-                    /*byte[] buffer;
+                    byte[] buffer;
                     try {
                         InputStream is = getAssets().open("notif.json");
                         int size = 0;
@@ -1578,14 +1578,23 @@ public class MainActivity extends BaseActivity {
                         try {
                             JSONObject obj = new JSONObject(myJson);
                             Notification notification = new Notification(obj);
-                            showNotifDialog(notification);
-                            showNotifDialog(notification);
+
+
+                            Intent intent = new Intent()
+                                    .setAction(Constants.BROADCAST_NOTIF)
+                                    .putExtra("notification", notification);
+
+                            LocalBroadcastManager
+                                    .getInstance(MainActivity.this)
+                                    .sendBroadcast(intent);
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }*/
+                    }
+
                     break;
             }
         }

@@ -5,8 +5,14 @@ import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
+import com.avariohome.avario.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.NetworkInterface;
+import java.util.Collections;
+import java.util.List;
 
 
 /**
@@ -26,9 +32,10 @@ public class MqttManager {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wInfo = wifiManager.getConnectionInfo();
         String macAddress = wInfo.getMacAddress();
+        Log.d(TAG, getMacAddr());
         connection = new MqttConnection(
                 context,
-                macAddress,
+                getMacAddr(),
                 mqttJSON.getString("host"),
                 mqttJSON.getString("port"),
                 mqttJSON.getBoolean("ssl")
@@ -41,6 +48,32 @@ public class MqttManager {
                 .setAuthentication(mqttJSON.getString("username"), mqttJSON.getString("password"));
 
         return connection;
+    }
+
+    public static String getMacAddr() {
+        try {
+            List<NetworkInterface> all = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface nif : all) {
+                if (!nif.getName().equalsIgnoreCase("wlan0")) continue;
+
+                byte[] macBytes = nif.getHardwareAddress();
+                if (macBytes == null) {
+                    return "";
+                }
+
+                StringBuilder res1 = new StringBuilder();
+                for (byte b : macBytes) {
+                    res1.append(String.format("%02X:", b));
+                }
+
+                if (res1.length() > 0) {
+                    res1.deleteCharAt(res1.length() - 1);
+                }
+                return res1.toString();
+            }
+        } catch (Exception ex) {
+        }
+        return "02:00:00:00:00:00";
     }
 
     public static void updateConnection(MqttConnection connection, JSONObject mqttJSON) throws JSONException {
