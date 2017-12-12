@@ -1196,9 +1196,12 @@ public class Dial extends FrameLayout {
                 arcColourStart = dial.optString("arc_colour_start");
                 arcColourEnd = dial.optString("arc_colour_end");
                 /*handled bootstrap colors*/
-                if (arcColourStart != null && !arcColourStart.isEmpty()) {
+                try {
                     arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+                } catch (Exception e) {
+
                 }
+
             }
         }
         this.switchHolder.setVisibility(View.VISIBLE);
@@ -1234,15 +1237,19 @@ public class Dial extends FrameLayout {
                 arcColourStart = dials.getJSONObject("brightness").getString("arc_colour_start");
                 arcColourEnd = dials.getJSONObject("brightness").getString("arc_colour_end");
                 //handled bootstrap colors
-                if (arcColourStart != null) {
+                try {
                     arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+                } catch (Exception e) {
+
                 }
             } else if (dial != null) {
                 arcColourStart = dial.getString("arc_colour_start");
                 arcColourEnd = dial.getString("arc_colour_end");
                 //handled bootstrap colors
-                if (arcColourStart != null) {
+                try {
                     arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+                } catch (Exception e) {
+
                 }
             }
 
@@ -1410,8 +1417,11 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (arcColourStart != null && !arcColourStart.isEmpty())
+            try {
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            } catch (Exception e) {
+
+            }
 
         }
         this.volumeHolder.setVisibility(View.VISIBLE);
@@ -1453,8 +1463,11 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (arcColourStart != null && !arcColourStart.isEmpty())
+            try {
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            } catch (Exception e) {
+
+            }
 
         }
         this.thermoHolder.setVisibility(View.VISIBLE);
@@ -1538,8 +1551,11 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (arcColourStart != null && !arcColourStart.isEmpty())
+            try {
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            } catch (Exception e) {
+
+            }
 
         }
         this.mediaseekHolder.setVisibility(View.VISIBLE);
@@ -1576,8 +1592,11 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (arcColourStart != null && !arcColourStart.isEmpty())
+            try {
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            } catch (Exception e) {
+
+            }
 
         }
         this.mediaseekHolder.setVisibility(View.VISIBLE);
@@ -1613,8 +1632,11 @@ public class Dial extends FrameLayout {
             arcColourStart = dial.optString("arc_colour_start");
             arcColourEnd = dial.optString("arc_colour_end");
             //handled bootstrap colors
-            if (arcColourStart != null && !arcColourStart.isEmpty())
+            try {
                 arc.setProgressColor(Color.parseColor(arcColourStart), Color.parseColor(arcColourEnd));
+            } catch (Exception e) {
+
+            }
         }
     }
     // endregion

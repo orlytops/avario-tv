@@ -82,6 +82,14 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
             ));
         }
 
+        /*try {
+            AssetUtil.toDrawable(holder.itemView.getContext(),
+                    EntityUtil.getStateIconUrl(holder.itemView.getContext(), element.data),
+                    new AssetUtil.ImageViewCallback(holder.iconIV));
+        } catch (AvarioException e) {
+            e.printStackTrace();
+        }*/
+
         try {
             AssetUtil.loadImage(
                     holder.itemView.getContext(),
