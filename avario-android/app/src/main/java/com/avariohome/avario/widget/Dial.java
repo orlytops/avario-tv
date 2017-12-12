@@ -183,6 +183,7 @@ public class Dial extends FrameLayout {
     private Category category;
     private Type type;
     private int progressPrev;
+    private int progressPrevLastCall;
     private boolean entitiesChanged; // currently only used for adaptMedia()
     private boolean expectsMQTT;
 
@@ -210,6 +211,7 @@ public class Dial extends FrameLayout {
 
         this.entitiesChanged = false;
         this.progressPrev = 100;
+        this.progressPrevLastCall = 100;
         this.mainHandler = Application.mainHandler;
         this.idleRunnable = new IdleRunnable();
         this.holdRunnable = new HoldRunnable();
@@ -1768,7 +1770,7 @@ public class Dial extends FrameLayout {
     }
 
     private void refreshLight(int value, boolean fromUser, String units) {
-        if (fromUser)
+        if (fromUser && arc.getValue() > 0)
             this.progressPrev = value;
         Log.d("User value", value + " " + fromUser);
         this.lightPowerIB.setActivated(value > 0);
@@ -2015,8 +2017,9 @@ public class Dial extends FrameLayout {
 
         Log.d("Entities/Count", entities.size() + "");
         if (entities.size() > 1) {
+
             this.arc.setThumbPosition(0);
-            this.refreshControls(0, false);
+            this.refreshControls(hue, false);
         } else {
             this.arc.setThumbPosition(hue);
             this.refreshControls(hue, false);
@@ -2392,6 +2395,7 @@ public class Dial extends FrameLayout {
 
                 case LIGHT:
                     specJSON = this.executeAPILight(source);
+                    progressPrevLastCall = arc.getProgress();
                     break;
 
                 case VOLUME:
@@ -2459,19 +2463,31 @@ public class Dial extends FrameLayout {
     }
 
     private JSONObject executeAPILight(View source) throws AvarioException {
+
         String directive;
         int progress;
 
         progress = this.arc.getValue();
-        directive = this.arc == source
+       /* directive = this.arc == source && progress > 0
                 ? "set"
-                : progress > 0 ? "on" : "off";
+                : progress > 0 ? "on" : "off";*/
+        Log.d("Directive/Progress", progress + "");
+        if (this.arc == source && progress > 0) {
+            directive = "set";
+        } else if (progress > 0) {
+            directive = "on";
+            progress = progressPrevLastCall;
+        } else {
+            directive = "off";
+        }
+
+        Log.d("Directive/Light", directive + " " + getStateLight() + " " + progress + " " + progressPrev);
 
         if (!directive.equals("set") && directive.equals(this.getStateLight()))
             return null;
 
         JSONObject specJSON = this.getRequestSpec(
-                this.arc == source ? "set" :
+                this.arc == source && progress > 0 ? "set" :
                         progress > 0 ? "on" : "off"
         );
         if (this.arc != source) {
@@ -3066,7 +3082,7 @@ public class Dial extends FrameLayout {
 
         private void handleLight() {
             Dial self = Dial.this;
-            int value = self.arc.getValue() == 0 ? self.progressPrev : 0;
+            int value = self.arc.getValue() == 0 ? self.progressPrevLastCall : 0;
 
             self.arc.setDelta(value);
         }

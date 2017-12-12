@@ -171,7 +171,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_below="@id/toolbar"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="13dp"
             roomselect:bodyBG="?attr/roomselectBodyBG"
             roomselect:handleBG="?attr/roomselectHandleBG"
             roomselect:handleHeight="?attr/actionBarSize"

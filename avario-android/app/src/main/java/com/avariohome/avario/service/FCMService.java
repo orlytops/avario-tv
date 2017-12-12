@@ -1,6 +1,8 @@
 package com.avariohome.avario.service;
 
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -31,38 +33,40 @@ public class FCMService extends FirebaseMessagingService {
 
         this.broadcastNotif(notification);
         showMessageInformation(message);
+        NotificationManager nManager = ((NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
+        nManager.cancelAll();
     }
 
     private void showMessageInformation(RemoteMessage message) {
         StringBuilder builder = new StringBuilder();
 
         builder
-            .append("To: ")
-            .append(message.getTo())
-            .append("\nFrom: ")
-            .append(message.getFrom())
-            .append("\nType: ")
-            .append(message.getMessageType())
-            .append("\nMessage Id: ")
-            .append(message.getMessageId())
-            .append("\nMessage Date: ")
-            .append(message.getSentTime())
-            .append("\nCollapse Key: ")
-            .append(message.getCollapseKey())
-            .append("\nTime to Live: ")
-            .append(message.getTtl());
+                .append("To: ")
+                .append(message.getTo())
+                .append("\nFrom: ")
+                .append(message.getFrom())
+                .append("\nType: ")
+                .append(message.getMessageType())
+                .append("\nMessage Id: ")
+                .append(message.getMessageId())
+                .append("\nMessage Date: ")
+                .append(message.getSentTime())
+                .append("\nCollapse Key: ")
+                .append(message.getCollapseKey())
+                .append("\nTime to Live: ")
+                .append(message.getTtl());
 
         if (message.getNotification() != null)
             builder
-                .append("\nNotification:")
-                .append("\n\tTitle: ")
-                .append(message.getNotification().getTitle())
-                .append("\n\tBody: ")
-                .append(message.getNotification().getBody());
+                    .append("\nNotification:")
+                    .append("\n\tTitle: ")
+                    .append(message.getNotification().getTitle())
+                    .append("\n\tBody: ")
+                    .append(message.getNotification().getBody());
 
         builder
-            .append("\nPayload:\n")
-            .append(message.getData().size() > 0 ? message.getData() : "--");
+                .append("\nPayload:\n")
+                .append(message.getData().size() > 0 ? message.getData() : "--");
 
         Log.d(TAG, builder.toString());
 
@@ -70,11 +74,11 @@ public class FCMService extends FirebaseMessagingService {
 
     private void broadcastNotif(Notification notification) {
         Intent intent = new Intent()
-            .setAction(Constants.BROADCAST_NOTIF)
-            .putExtra("notification", notification);
+                .setAction(Constants.BROADCAST_NOTIF)
+                .putExtra("notification", notification);
 
         LocalBroadcastManager
-            .getInstance(this)
-            .sendBroadcast(intent);
+                .getInstance(this)
+                .sendBroadcast(intent);
     }
 }

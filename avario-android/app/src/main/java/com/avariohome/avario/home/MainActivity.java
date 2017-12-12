@@ -1560,7 +1560,7 @@ public class MainActivity extends BaseActivity {
                 case R.id.temperature:
                     self.activateModeClimate();
 
-                    byte[] buffer;
+                    /*byte[] buffer;
                     try {
                         InputStream is = getAssets().open("notif.json");
                         int size = 0;
@@ -1593,7 +1593,7 @@ public class MainActivity extends BaseActivity {
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }
+                    }*/
 
                     break;
             }
