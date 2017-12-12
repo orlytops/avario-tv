@@ -236,10 +236,6 @@ public class NotificationDialogFragment extends DialogFragment {
             this.webUpdateListener = webUpdateListener;
         }
 
-        /**
-         * Show a toast from the web page
-         */
-
         @JavascriptInterface
         public void updateCompleted() {
             if (webUpdateListener != null) {
