@@ -113,7 +113,7 @@ public class RoomSelector extends RelativeLayout {
             height = array.getDimensionPixelSize(R.styleable.RoomSelector_handleHeight, height);
 
             if ((handleBG = array.getResourceId(R.styleable.RoomSelector_handleBG, handleBG)) == -1) {
-                handleBG = array.getColor(R.styleable.RoomSelector_handleBG, Color.TRANSPARENT);
+                handleBG = array.getColor(R.styleable.RoomSelector_handleBG, Color.RED);
                 handleIsRes = false;
             }
 
@@ -419,10 +419,12 @@ public class RoomSelector extends RelativeLayout {
         public void onClick(View view) {
             RoomSelector self = RoomSelector.this;
 
-            if (view.getId() == self.dummyView.getId())
+            if (view.getId() == self.dummyView.getId()) {
                 self.close();
-            else
+            } else {
+                handleRL.setBackgroundColor(getResources().getColor(R.color.white__90));
                 self.toggle();
+            }
         }
 
         @Override

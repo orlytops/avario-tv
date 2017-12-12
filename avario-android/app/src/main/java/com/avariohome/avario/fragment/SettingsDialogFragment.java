@@ -1053,14 +1053,16 @@ public class SettingsDialogFragment extends DialogFragment {
                 }
             } else if (view.getId() == R.id.btnNoneFatal) {
                 noneFatalMessage.setText("Test firebase");
-                if (noneFatalMessage.getText() == null
+                /*if (noneFatalMessage.getText() == null
                         || noneFatalMessage.getText().toString().isEmpty()) {
                     Toast.makeText(view.getContext(), "None Fatal Message should not be empty", Toast.LENGTH_SHORT).show();
                 } else {
                     FirebaseCrash.report(new Throwable(noneFatalMessage.getText().toString()));
                     Toast.makeText(view.getContext(), "None Fatal crash " + noneFatalMessage.getText().toString()
                             + "Has been sent to firebase.", Toast.LENGTH_SHORT).show();
-                }
+                }*/
+                FirebaseCrash.log("Test log send");
+                FirebaseCrash.report(new Throwable("Test log send"));
             } else if (view.getId() == R.id.btnForceCrash) {
                 String val = null;
                 if (val.equals("")) {

@@ -1,7 +1,9 @@
 package com.avariohome.avario.widget;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiInfo;
@@ -18,9 +20,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.avariohome.avario.R;
+import com.avariohome.avario.core.StateArray;
+import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.Connectivity;
 import com.triggertrap.seekarc.SeekArc;
+
+import org.json.JSONArray;
 
 /**
  * Created by orly on 10/30/17.
@@ -38,6 +44,10 @@ public class BatteryWifi extends FrameLayout {
 
     private BatteryBroadcastReceiver mReceiver;
     private WifiBroadcastReceiver wifiBroadcastReceiver;
+
+
+    private AlertDialog.Builder builder;
+    private AlertDialog alert11;
 
     public BatteryWifi(@NonNull Context context) {
         super(context);
@@ -71,6 +81,7 @@ public class BatteryWifi extends FrameLayout {
         arc.setEnabled(false);
         arc.setMax(100);
 
+        builder = new AlertDialog.Builder(getContext());
         registerReceiver();
     }
 
@@ -112,6 +123,34 @@ public class BatteryWifi extends FrameLayout {
                     assetId = R.array.ic__wifi__red__4;
                 }
                 break;
+        }
+
+
+        if (assetId != 0) {
+            JSONArray maclist = null;
+            try {
+                maclist = StateArray.getInstance().getLanMacList();
+            } catch (AvarioException e) {
+                e.printStackTrace();
+            }
+
+            String message = "Bootstrap Mac list: " + maclist.toString() + "\n" + "Connection MAC: " +
+                    Connectivity.getAccessPointMac(getContext()) + "\n" + "Asset Id: " + getResources().getResourceEntryName(assetId);
+            builder.setTitle("MAC info")
+                    .setMessage(message)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with delete
+                        }
+                    });
+            if (alert11 == null) {
+                alert11 = builder.create();
+            }
+
+            if (!alert11.isShowing()) {
+                alert11.show();
+            }
+
         }
 
         if (assetId == 0) {

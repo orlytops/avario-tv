@@ -29,6 +29,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
@@ -275,7 +276,7 @@ public class BootActivity extends BaseActivity {
 
         final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if (progressPD != null) {
+        if (progressPD != null && !progressPD.isShowing()) {
             this.progressPD.show();
         }
         if (states.hasData()) {
@@ -289,7 +290,10 @@ public class BootActivity extends BaseActivity {
                 countDownTimer.cancel();
             } else {
                 Log.d("Wifi", "Attempting connect WIFI");
-                progressPD.setMessage("Connecting to WiFi...");
+                TextView tv = (TextView) progressPD.findViewById(android.R.id.message);
+                if (!tv.getText().toString().equals("Connecting to WiFi...")) {
+                    progressPD.setMessage("Connecting to WiFi...");
+                }
                 if (!timerIsStarted) {
                     final Handler mHandler = new Handler();
 

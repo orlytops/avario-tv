@@ -13,7 +13,7 @@
         <item name="selectionColor">@color/blue</item>
         <item name="topbarBG">@drawable/bg__toolbar</item>
         <item name="botbarBG">@color/light1</item>
-        <item name="roomselectHandleBG">@color/light3</item>
+        <item name="roomselectHandleBG">@color/trasnparent</item>
         <item name="roomselectBodyBG">@color/white__90</item>
     </style>
 
