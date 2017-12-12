@@ -3,7 +3,6 @@ package com.avariohome.avario.widget;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiInfo;
@@ -20,13 +19,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.avariohome.avario.R;
-import com.avariohome.avario.core.StateArray;
-import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.Connectivity;
 import com.triggertrap.seekarc.SeekArc;
-
-import org.json.JSONArray;
 
 /**
  * Created by orly on 10/30/17.
@@ -126,7 +121,7 @@ public class BatteryWifi extends FrameLayout {
         }
 
 
-        if (assetId != 0) {
+        /*if (assetId != 0) {
             JSONArray maclist = null;
             try {
                 maclist = StateArray.getInstance().getLanMacList();
@@ -151,7 +146,7 @@ public class BatteryWifi extends FrameLayout {
                 alert11.show();
             }
 
-        }
+        }*/
 
         if (assetId == 0) {
             wifiImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_close));
