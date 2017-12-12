@@ -2016,14 +2016,8 @@ public class Dial extends FrameLayout {
         this.updateDial(360, source, false);
 
         Log.d("Entities/Count", entities.size() + "");
-        if (entities.size() > 1) {
-
-            this.arc.setThumbPosition(0);
-            this.refreshControls(hue, false);
-        } else {
-            this.arc.setThumbPosition(hue);
-            this.refreshControls(hue, false);
-        }
+        this.arc.setThumbPosition(hue);
+        this.refreshControls(hue, false);
     }
 
     private void computeValueSaturation(int source) {
