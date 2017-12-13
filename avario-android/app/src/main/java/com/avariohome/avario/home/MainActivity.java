@@ -2682,7 +2682,7 @@ public class MainActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onUpdateProgress(UpdateDownload updateDownload) {
         progressDownload.setMessage("Downloading Update...");
-
+        progressDownload.setCancelable(false);
         if (!progressDownload.isShowing()) {
             progressDownload.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             progressDownload.show();

@@ -226,7 +226,8 @@ public class NotificationDialogFragment extends DialogFragment {
 
         this.closeB.setOnClickListener(this.clickListener);
         this.webview.addJavascriptInterface(new WebAppInterface(getActivity(), webUpdateListener), "Android");
-
+        this.webview.getSettings().setLoadWithOverviewMode(true);
+        this.webview.getSettings().setUseWideViewPort(true);
         webview.resumeTimers();
         return view;
     }
