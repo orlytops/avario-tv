@@ -47,7 +47,7 @@ dependencies {
             'supt'             : '25.3.1',
             'volley'           : '1.0.0',
             'nv-bluetooth'     : '1.8',
-            'firebasecrash'    : '11.0.2'
+            'firebasecrash'    : '11.6.2'
     ]
 
     compile fileTree(include: ['*.jar'], dir: 'libs')

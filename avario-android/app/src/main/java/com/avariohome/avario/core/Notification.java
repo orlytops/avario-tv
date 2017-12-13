@@ -66,16 +66,17 @@ public class Notification implements Parcelable {
         Notification instance = new Notification();
         JSONObject json = instance.data;
 
-        if (message == null || message.getNotification() == null)
+        if (message == null)
             return instance;
 
         try {
-            RemoteMessage.Notification notification = message.getNotification();
             Map<String, String> data = message.getData();
+            JSONObject object = new JSONObject(data);
+            Log.d("JSON_OBJECT", object.toString());
 
             json.put("message_id", message.getMessageId());
-            json.put("title", notification.getTitle());
-            json.put("body", notification.getBody());
+            json.put("title", object.getString("title"));
+            json.put("body", object.getString("body"));
             json.put("date_sent", message.getSentTime());
             json.put("is_read", false);
 

@@ -240,6 +240,8 @@ public class MainActivity extends BaseActivity {
 
     private ProgressDialog progressDownload;
 
+    private Notification notification = null;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -338,6 +340,10 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         timerIsStarted = false;
+
+        if (notification != null) {
+            showNotifDialog(notification);
+        }
 
         try {
             EventBus.getDefault().register(this);
@@ -1410,6 +1416,7 @@ public class MainActivity extends BaseActivity {
         } else if (notificationFragment != null) {
             notificationFragment.resetArguments(bundle);
         }
+        notification = null;
     }
 
     private void showBusyDialog(String message) {
@@ -2316,6 +2323,7 @@ public class MainActivity extends BaseActivity {
                         .getBootstrapJSON(new BootstrapListener(), intent.getStringExtra("bs_name"));
             } else {
                 Notification notification = intent.getParcelableExtra("notification");
+                self.notification = notification;
                 EventBus.getDefault().post(new ShowNotification(notification));
             }
         }
@@ -2630,6 +2638,8 @@ public class MainActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onUpdateTrigger(final TriggerUpdate triggerUpdate) {
 
+        notification = null;
+
         final StateArray states = StateArray.getInstance(getBaseContext());
 
         String updateAvailableMessage = "";
@@ -2705,5 +2715,7 @@ public class MainActivity extends BaseActivity {
 
         if (!isNotifListVisible())
             showNotifDialog(notification.getNotification());
+
+        notification = null;
     }
 }

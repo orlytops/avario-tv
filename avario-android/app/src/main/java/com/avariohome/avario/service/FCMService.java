@@ -1,8 +1,6 @@
 package com.avariohome.avario.service;
 
 
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -22,19 +20,15 @@ public class FCMService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage message) {
+        Log.d(TAG, "onMessageReceived" + message.getData().toString());
         NotificationArray array = NotificationArray.getInstance();
         Notification notification = Notification.fromRemoteMessage(message);
-
-        if (notification.data.length() == 0)
-            return; // no need to do anything
 
         array.addNotification(notification);
         array.deleteExpired();
 
         this.broadcastNotif(notification);
         showMessageInformation(message);
-        NotificationManager nManager = ((NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
-        nManager.cancelAll();
     }
 
     private void showMessageInformation(RemoteMessage message) {
