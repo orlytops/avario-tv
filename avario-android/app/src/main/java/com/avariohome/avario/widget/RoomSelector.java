@@ -113,7 +113,7 @@ public class RoomSelector extends RelativeLayout {
             height = array.getDimensionPixelSize(R.styleable.RoomSelector_handleHeight, height);
 
             if ((handleBG = array.getResourceId(R.styleable.RoomSelector_handleBG, handleBG)) == -1) {
-                handleBG = array.getColor(R.styleable.RoomSelector_handleBG, Color.RED);
+                handleBG = array.getColor(R.styleable.RoomSelector_handleBG, Color.TRANSPARENT);
                 handleIsRes = false;
             }
 
@@ -181,10 +181,10 @@ public class RoomSelector extends RelativeLayout {
         if (PlatformUtil.isLollipopOrNewer())
             this.handleRL.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
 
-        if (this.handleIsRes)
+        /*if (this.handleIsRes)
             this.handleRL.setBackgroundResource(this.handleBG);
         else
-            this.handleRL.setBackgroundColor(this.handleBG);
+            this.handleRL.setBackgroundColor(this.handleBG);*/
 
         this.indicatorIV = (ImageView) this.handleRL.findViewById(R.id.indicator);
         this.titleTV = (TextView) this.handleRL.findViewById(R.id.title);
@@ -250,10 +250,13 @@ public class RoomSelector extends RelativeLayout {
     }
 
     public void toggle() {
-        if (this.opened)
+        if (this.opened) {
             this.close();
-        else
+            handleRL.setBackgroundColor(getResources().getColor(R.color.trasnparent));
+        } else {
             this.open();
+            handleRL.setBackgroundColor(getResources().getColor(R.color.white__90));
+        }
     }
 
     private void open() {
@@ -329,6 +332,7 @@ public class RoomSelector extends RelativeLayout {
     }
 
     public void dispatchRoomSelected() {
+        handleRL.setBackgroundColor(getResources().getColor(R.color.trasnparent));
         if (this.listener != null)
             this.listener.onRoomSelected(this, this.selectedRoom);
     }
@@ -393,10 +397,9 @@ public class RoomSelector extends RelativeLayout {
     @Override
     public void setEnabled(boolean enabled) {
         this.handleRL.setEnabled(enabled);
-
-        if (enabled)
+        if (enabled) {
             this.indicatorIV.setVisibility(View.VISIBLE);
-        else {
+        } else {
             this.indicatorIV.setVisibility(View.INVISIBLE);
             this.close();
         }
@@ -418,11 +421,9 @@ public class RoomSelector extends RelativeLayout {
         @Override
         public void onClick(View view) {
             RoomSelector self = RoomSelector.this;
-
             if (view.getId() == self.dummyView.getId()) {
                 self.close();
             } else {
-                handleRL.setBackgroundColor(getResources().getColor(R.color.white__90));
                 self.toggle();
             }
         }

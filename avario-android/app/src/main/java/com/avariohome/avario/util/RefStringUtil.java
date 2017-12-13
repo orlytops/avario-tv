@@ -52,10 +52,10 @@ public class RefStringUtil {
      * @param url
      * @return a map containing the "url" and the "confId" keys containing the appropriate data.
      */
-    public static  Map<String, String> processUrl(String url) throws AvarioException {
+    public static Map<String, String> processUrl(String url) throws AvarioException {
         List<String> keys = new ArrayList<>();
         Map<String, String> mapping = new HashMap<>(),
-                            result = new HashMap<>();
+                result = new HashMap<>();
 
         Matcher matcher = RefStringUtil.extractMarkers(url, keys);
         String confId = keys.isEmpty() ? "ip1" : keys.get(0);
@@ -70,8 +70,8 @@ public class RefStringUtil {
 
     public static String processRefs(String refstring) throws AvarioException {
         return RefStringUtil.processRefs(
-            StateArray.getInstance().getEntities(),
-            refstring
+                StateArray.getInstance().getEntities(),
+                refstring
         );
     }
 
@@ -84,8 +84,7 @@ public class RefStringUtil {
         for (String key : keys)
             try {
                 mapping.put(key, RefStringUtil.resolveValue(root, key));
-            }
-            catch (AvarioException exception) {
+            } catch (AvarioException exception) {
                 mapping.put(key, "0");
             }
 
@@ -94,8 +93,8 @@ public class RefStringUtil {
 
     public static String processCode(String codestring) throws AvarioException {
         return RefStringUtil.processCode(
-            StateArray.getInstance().getEntities(),
-            codestring
+                StateArray.getInstance().getEntities(),
+                codestring
         );
     }
 
@@ -113,13 +112,11 @@ public class RefStringUtil {
 
         try {
             output = RefStringUtil
-                .getRhinoContext()
-                .evaluateString(RefStringUtil.jsScope, codestring, "<cmd>", 1, null);
-        }
-        catch (RhinoException exception) {
+                    .getRhinoContext()
+                    .evaluateString(RefStringUtil.jsScope, codestring, "<cmd>", 1, null);
+        } catch (RhinoException exception) {
             output = null;
-        }
-        finally {
+        } finally {
             Context.exit();
         }
 
@@ -135,25 +132,23 @@ public class RefStringUtil {
             Object output;
 
             output = RefStringUtil
-                .getRhinoContext()
-                .evaluateString(RefStringUtil.jsScope, logicString, "<cmd>", 1, null);
+                    .getRhinoContext()
+                    .evaluateString(RefStringUtil.jsScope, logicString, "<cmd>", 1, null);
 
             result = output instanceof Boolean
-                   ? (Boolean)output
-                   : Boolean.valueOf(output.toString());
+                    ? (Boolean) output
+                    : Boolean.valueOf(output.toString());
 
             Log.i(TAG, String.format("%s resolved: %s", logicString, String.valueOf(result)));
-        }
-        catch (RhinoException exception) {
+        } catch (RhinoException exception) {
             Log.i(TAG, String.format("%s threw an error", logicString));
 
             throw new AvarioException(
-                Constants.ERROR_STATE_API_CONDITION,
-                exception,
-                new Object[2]
+                    Constants.ERROR_STATE_API_CONDITION,
+                    exception,
+                    new Object[2]
             );
-        }
-        finally {
+        } finally {
             Context.exit();
         }
 
@@ -189,8 +184,8 @@ public class RefStringUtil {
 
             replacement = replacements.get(matcher.group(1));
             replacement = replacement == null
-                        ? matcher.group()
-                        : replacement;
+                    ? matcher.group()
+                    : replacement;
 
             matcher.appendReplacement(buffer, replacement);
         }
@@ -214,12 +209,11 @@ public class RefStringUtil {
                 objectJSON = objectJSON.getJSONObject(parts[index]);
 
             value = objectJSON.get(parts[parts.length - 1]);
-        }
-        catch (JSONException exception) {
+        } catch (JSONException exception) {
             throw new AvarioException(
-                Constants.ERROR_STATE_MISSINGKEY,
-                exception,
-                new Object[] { path.replaceAll("/", ".") }
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{path.replaceAll("/", ".")}
             );
         }
 

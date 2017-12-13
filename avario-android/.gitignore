@@ -11,3 +11,5 @@
 
 .idea/instapk.xml
 instapk.log*
+instapk.properties
+library/
