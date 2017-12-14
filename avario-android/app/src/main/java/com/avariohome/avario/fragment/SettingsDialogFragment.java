@@ -371,6 +371,10 @@ public class SettingsDialogFragment extends DialogFragment {
         return view;
     }
 
+
+    /**
+     * Downloads the app-release.apk available in the the local brain
+     */
     private Observer<ResponseBody> observerUpdate = new Observer<ResponseBody>() {
         @Override
         public void onCompleted() {
@@ -388,6 +392,9 @@ public class SettingsDialogFragment extends DialogFragment {
     };
 
 
+    /**
+     * Check the latest version if there is any available update
+     */
     private void currentVersion() {
 
         final UpdatePresenter updatePresenter = new UpdatePresenter(userService);
@@ -458,6 +465,13 @@ public class SettingsDialogFragment extends DialogFragment {
         });
     }
 
+    /**
+     * checks if the version available in the local brain needs update
+     *
+     * @param context of theapp
+     * @param version came from the local brain version.json
+     * @return if the app needs to update
+     */
     private boolean needsUpdate(Context context, String version) {
         try {
 
@@ -509,6 +523,11 @@ public class SettingsDialogFragment extends DialogFragment {
         return false;
     }
 
+
+    /**
+     * @param body the downloaded file
+     * @return if the install is successful
+     */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean writeResponseBodyToDisk(ResponseBody body) {
 
@@ -582,6 +601,14 @@ public class SettingsDialogFragment extends DialogFragment {
         }
     }
 
+
+    /**
+     * Install the downloaded apk via package installer
+     *
+     * @param context     of the app
+     * @param inputStream of the downloaded apk
+     * @throws IOException
+     */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void installPackage(Context context, InputStream inputStream)
             throws IOException {
@@ -614,15 +641,6 @@ public class SettingsDialogFragment extends DialogFragment {
 
         session.commit(pendingIntent.getIntentSender());
         session.close();
-    }
-
-    private static IntentSender createIntentSender(Context context, int sessionId) {
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                sessionId,
-                new Intent("com.avariohome.avario.INSTALL_COMPLETE"),
-                0);
-        return pendingIntent.getIntentSender();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
