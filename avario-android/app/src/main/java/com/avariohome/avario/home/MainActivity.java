@@ -69,6 +69,7 @@ import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
 import com.avariohome.avario.api.component.DaggerUserComponent;
 import com.avariohome.avario.api.component.UserComponent;
+import com.avariohome.avario.apiretro.models.Version;
 import com.avariohome.avario.apiretro.services.UpdateService;
 import com.avariohome.avario.bus.ShowNotification;
 import com.avariohome.avario.bus.TriggerUpdate;
@@ -330,8 +331,7 @@ public class MainActivity extends BaseActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 4);
         calendar.set(Calendar.MINUTE, 30);
-        calendar.set(Calendar.SECOND, 00);
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, calendar.getTimeInMillis(), 24 * 60 * 60 * 1000, pendingIntent);
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, calendar.getTimeInMillis(), 10 * 60 * 60 * 1000, pendingIntent);
 
     }
 
@@ -2545,6 +2545,22 @@ public class MainActivity extends BaseActivity {
         }
     };
 
+    private Observer<Version> observerVersion = new Observer<Version>() {
+        @Override
+        public void onCompleted() {
+
+        }
+
+        @Override
+        public void onError(Throwable e) {
+
+        }
+
+        @Override
+        public void onNext(Version version) {
+            config.setToIgnore(version.getVersion());
+        }
+    };
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean writeResponseBodyToDisk(ResponseBody body) {
@@ -2678,7 +2694,7 @@ public class MainActivity extends BaseActivity {
         alertUpdate.setButton(AlertDialog.BUTTON_NEUTRAL, "Don't show again", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                config.setToIgnore(triggerUpdate.getVersion());
+                updatePresenter.getVersion(observerVersion);
                 dialog.cancel();
             }
         });
