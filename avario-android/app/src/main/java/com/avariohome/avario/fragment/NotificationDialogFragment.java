@@ -469,6 +469,8 @@ public class NotificationDialogFragment extends DialogFragment {
             if (view instanceof Button) {
                 Button button = (Button) view;
                 if (button.getText().equals("No")) {
+                    buttonJSON = (JSONObject) view.getTag(R.id.tag__notifbtn__data);
+                    deleteOnClick(buttonJSON);
                     self.dismiss();
                     return;
                 }
