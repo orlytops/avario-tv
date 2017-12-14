@@ -81,6 +81,12 @@ public class ApiModule {
                 .build();
     }
 
+
+    /**
+     * get the OkHttpclient here you set all the interceptors for the client
+     *
+     * @return
+     */
     private OkHttpClient getClient() {
         config = Config.getInstance();
         OkHttpClient.Builder client = new OkHttpClient.Builder();

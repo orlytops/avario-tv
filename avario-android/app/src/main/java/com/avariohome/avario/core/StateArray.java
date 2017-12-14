@@ -33,6 +33,8 @@ import java.util.Iterator;
 /**
  * Created by aeroheart-c6 on 10/01/2017.
  */
+
+//TODO: Refactor this use GSON parser for a faster parsing and cleaner code
 public class StateArray {
     public static final String TAG = "Avario/StateArray";
     public static final int FROM_MQTT = 1;
@@ -260,6 +262,12 @@ public class StateArray {
      * JSON StateData
      ***********************************************************************************************
      */
+
+    /**
+     * @param entityId
+     * @return JSONObject of an entity from the bootstrap
+     * @throws AvarioException
+     */
     public JSONObject getEntity(String entityId) throws AvarioException {
         if (!this.hasData())
             return null;
@@ -279,6 +287,11 @@ public class StateArray {
         }
     }
 
+
+    /**
+     * @return all the entities from the bootstrap
+     * @throws AvarioException
+     */
     public JSONObject getEntities() throws AvarioException {
         if (!this.hasData())
             return null;
@@ -294,6 +307,11 @@ public class StateArray {
         }
     }
 
+    /**
+     * @param entityId the ID of the given entity
+     * @return media entity of the given entityId from the bootstrap
+     * @throws AvarioException
+     */
     public JSONObject getMediaEntity(String entityId) throws AvarioException {
         if (!this.hasData())
             return null;
@@ -312,6 +330,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return all the given media entity from the bootstrap
+     * @throws AvarioException
+     */
     public JSONObject getMediaEntities() throws AvarioException {
         if (!this.hasData())
             return null;
@@ -327,6 +349,12 @@ public class StateArray {
         }
     }
 
+
+    /**
+     * @param name
+     * @return app ID from playstore
+     * @throws AvarioException
+     */
     public String getMediaSourceAppId(String name) throws AvarioException {
         if (!this.hasData())
             return null;
@@ -344,6 +372,11 @@ public class StateArray {
         }
     }
 
+    /**
+     * @param name
+     * @return the string message form the bootstrap
+     * @throws AvarioException
+     */
     public String getStringMessage(String name) throws AvarioException {
         if (!this.hasData())
             return null;
@@ -361,41 +394,11 @@ public class StateArray {
         }
     }
 
-    public String getWiFiHandlingStrings(String name) throws AvarioException {
-        if (!this.hasData())
-            return null;
-
-        try {
-            return this.data
-                    .getJSONObject("wifi.handling")
-                    .getJSONObject("strings")
-                    .getString(name);
-        } catch (JSONException exception) {
-            throw new AvarioException(
-                    Constants.ERROR_STATE_MISSINGKEY,
-                    exception,
-                    new Object[]{"media.sources." + name}
-            );
-        }
-    }
-
-    public int getWiFiHandlingTimeOut() throws AvarioException {
-        if (!this.hasData())
-            return 0;
-
-        try {
-            return this.data
-                    .getJSONObject("wifi.handling")
-                    .getInt("timeout");
-        } catch (JSONException exception) {
-            throw new AvarioException(
-                    Constants.ERROR_STATE_MISSINGKEY,
-                    exception,
-                    new Object[]{"wifi.handling.timeout"}
-            );
-        }
-    }
-
+    /**
+     * @param entityId
+     * @return rooms from the bootstrap
+     * @throws AvarioException
+     */
     public JSONObject getRoom(String entityId) throws AvarioException {
         if (!this.hasData())
             return null;
