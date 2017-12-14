@@ -83,7 +83,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_marginStart="275dp"
-            android:background="@color/white__90">
+            android:background="@color/white__5">
 
             <ImageButton
                 android:id="@+id/devices"
