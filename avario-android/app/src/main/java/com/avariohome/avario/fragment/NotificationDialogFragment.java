@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
+import com.avariohome.avario.api.models.DeleteNotification;
 import com.avariohome.avario.bus.TriggerUpdate;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.Notification;
@@ -144,6 +145,7 @@ public class NotificationDialogFragment extends DialogFragment {
         if (isUpdateApp) {
             EventBus.getDefault().post(new TriggerUpdate("0.24.0"));
         }
+        EventBus.getDefault().post(new DeleteNotification());
         shown = false;
         isUpdateApp = false;
         super.onDetach();

@@ -1137,9 +1137,7 @@ public class SettingsDialogFragment extends DialogFragment {
             AvarioException exception = new AvarioException(
                     error instanceof AuthFailureError ? Constants.ERROR_BOOTSTRAP_AUTHENTICATION :
                             error instanceof ParseError ? Constants.ERROR_BOOTSTRAP_INVALID :
-                                    Constants.ERROR_BOOTSTRAP_UNREACHABLE,
-
-                    error
+                                    Constants.ERROR_BOOTSTRAP_UNREACHABLE, error
             );
 
             self.config.restore();

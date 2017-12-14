@@ -69,6 +69,7 @@ import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
 import com.avariohome.avario.api.component.DaggerUserComponent;
 import com.avariohome.avario.api.component.UserComponent;
+import com.avariohome.avario.api.models.DeleteNotification;
 import com.avariohome.avario.apiretro.models.Version;
 import com.avariohome.avario.apiretro.services.UpdateService;
 import com.avariohome.avario.bus.ShowNotification;
@@ -2692,6 +2693,11 @@ public class MainActivity extends BaseActivity {
         if (!isNotificationListVisible())
             showNotificationDialog(notification.getNotification());
 
+        notification = null;
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeleteNotification(DeleteNotification deleteNotification) {
         notification = null;
     }
 }
