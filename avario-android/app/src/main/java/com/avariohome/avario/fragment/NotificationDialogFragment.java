@@ -55,6 +55,10 @@ public class NotificationDialogFragment extends DialogFragment {
     private static final String TIMER_ID = "notifdialog";
     public static boolean shown = false;
 
+    private interface WebUpdateListener {
+        void updateCompleted();
+    }
+
     /*
     To: null
     From: 359276913279
@@ -145,11 +149,6 @@ public class NotificationDialogFragment extends DialogFragment {
         super.onDetach();
     }
 
-
-    private interface WebUpdateListener {
-        void updateCompleted();
-    }
-
     public void resetArguments(Bundle arguments) {
         Notification notification = arguments.getParcelable("notification");
 
@@ -159,6 +158,10 @@ public class NotificationDialogFragment extends DialogFragment {
         );
     }
 
+
+    /**
+     * Destroying the webview after the notification dialog is closed
+     */
     public void destroyWebView() {
 
         // Make sure you remove the WebView from its parent view before doing anything.
@@ -190,7 +193,13 @@ public class NotificationDialogFragment extends DialogFragment {
         webview = null;
     }
 
-
+    /**
+     * Rendering the message for whole dialog includes
+     * the message, title, button etc...
+     *
+     * @param dialog
+     * @param notification
+     */
     private void renderMessage(Dialog dialog, Notification notification) {
         if (notification == null)
             return;
@@ -233,6 +242,10 @@ public class NotificationDialogFragment extends DialogFragment {
     }
 
 
+    /**
+     * The class in which where the calls from javascript
+     * is being handled
+     */
     public class WebAppInterface {
         private Context mContext;
         private WebUpdateListener webUpdateListener;
@@ -253,19 +266,6 @@ public class NotificationDialogFragment extends DialogFragment {
             }
         }
     }
-
-    private WebUpdateListener webUpdateListener = new WebUpdateListener() {
-        @Override
-        public void updateCompleted() {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    closeB.setEnabled(true);
-                    closeB.setTextColor(getResources().getColor(R.color.black__60));
-                }
-            });
-        }
-    };
 
     /**
      * Creates and adds the buttons according to the "buttons" directive received from the
@@ -518,6 +518,20 @@ public class NotificationDialogFragment extends DialogFragment {
         protected void startTimer() {
         }
     }
+
+
+    private WebUpdateListener webUpdateListener = new WebUpdateListener() {
+        @Override
+        public void updateCompleted() {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    closeB.setEnabled(true);
+                    closeB.setTextColor(getResources().getColor(R.color.black__60));
+                }
+            });
+        }
+    };
 
     /*
      ***********************************************************************************************
