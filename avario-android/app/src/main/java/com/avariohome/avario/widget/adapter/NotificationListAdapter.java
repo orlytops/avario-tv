@@ -21,13 +21,13 @@ import java.util.List;
  * Created by memengski on 7/11/17.
  */
 
-public class NotifListAdapter extends RecyclerView.Adapter<NotifListAdapter.ViewHolder> {
+public class NotificationListAdapter extends RecyclerView.Adapter<NotificationListAdapter.ViewHolder> {
 
   private List<Notification> notifications;
   private NotificationListDialogFragment.Listener listener;
 
-  public NotifListAdapter(List<Notification> notifications,
-      NotificationListDialogFragment.Listener listener)  {
+  public NotificationListAdapter(List<Notification> notifications,
+                                 NotificationListDialogFragment.Listener listener)  {
     super();
     this.notifications = notifications;
     this.listener = listener;

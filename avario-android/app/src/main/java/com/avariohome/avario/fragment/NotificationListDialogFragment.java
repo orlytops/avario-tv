@@ -16,7 +16,7 @@ import android.widget.Button;
 import com.avariohome.avario.R;
 import com.avariohome.avario.core.Notification;
 import com.avariohome.avario.core.NotificationArray;
-import com.avariohome.avario.widget.adapter.NotifListAdapter;
+import com.avariohome.avario.widget.adapter.NotificationListAdapter;
 
 /**
  * Created by memengski on 7/11/17.
@@ -27,7 +27,7 @@ public class NotificationListDialogFragment extends DialogFragment {
 
     private Listener listener;
 
-    private NotifListAdapter adapter;
+    private NotificationListAdapter adapter;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -71,7 +71,7 @@ public class NotificationListDialogFragment extends DialogFragment {
 
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-        this.adapter = new NotifListAdapter(
+        this.adapter = new NotificationListAdapter(
                 NotificationArray.getInstance().getNotifications(),
                 listener);
         recyclerView.setAdapter(this.adapter);
