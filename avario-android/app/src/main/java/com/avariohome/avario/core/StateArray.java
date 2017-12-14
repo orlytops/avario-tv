@@ -14,7 +14,6 @@ import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.PlatformUtil;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -418,6 +417,11 @@ public class StateArray {
         }
     }
 
+
+    /**
+     * @return all the rooms from bootstrap by order
+     * @throws AvarioException
+     */
     public JSONArray getRooms() throws AvarioException {
         if (!this.hasData())
             return null;
@@ -454,6 +458,10 @@ public class StateArray {
         return outputJSON;
     }
 
+    /**
+     * @return all the climate from bootstrap
+     * @throws AvarioException
+     */
     public JSONObject getClimate() throws AvarioException {
         if (!this.hasData())
             return null;
@@ -469,6 +477,12 @@ public class StateArray {
         }
     }
 
+
+    /**
+     * @param dialId
+     * @return dial properties by ID of the dial from the bootstrap
+     * @throws AvarioException
+     */
     public JSONObject getDial(String dialId) throws AvarioException {
         if (!this.hasData() || dialId == null)
             return null;
@@ -486,6 +500,11 @@ public class StateArray {
         }
     }
 
+    /**
+     * @param dialbuttonId
+     * @return dial button properties by dial button ID
+     * @throws AvarioException
+     */
     public JSONObject getDialButton(String dialbuttonId) throws AvarioException {
         if (!this.hasData() || dialbuttonId == null)
             return null;
@@ -503,6 +522,11 @@ public class StateArray {
         }
     }
 
+
+    /**
+     * @return all the states of Dial Buttons
+     * @throws AvarioException
+     */
     public JSONObject getDialButtonStates() throws AvarioException {
         if (!this.hasData())
             return null;
@@ -519,6 +543,11 @@ public class StateArray {
         }
     }
 
+    /**
+     * @param stateId
+     * @return the state of a dial button by state ID
+     * @throws AvarioException
+     */
     public JSONObject getDialButtonState(String stateId) throws AvarioException {
         if (!this.hasData() || stateId == null)
             return null;
@@ -536,6 +565,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @param errorCode
+     * @return R.string.error__generic id error code is unknown
+     */
     public String getErrorMessage(String errorCode) {
         String message;
         Log.d("Error code", errorCode);
@@ -562,6 +595,10 @@ public class StateArray {
         return message;
     }
 
+    /**
+     * @return wifi timeout from bootstarap
+     * @throws AvarioException
+     */
     public int getWifiTimeout() throws AvarioException {
         try {
             return this.data
@@ -577,6 +614,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return hold delay when showing the settings dialog
+     * @throws AvarioException
+     */
     public int getSettingsHoldDelay() throws AvarioException {
         try {
             return this.data
@@ -592,6 +633,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return API error delay
+     * @throws AvarioException
+     */
     public int getAPIErrorDelay() throws AvarioException {
         try {
             return this.data
@@ -607,6 +652,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return idle delay for dials
+     * @throws AvarioException
+     */
     public int getIdleDelay() throws AvarioException {
         try {
             return this.data
@@ -622,6 +671,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return nagle delay for dials
+     * @throws AvarioException
+     */
     public int getNagleDelay() throws AvarioException {
         try {
             return this.data
@@ -637,6 +690,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return nagle delay for media
+     * @throws AvarioException
+     */
     public int getNagleMediaDelay() throws AvarioException {
         try {
             return this.data
@@ -652,6 +709,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return inactivity delay
+     * @throws AvarioException
+     */
     public int getInactivityDelay() throws AvarioException {
         if (!hasData()) {
             return 20000;
@@ -671,6 +732,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return dekay for posting bluetooth
+     * @throws AvarioException
+     */
     public int getPostBLEDelay() throws AvarioException {
         if (!hasData()) {
             return 0;
@@ -693,6 +758,12 @@ public class StateArray {
      ***********************************************************************************************
      * API
      ***********************************************************************************************
+     */
+
+    /**
+     * @param configId the IP that should be use
+     * @return username for authentication
+     * @throws AvarioException
      */
     public String getHTTPUsername(String configId) throws AvarioException {
         if (!this.hasData())
@@ -724,6 +795,11 @@ public class StateArray {
         }
     }
 
+    /**
+     * @param configId the IP that should be use
+     * @return password for authentication
+     * @throws AvarioException
+     */
     public String getHTTPPassword(String configId) throws AvarioException {
         if (!this.hasData())
             return null;
@@ -797,6 +873,11 @@ public class StateArray {
         }
     }
 
+
+    /**
+     * @return currnet state for request
+     * @throws AvarioException
+     */
     public JSONObject getCurrentStateRequest() throws AvarioException {
         try {
             return new JSONObject(
@@ -815,6 +896,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return endpoint for bluetooth
+     * @throws AvarioException
+     */
     public JSONObject getBluetoothEndpointRequest() throws AvarioException {
         if (!this.hasData()) {
             return null;
@@ -840,6 +925,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return API properties for fcm
+     * @throws AvarioException
+     */
     public JSONObject getFCMRequest() throws AvarioException {
         if (!this.hasData()) {
             return null;
@@ -861,6 +950,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return all the topics for FCM
+     * @throws AvarioException
+     */
     public JSONArray getFCMTopics() throws AvarioException {
         if (!hasData()) {
             return null;
@@ -884,6 +977,11 @@ public class StateArray {
      ***********************************************************************************************
      * MQTT Stuff
      ***********************************************************************************************
+     */
+
+    /**
+     * @return current settings for MQTT
+     * @throws AvarioException
      */
     public JSONObject getMQTTSettings() throws AvarioException {
         Log.d("Has data", hasData() + "");
@@ -909,6 +1007,10 @@ public class StateArray {
         }
     }
 
+    /**
+     * @return all settings property of the security tab
+     * @throws AvarioException
+     */
     public JSONObject getSettingsSecurityTab() throws AvarioException {
         try {
             return this.data
@@ -923,13 +1025,10 @@ public class StateArray {
         }
     }
 
-    public Connectivity getConnectivityDetails() throws JSONException {
-        String result = this.data
-                .getJSONObject("settings")
-                .getJSONObject("connectivity").toString();
-        return new Gson().fromJson(result, Connectivity.class);
-    }
-
+    /**
+     * @return all LAN MAC list
+     * @throws AvarioException
+     */
     public JSONArray getLanMacList() throws AvarioException {
         try {
             return this.data
@@ -959,6 +1058,10 @@ public class StateArray {
         return val;
     }
 
+    /**
+     * @return all settings fo the power tab
+     * @throws AvarioException
+     */
     public JSONObject getSettingsPowerTab() throws AvarioException {
         try {
             return this.data
