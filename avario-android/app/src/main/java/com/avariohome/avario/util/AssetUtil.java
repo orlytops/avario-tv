@@ -84,6 +84,10 @@ public class AssetUtil {
         );
     }*/
 
+    /**
+     * @param context
+     * @return current picasso instance used in the app
+     */
     public static Picasso picasso(Context context) {
         if (picasso == null) {
             HostnameVerifier verifier = APIClient.getDevHostnameVerifier();
@@ -131,6 +135,15 @@ public class AssetUtil {
         }
     };
 
+    /**
+     * url image directly loaded by picasso
+     * picasso handles the download if the image is already downloaded
+     *
+     * @param context
+     * @param assetId  id for the current image
+     * @param callback listener for the image on load
+     * @param image    imageview where the url is being loaded
+     */
     public static void loadImage(Context context, int assetId, DrawableLoader.Callback callback, View image) {
 
         String[] urls = AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId));
@@ -145,6 +158,15 @@ public class AssetUtil {
         }
     }
 
+    /**
+     * urls image directly loaded by picasso
+     * picasso handles the download if the image is already downloaded
+     *
+     * @param context
+     * @param urls     that's need to be loaded
+     * @param callback callback listener for image download
+     * @param image    imageview where the url is being loaded
+     */
     public static void loadImage(Context context, String[] urls, DrawableLoader.Callback callback, View image) {
         for (String url : urls) {
             if (image instanceof ImageButton) {
@@ -157,6 +179,12 @@ public class AssetUtil {
         }
     }
 
+    /**
+     * @param context
+     * @param assetId  id for the asset that should be used
+     * @param callback return callback for a successful image load
+     * @return drawable that is being converted by picasso from the downloaded url
+     */
     public static DrawableLoader toDrawable(Context context, int assetId, DrawableLoader.Callback callback) {
 
         return AssetUtil.toDrawable(
@@ -166,6 +194,12 @@ public class AssetUtil {
         );
     }
 
+    /**
+     * @param context
+     * @param urls     that should be handled by picasso
+     * @param callback return callback for a successful image load
+     * @return drawable that is being converted by picasso from the downloaded urs
+     */
     public static DrawableLoader toDrawable(Context context, String[] urls, DrawableLoader.Callback callback) {
         DrawableLoader task;
 
@@ -182,6 +216,12 @@ public class AssetUtil {
         );
     }
 
+
+    /**
+     * @param context
+     * @param urls    that should be handled
+     * @return drawable that gets from urls
+     */
     public static Drawable toDrawable(Context context, String[] urls) {
         DrawableLoader task;
 
@@ -195,6 +235,12 @@ public class AssetUtil {
         }
     }
 
+
+    /**
+     * @param context
+     * @param urls    that should be handled
+     * @return string urls
+     */
     public static String[] toAbsoluteURLs(Context context, String[] urls) {
         String[] output = new String[urls.length];
         String root = AssetUtil.getAssetRoot(context);

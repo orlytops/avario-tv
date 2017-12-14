@@ -83,9 +83,7 @@ public class ApiModule {
 
 
     /**
-     * get the OkHttpclient here you set all the interceptors for the client
-     *
-     * @return
+     * @return the OkHttpclient here you set all the interceptors for the client
      */
     private OkHttpClient getClient() {
         config = Config.getInstance();
