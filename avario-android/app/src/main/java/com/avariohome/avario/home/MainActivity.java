@@ -85,8 +85,8 @@ import com.avariohome.avario.core.NotificationArray;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.fragment.DialFragment;
-import com.avariohome.avario.fragment.NotificationListDialogFragment;
 import com.avariohome.avario.fragment.NotificationDialogFragment;
+import com.avariohome.avario.fragment.NotificationListDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.presenters.UpdatePresenter;
@@ -342,7 +342,7 @@ public class MainActivity extends BaseActivity {
         timerIsStarted = false;
 
         if (notification != null) {
-            showNotifDialog(notification);
+            showNotificationDialog(notification);
         }
 
         try {
@@ -458,7 +458,7 @@ public class MainActivity extends BaseActivity {
                 | PowerManager.ACQUIRE_CAUSES_WAKEUP
                 | PowerManager.ON_AFTER_RELEASE, "INFO");
         wl.acquire();
-*/
+        */
         KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         kl = km.newKeyguardLock("name");
         kl.disableKeyguard();
@@ -614,6 +614,10 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+
+    /**
+     * Spinner for the android side
+     */
     private void initSpinner() {
         final int[] check = {0};
 
@@ -720,7 +724,7 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private boolean isNotifListVisible() {
+    private boolean isNotificationListVisible() {
         FragmentManager manager = MainActivity.this.getFragmentManager();
 
         NotificationListDialogFragment notifListFragment;
@@ -1165,6 +1169,7 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    //TODO: Creates simple parsing code for this suggestion is to use GSON
     private void updateElements(StateArray state, JSONArray elementsJSON) {
         ElementAdapter adapter = this.elementsBar.getAdapter();
         int newSize = elementsJSON.length(),
@@ -1235,6 +1240,7 @@ public class MainActivity extends BaseActivity {
         Log.d("Element", adapter.size() + "");
     }
 
+    //TODO: Creates simple parsing code for this suggestion is to use GSON
     private void updateDevices(StateArray state, JSONArray controlsJSON) {
         DeviceAdapter adapter = this.devicesList.getAdapter();
         int newSize = controlsJSON.length(),
@@ -1312,6 +1318,10 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+
+    /**
+     * TODO: Cross fader in the drawer for mobile
+     */
     private void handleCrossFader() {
 
         result = new DrawerBuilder()
@@ -1380,7 +1390,11 @@ public class MainActivity extends BaseActivity {
         this.showSettingsDialog(this.confListener);
     }
 
-    private void showNotifListDialog() {
+
+    /**
+     * Shows the notification list dialog
+     */
+    private void showNotificationListDialog() {
         FragmentTransaction transaction = this.getFragmentManager().beginTransaction();
 
         NotificationListDialogFragment notifListDialogFragment = new NotificationListDialogFragment();
@@ -1388,9 +1402,13 @@ public class MainActivity extends BaseActivity {
         notifListDialogFragment.show(transaction, "notif-list-dialog");
     }
 
-    private void showNotifDialog(Notification notification) {
+    /**
+     * Shows the Notification Dialog
+     *
+     * @param notification
+     */
+    private void showNotificationDialog(Notification notification) {
         FragmentManager manager = this.getFragmentManager();
-        // show notifications dialog
         String fragmentTag = "notif-dialog";
         NotificationDialogFragment notificationFragment;
         Bundle bundle;
@@ -1416,6 +1434,7 @@ public class MainActivity extends BaseActivity {
         } else if (notificationFragment != null) {
             notificationFragment.resetArguments(bundle);
         }
+
         notification = null;
     }
 
@@ -1514,7 +1533,7 @@ public class MainActivity extends BaseActivity {
                     break;
 
                 case R.id.notif:
-                    self.showNotifListDialog();
+                    self.showNotificationListDialog();
                     break;
                 case R.id.content:
                     handleInactive(self);
@@ -1566,42 +1585,6 @@ public class MainActivity extends BaseActivity {
 
                 case R.id.temperature:
                     self.activateModeClimate();
-
-                   /* byte[] buffer;
-                    try {
-                        InputStream is = getAssets().open("notif.json");
-                        int size = 0;
-
-                        size = is.available();
-
-                        buffer = new byte[size];
-                        is.read(buffer);
-                        is.close();
-
-
-                        String myJson = new String(buffer, "UTF-8");
-
-
-                        try {
-                            JSONObject obj = new JSONObject(myJson);
-                            Notification notification = new Notification(obj);
-
-
-                            Intent intent = new Intent()
-                                    .setAction(Constants.BROADCAST_NOTIF)
-                                    .putExtra("notification", notification);
-
-                            LocalBroadcastManager
-                                    .getInstance(MainActivity.this)
-                                    .sendBroadcast(intent);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }*/
-
                     break;
             }
         }
@@ -1871,14 +1854,14 @@ public class MainActivity extends BaseActivity {
         public void onDialogDetached() {
             MainActivity self = MainActivity.this;
 
-            self.isNotifListVisible();
+            self.isNotificationListVisible();
             self.checkNotifications();
         }
 
         @Override
         public void onSelectedItem(Notification notification) {
             MainActivity self = MainActivity.this;
-            self.showNotifDialog(notification);
+            self.showNotificationDialog(notification);
         }
     }
 
@@ -1892,9 +1875,6 @@ public class MainActivity extends BaseActivity {
         public void onConnectionFailed(MqttConnection connection, AvarioException exception) {
             android.util.Log.v("ProgressDialog", "onConnectionFailed");
             // when connection fails, continue connecting to MQTT and show errors
-            MainActivity self = MainActivity.this;
-            String message;
-
             final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
@@ -1902,20 +1882,10 @@ public class MainActivity extends BaseActivity {
             if (connection.getRetryCount() < 10)
                 return;
 
-            // express to user the error
-            try {
-                message = StateArray
-                        .getInstance()
-                        .getErrorMessage(exception.getCode());
-            } catch (NullPointerException nullE) {
-                message = null;
-            }
-
             if (!mWifi.isConnected()) {
                 handleNoWifi();
             } else {
                 Connectivity.identifyConnection(getApplicationContext());
-                showBusyDialog(getString(R.string.message__mqtt__connecting));
                 Log.d("Connect Mqtt", "Main Activity");
                 connectMQTT(getString(R.string.message__mqtt__connecting));
             }
@@ -1934,22 +1904,12 @@ public class MainActivity extends BaseActivity {
             if (exception == null || self.settingsOpened)
                 return; // disconnected with no errors or we just shouldn't care because settings is opened
 
-            String message;
-
-            try {
-                message = StateArray
-                        .getInstance()
-                        .getErrorMessage(exception.getCode());
-            } catch (NullPointerException e) {
-                message = null;
-            }
             if (!mWifi.isConnected()) {
                 handleNoWifi();
             } else {
                 //self.connectMQTT(message);
 
                 Connectivity.identifyConnection(getApplicationContext());
-                showBusyDialog(getString(R.string.message__mqtt__connecting));
                 Log.d("Connect Mqtt", "Main Activity");
                 connectMQTT(getString(R.string.message__mqtt__connecting));
 
@@ -2729,8 +2689,8 @@ public class MainActivity extends BaseActivity {
         if (settingsOpened)
             return;
 
-        if (!isNotifListVisible())
-            showNotifDialog(notification.getNotification());
+        if (!isNotificationListVisible())
+            showNotificationDialog(notification.getNotification());
 
         notification = null;
     }
