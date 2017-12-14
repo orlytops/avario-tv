@@ -85,7 +85,7 @@ import com.avariohome.avario.core.NotificationArray;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.fragment.DialFragment;
-import com.avariohome.avario.fragment.NotifListDialogFragment;
+import com.avariohome.avario.fragment.NotificationListDialogFragment;
 import com.avariohome.avario.fragment.NotificationDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
@@ -723,9 +723,9 @@ public class MainActivity extends BaseActivity {
     private boolean isNotifListVisible() {
         FragmentManager manager = MainActivity.this.getFragmentManager();
 
-        NotifListDialogFragment notifListFragment;
+        NotificationListDialogFragment notifListFragment;
 
-        notifListFragment = (NotifListDialogFragment)
+        notifListFragment = (NotificationListDialogFragment)
                 manager.findFragmentByTag("notif-list-dialog");
 
         if (notifListFragment != null) {
@@ -1383,7 +1383,7 @@ public class MainActivity extends BaseActivity {
     private void showNotifListDialog() {
         FragmentTransaction transaction = this.getFragmentManager().beginTransaction();
 
-        NotifListDialogFragment notifListDialogFragment = new NotifListDialogFragment();
+        NotificationListDialogFragment notifListDialogFragment = new NotificationListDialogFragment();
         notifListDialogFragment.setListener(new NotificationListener());
         notifListDialogFragment.show(transaction, "notif-list-dialog");
     }
@@ -1865,7 +1865,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private class NotificationListener implements NotificationDialogFragment.Listener,
-            NotifListDialogFragment.Listener {
+            NotificationListDialogFragment.Listener {
 
         @Override
         public void onDialogDetached() {

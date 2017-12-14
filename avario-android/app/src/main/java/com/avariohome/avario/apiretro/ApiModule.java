@@ -73,8 +73,6 @@ public class ApiModule {
             domain = config.getHttpDomain();
         }*/
 
-        //use BuildConfig.BASEURL for freelancer API
-        //use BuildConfig.MOCKURL for freelancer API
         return new Retrofit.Builder()
                 .baseUrl(domain)
                 .client(getClientRetrofit())

@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.avariohome.avario.R;
 import com.avariohome.avario.core.Notification;
-import com.avariohome.avario.fragment.NotifListDialogFragment;
+import com.avariohome.avario.fragment.NotificationListDialogFragment;
 import com.avariohome.avario.util.PlatformUtil;
 
 import org.json.JSONException;
@@ -24,10 +24,10 @@ import java.util.List;
 public class NotifListAdapter extends RecyclerView.Adapter<NotifListAdapter.ViewHolder> {
 
   private List<Notification> notifications;
-  private NotifListDialogFragment.Listener listener;
+  private NotificationListDialogFragment.Listener listener;
 
   public NotifListAdapter(List<Notification> notifications,
-      NotifListDialogFragment.Listener listener)  {
+      NotificationListDialogFragment.Listener listener)  {
     super();
     this.notifications = notifications;
     this.listener = listener;
