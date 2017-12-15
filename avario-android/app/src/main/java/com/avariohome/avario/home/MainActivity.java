@@ -226,6 +226,13 @@ public class MainActivity extends BaseActivity {
     private AlertDialog.Builder builder;
     private AlertDialog alert11;
 
+    //Alert Dialog for update
+    private AlertDialog.Builder builderUpdate;
+    private AlertDialog alertUpdate;
+
+    private AlertDialog.Builder builderError;
+    private AlertDialog alertError;
+
     private List<IDrawerItem> itemDrawers = new ArrayList<>();
     private List<Integer> deviceSelected = new ArrayList<>();
     private Bundle savedInstanceState;
@@ -237,8 +244,6 @@ public class MainActivity extends BaseActivity {
     private WifiReceiver wifiReceiver = new WifiReceiver();
     private static Thread.UncaughtExceptionHandler mDefaultUncaughtExceptionHandler;
 
-    private AlertDialog.Builder builderUpdate;
-    private AlertDialog alertUpdate;
 
     private ProgressDialog progressDownload;
 
@@ -286,6 +291,7 @@ public class MainActivity extends BaseActivity {
         alert11 = builder.create();
 
         builderUpdate = new AlertDialog.Builder(this);
+        builderError = new AlertDialog.Builder(this);
 
         this.handler = Application.mainHandler;
 
@@ -2537,7 +2543,27 @@ public class MainActivity extends BaseActivity {
 
             try {
                 inputStream = body.byteStream();
-                installPackage(this, inputStream);
+
+                if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
+                    installPackage(this, inputStream);
+                } else {
+
+                    builderError.setTitle("Installation Failed");
+                    builderError.setMessage("Avario Home is not set as device owner.");
+                    builderError.setCancelable(false);
+
+                    builderError.setNegativeButton(
+                            "Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                    alertError = builderError.create();
+                    alertError.show();
+
+                }
                 return true;
             } catch (IOException e) {
                 return false;
@@ -2680,7 +2706,11 @@ public class MainActivity extends BaseActivity {
             progressDownload.cancel();
             progressDownload = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
             progressDownload.setMessage("Installing Update...");
-            progressDownload.show();
+            progressDownload.setCancelable(false);
+
+            if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
+                progressDownload.show();
+            }
         }
     }
 

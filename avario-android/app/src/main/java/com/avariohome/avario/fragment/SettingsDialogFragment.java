@@ -150,10 +150,11 @@ public class SettingsDialogFragment extends DialogFragment {
     private DevicePolicyManager mDevicePolicyManager;
     private PackageManager mPackageManager;
 
-
     private AlertDialog.Builder builderUpdate;
     private AlertDialog alertUpdate;
 
+    private AlertDialog.Builder builderError;
+    private AlertDialog alertError;
 
     private boolean reboot = false;
 
@@ -186,6 +187,7 @@ public class SettingsDialogFragment extends DialogFragment {
 //                .setNeutralButton(R.string.setting_get_new_bootstrap, null);
 
         dialog = builder.create();
+
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setOnShowListener(new DialogListener());
         return dialog;
@@ -234,6 +236,7 @@ public class SettingsDialogFragment extends DialogFragment {
     @RequiresApi(api = Build.VERSION_CODES.M)
     private View setupViews(LayoutInflater inflater, ViewGroup container) {
         builderUpdate = new AlertDialog.Builder(getActivity());
+        builderError = new AlertDialog.Builder(getActivity());
 
         View view = inflater.inflate(R.layout.fragment__settings, container, false);
 
@@ -547,8 +550,26 @@ public class SettingsDialogFragment extends DialogFragment {
                 long fileSizeDownloaded = 0;
 
                 inputStream = body.byteStream();
-                workingTV.setText("Installing update...");
-                installPackage(getActivity(), inputStream);
+                if (mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())) {
+                    installPackage(getActivity(), inputStream);
+                } else {
+
+                    builderError.setTitle("Installation Failed");
+                    builderError.setMessage("Avario Home is not set as device owner.");
+                    builderError.setCancelable(false);
+
+                    builderError.setNegativeButton(
+                            "Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                    alertError = builderError.create();
+                    alertError.show();
+
+                }
                /* outputStream = new FileOutputStream(futureStudioIconFile);
 
                 while (true) {
