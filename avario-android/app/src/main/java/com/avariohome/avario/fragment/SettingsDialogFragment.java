@@ -48,6 +48,7 @@ import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.ParseError;
 import com.android.volley.VolleyError;
+import com.avariohome.avario.BuildConfig;
 import com.avariohome.avario.Constants;
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
@@ -550,7 +551,26 @@ public class SettingsDialogFragment extends DialogFragment {
                 long fileSizeDownloaded = 0;
 
                 inputStream = body.byteStream();
-                if (mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())) {
+
+
+                if (BuildConfig.DEBUG) {
+
+                    builderError.setTitle("Installation Failed");
+                    builderError.setMessage("Application is not signed.");
+                    builderError.setCancelable(false);
+
+                    builderError.setNegativeButton(
+                            "Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                    alertError = builderError.create();
+                    alertError.show();
+
+                } else if (mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())) {
                     installPackage(getActivity(), inputStream);
                 } else {
 
@@ -568,7 +588,6 @@ public class SettingsDialogFragment extends DialogFragment {
 
                     alertError = builderError.create();
                     alertError.show();
-
                 }
                /* outputStream = new FileOutputStream(futureStudioIconFile);
 

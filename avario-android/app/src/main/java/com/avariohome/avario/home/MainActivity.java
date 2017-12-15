@@ -63,6 +63,7 @@ import com.android.volley.ParseError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.avariohome.avario.Application;
+import com.avariohome.avario.BuildConfig;
 import com.avariohome.avario.Constants;
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
@@ -2544,7 +2545,25 @@ public class MainActivity extends BaseActivity {
             try {
                 inputStream = body.byteStream();
 
-                if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
+
+                if (BuildConfig.DEBUG) {
+
+                    builderError.setTitle("Installation Failed");
+                    builderError.setMessage("Application is not signed.");
+                    builderError.setCancelable(false);
+
+                    builderError.setNegativeButton(
+                            "Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                    alertError = builderError.create();
+                    alertError.show();
+
+                } else if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
                     installPackage(this, inputStream);
                 } else {
 
@@ -2562,7 +2581,6 @@ public class MainActivity extends BaseActivity {
 
                     alertError = builderError.create();
                     alertError.show();
-
                 }
                 return true;
             } catch (IOException e) {
@@ -2708,7 +2726,7 @@ public class MainActivity extends BaseActivity {
             progressDownload.setMessage("Installing Update...");
             progressDownload.setCancelable(false);
 
-            if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName())) {
+            if (mDevicePolicyManager.isDeviceOwnerApp(getPackageName()) && !BuildConfig.DEBUG) {
                 progressDownload.show();
             }
         }
