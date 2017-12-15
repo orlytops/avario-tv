@@ -234,6 +234,9 @@ public class MainActivity extends BaseActivity {
     private AlertDialog.Builder builderError;
     private AlertDialog alertError;
 
+    private AlertDialog.Builder builderShowUpdated;
+    private AlertDialog alertShowUpdated;
+
     private List<IDrawerItem> itemDrawers = new ArrayList<>();
     private List<Integer> deviceSelected = new ArrayList<>();
     private Bundle savedInstanceState;
@@ -293,6 +296,7 @@ public class MainActivity extends BaseActivity {
 
         builderUpdate = new AlertDialog.Builder(this);
         builderError = new AlertDialog.Builder(this);
+        builderShowUpdated = new AlertDialog.Builder(this);
 
         this.handler = Application.mainHandler;
 
@@ -438,6 +442,8 @@ public class MainActivity extends BaseActivity {
                                     try {
                                         if (am.getLockTaskModeState() ==
                                                 ActivityManager.LOCK_TASK_MODE_NONE) {
+
+                                            //in case of emergency self destruct use adb reboot recovery
                                             startLockTask();
                                             Config config = Config.getInstance();
                                             config.setIsKiosk(true);
@@ -471,6 +477,7 @@ public class MainActivity extends BaseActivity {
         kl = km.newKeyguardLock("name");
         kl.disableKeyguard();
         Log.d("MainActivity", "onResume");
+
     }
 
     @Override
