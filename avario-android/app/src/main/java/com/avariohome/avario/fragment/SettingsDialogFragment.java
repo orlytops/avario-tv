@@ -391,7 +391,7 @@ public class SettingsDialogFragment extends DialogFragment {
         }
 
         public void onNext(ResponseBody responseBody) {
-            writeResponseBodyToDisk(responseBody);
+            installResponse(responseBody);
         }
     };
 
@@ -533,26 +533,14 @@ public class SettingsDialogFragment extends DialogFragment {
      * @return if the install is successful
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean writeResponseBodyToDisk(ResponseBody body) {
-
-        // todo change the file location/name according to your needs
+    private boolean installResponse(ResponseBody body) {
         try {
-            File futureStudioIconFile = new File(getActivity().getExternalFilesDir(null) + File.separator + "app-release.apk");
-
-            File outputFile = new File(futureStudioIconFile, "app-release.apk");
-
             InputStream inputStream = null;
-            OutputStream outputStream = null;
 
             try {
-                byte[] fileReader = new byte[4096];
-
-                long fileSize = body.contentLength();
-                long fileSizeDownloaded = 0;
-
                 inputStream = body.byteStream();
 
-
+                //apk will not be installed if the current build is not signed
                 if (BuildConfig.DEBUG) {
 
                     builderError.setTitle("Installation Failed");
@@ -570,10 +558,11 @@ public class SettingsDialogFragment extends DialogFragment {
                     alertError = builderError.create();
                     alertError.show();
 
+                    //needs device ownership to install
+                    //because we're using package installer
                 } else if (mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())) {
                     installPackage(getActivity(), inputStream);
                 } else {
-
                     builderError.setTitle("Installation Failed");
                     builderError.setMessage("Avario Home is not set as device owner.");
                     builderError.setCancelable(false);
@@ -589,23 +578,6 @@ public class SettingsDialogFragment extends DialogFragment {
                     alertError = builderError.create();
                     alertError.show();
                 }
-               /* outputStream = new FileOutputStream(futureStudioIconFile);
-
-                while (true) {
-                    int read = inputStream.read(fileReader);
-
-                    if (read == -1) {
-                        break;
-                    }
-
-                    outputStream.write(fileReader, 0, read);
-
-                    fileSizeDownloaded += read;
-
-                    Log.d(TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
-                }
-
-                outputStream.flush();*/
                 return true;
             } catch (IOException e) {
                 return false;
@@ -613,27 +585,6 @@ public class SettingsDialogFragment extends DialogFragment {
                 if (inputStream != null) {
                     inputStream.close();
                 }
-
-                if (outputStream != null) {
-                    outputStream.close();
-                }
-
-                /*final ActivityManager am = (ActivityManager) getActivity().getSystemService(
-                        Context.ACTIVITY_SERVICE);
-
-                if (am.getLockTaskModeState() ==
-                        ActivityManager.LOCK_TASK_MODE_LOCKED) {
-                    getActivity().stopLockTask();
-                    Config config = Config.getInstance();
-                    config.setIsKiosk(false);
-                }*/
-                /*Log.d("Path", futureStudioIconFile.getAbsolutePath());
-
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.fromFile(new File(futureStudioIconFile.getAbsolutePath())),
-                        "application/vnd.android.package-archive");
-                getActivity().startActivityForResult(intent, 0);*/
-                //installPackage(getActivity(), inputStream);
             }
 
         } catch (IOException e) {
