@@ -1,7 +1,7 @@
 # avarioHome_android
 Avario Home App for Android
 
-## Testing the app update:
+## Testing the app update locally:
 
 1. Install first the `v0.22.0` apk.
 2. Create a folder named `tablet` on `www/local` this is where the bootstrap.json is located to.
