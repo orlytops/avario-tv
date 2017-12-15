@@ -15,6 +15,13 @@ App should be in kiosk mode.
 
 There are two ways on how to update the app first is through the interval checking for the updates, it will popup the Alert Dialog. Second is through the Settings.
 
+NOTE: App should be always be in kiosk mode when updating else the app won't update itself.
+should perform the adb stuf enable it.
+
+```
+adb shell dpm set-device-owner com.avariohome.avario/.service.AvarioReceiver
+```
+
 ## Instructions for kiosk mode:
 
 1. First install the apk.
