@@ -1327,9 +1327,7 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    /**
-     * TODO: Cross fader in the drawer for mobile
-     */
+    //TODO: Cross fader in the drawer for mobile
     private void handleCrossFader() {
 
         result = new DrawerBuilder()
@@ -1446,6 +1444,11 @@ public class MainActivity extends BaseActivity {
         notification = null;
     }
 
+    /**
+     * Progress dialog view that is being used int the MainActivity
+     *
+     * @param message that should be displayed in th progress dialog
+     */
     private void showBusyDialog(String message) {
         android.util.Log.v("ProgressDialog", "Showing dialog");
         if (!this.visible)

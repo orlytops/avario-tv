@@ -226,6 +226,14 @@ public class NotificationDialogFragment extends DialogFragment {
         this.webview.setVisibility(View.GONE);
     }
 
+
+    /**
+     * This is where you initialize all the views that is involved
+     * in the process for the Notification Dialog
+     *
+     * @param inflater
+     * @return the view used in Notification Dialog
+     */
     private View setupViews(LayoutInflater inflater) {
         View view = inflater.inflate(R.layout.fragment__notifdialog, null, false);
 

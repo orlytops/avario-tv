@@ -470,11 +470,12 @@ public class SettingsDialogFragment extends DialogFragment {
     }
 
     /**
-     * checks if the version available in the local brain needs update
+     * Checks if the version passes is a higher version than the current version installed
      *
-     * @param context of theapp
-     * @param version came from the local brain version.json
-     * @return if the app needs to update
+     * @param context
+     * @param version the available version tha got from local/tablet/version.json
+     * @return true if the app needs an update
+     * false if the app is up to date
      */
     private boolean needsUpdate(Context context, String version) {
         try {
@@ -634,6 +635,12 @@ public class SettingsDialogFragment extends DialogFragment {
         session.close();
     }
 
+
+    /**
+     * Kiosk handling this is where the kiosk mode handled
+     * and make the whole device in kiosk mode showing the
+     * avario app only
+     */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void startKiosk() {
         Observable.create(new Observable.OnSubscribe<Object>() {

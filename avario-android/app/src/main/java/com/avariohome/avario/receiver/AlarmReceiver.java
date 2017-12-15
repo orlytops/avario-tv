@@ -78,6 +78,14 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
 
+    /**
+     * Checks if the version passes is a higher version than the current version installed
+     *
+     * @param context
+     * @param version the available version tha got from local/tablet/version.json
+     * @return true if the app needs an update
+     * false if the app is up to date
+     */
     private boolean needsUpdate(Context context, String version) {
         try {
 
