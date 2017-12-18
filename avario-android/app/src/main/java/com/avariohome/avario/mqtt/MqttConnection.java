@@ -72,7 +72,7 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
 
         this.action = null;
         this.status = Status.NONE;
-        this.retriesMax = 5;
+        this.retriesMax = 10;
         this.retries = 1;
 
         this.context = context;
@@ -332,11 +332,11 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
                     this
             );
         } catch (MqttException exception) {
-            throw new AvarioException(
+            /*throw new AvarioException(
                     Constants.ERROR_MQTT_SUBSCRIPTION,
                     exception,
                     new Object[]{this.subscription.topic}
-            );
+            );*/
         }
     }
 
@@ -453,7 +453,7 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
 
     private boolean onActionConnect(MqttException mqttException) {
         int reasonCode = mqttException.getReasonCode();
-
+        Log.d(TAG, "Reason code: " + reasonCode);
         if (reasonCode == MqttException.REASON_CODE_CONNECT_IN_PROGRESS)
             return false;
         else if (reasonCode == MqttException.REASON_CODE_CLIENT_CONNECTED)

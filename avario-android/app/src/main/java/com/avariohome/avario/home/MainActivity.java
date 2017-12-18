@@ -292,7 +292,6 @@ public class MainActivity extends BaseActivity {
         }
 
         builder = new AlertDialog.Builder(MainActivity.this);
-        alert11 = builder.create();
 
         builderUpdate = new AlertDialog.Builder(this);
         builderError = new AlertDialog.Builder(this);
@@ -1476,6 +1475,9 @@ public class MainActivity extends BaseActivity {
 
         if (!this.progressPD.isShowing() && !this.isFinishing() && !this.isDestroyed())
             this.progressPD.show();
+
+        battery.bringToFront();
+        battery.invalidate();
     }
 
     private void hideBusyDialog() {
@@ -1886,12 +1888,13 @@ public class MainActivity extends BaseActivity {
     private class MqttConnectionListener implements MqttConnection.Listener {
         @Override
         public void onConnection(MqttConnection connection, boolean reconnection) {
-            android.util.Log.v("ProgressDialog", "onConnection");
+            android.util.Log.v("MainActivity/MQTT", "onConnection");
+            timerIsStarted = false;
         }
 
         @Override
         public void onConnectionFailed(MqttConnection connection, AvarioException exception) {
-            android.util.Log.v("ProgressDialog", "onConnectionFailed");
+            android.util.Log.v("MainActivity/MQTT", "onConnectionFailed");
             // when connection fails, continue connecting to MQTT and show errors
             final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -1901,10 +1904,11 @@ public class MainActivity extends BaseActivity {
                 return;
 
             if (!mWifi.isConnected()) {
+                android.util.Log.v("MainActivity/MQTT", "handleNoWifi");
                 handleNoWifi();
             } else {
                 Connectivity.identifyConnection(getApplicationContext());
-                Log.d("Connect Mqtt", "Main Activity");
+                android.util.Log.v("MainActivity/MQTT", "connectMQTT");
                 connectMQTT(getString(R.string.message__mqtt__connecting));
             }
 
@@ -1912,8 +1916,10 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onDisconnection(MqttConnection connection, AvarioException exception) {
-            android.util.Log.v("ProgressDialog", "onDisconnection");
+            android.util.Log.v("MainActivity/MQTT", "onDisconnection");
             MainActivity self = MainActivity.this;
+
+            timerIsStarted = false;
 
             final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -1927,16 +1933,29 @@ public class MainActivity extends BaseActivity {
             } else {
                 //self.connectMQTT(message);
 
-                Connectivity.identifyConnection(getApplicationContext());
-                Log.d("Connect Mqtt", "Main Activity");
-                connectMQTT(getString(R.string.message__mqtt__connecting));
+                MqttManager manager = MqttManager.getInstance();
+
+                if (manager.isConnected()) {
+                    manager
+                            .getConnection()
+                            .setListener(mqttListener);
+
+                    loadFromStateArray();
+                    fetchCurrentStates();
+
+                    showBusyDialog(null);
+                } else if (!settingsOpened) {
+                    Connectivity.identifyConnection(getApplicationContext());
+                    Log.d("MainActivity/MQTT", "Main Activity");
+                    connectMQTT(getString(R.string.message__mqtt__connecting));
+                }
 
             }
         }
 
         @Override
         public void onSubscription(MqttConnection connection) {
-            android.util.Log.v("ProgressDialog", "onSubscription");
+            android.util.Log.v("MainActivity/MQTT", "onSubscription");
             MainActivity self = MainActivity.this;
             self.showBusyDialog(null);
             self.fetchCurrentStates();
@@ -1962,37 +1981,41 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onSubscriptionError(MqttConnection connection, AvarioException exception) {
-            android.util.Log.v("ProgressDialog", "onSubscriptionError");
-            PlatformUtil
+            android.util.Log.v("MainActivity/MQTT", "onSubscriptionError");
+            /*PlatformUtil
                     .getErrorToast(MainActivity.this, exception)
-                    .show();
+                    .show();*/
+            final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+            // max retries not reached: silently retry
+            if (connection.getRetryCount() < 10)
+                return;
+
+            if (!mWifi.isConnected()) {
+                android.util.Log.v("MainActivity/MQTT", "handleNoWifi");
+                handleNoWifi();
+            } else {
+                Connectivity.identifyConnection(getApplicationContext());
+                android.util.Log.v("MainActivity/MQTT", "connectMQTT");
+                connectMQTT(getString(R.string.message__mqtt__connecting));
+            }
         }
 
         @Override
         public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous, MqttConnection.Status current) {
-            android.util.Log.v("ProgressDialog", "onStatusChanged");
+            android.util.Log.v("MainActivity/MQTT", "onStatusChanged");
         }
     }
 
     private void handleNoWifi() {
 
-        IntentFilter mIntentFilter = new IntentFilter();
-        mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
-        mIntentFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-        try {
-            registerReceiver(wifiReceiver, mIntentFilter);
-        } catch (Exception e) {
-
-        }
-
 
         showBusyDialog("Connecting to WiFi...");
 
         final StateArray states = StateArray.getInstance(this.getApplicationContext());
-        if (!timerIsStarted) {
+        Log.d("MainActivity/MQTT", timerIsStarted + "");
+        if (!countDownTimer.hasRunStarted()) {
             final Handler mHandler = new Handler();
 
             new Thread(new Runnable() {
@@ -2004,19 +2027,31 @@ public class MainActivity extends BaseActivity {
 
                             try {
                                 timerTimeOut = states.getWifiTimeout();
-                                Log.d("Timeout", states.getWifiTimeout() + "");
+                                Log.d("MainActivity/MQTT", "Timeout: " + states.getWifiTimeout() + "");
                             } catch (AvarioException e) {
                                 e.printStackTrace();
                             }
                             countDownTimer.setMillisInFuture(timerTimeOut);
-                            if (!timerIsStarted) {
-                                timerIsStarted = true;
+                            if (!countDownTimer.hasRunStarted()) {
                                 countDownTimer.start();
+                                timerIsStarted = true;
                             }
                         }
                     });
                 }
             }).start();
+        }
+
+        IntentFilter mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+        mIntentFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+        try {
+            registerReceiver(wifiReceiver, mIntentFilter);
+        } catch (Exception e) {
+
         }
     }
 
@@ -2072,15 +2107,16 @@ public class MainActivity extends BaseActivity {
                                                         e.printStackTrace();
                                                     }
                                                     countDownTimer.setMillisInFuture(timerTimeOut);
-                                                    if (!timerIsStarted) {
+                                                    if (!hasRunStarted()) {
                                                         timerIsStarted = true;
                                                         countDownTimer.start();
                                                     }
                                                     dialog.cancel();
                                                 }
                                             });
-
-                                    alert11 = builder.create();
+                                    if (alert11 == null) {
+                                        alert11 = builder.create();
+                                    }
 
                                     if (!alert11.isShowing()) {
                                         alert11.show();
@@ -2656,13 +2692,18 @@ public class MainActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(WifiConnected event) {
         if (event.isConnected()) {
-            Log.d("MainActivity", "Connected");
+            Log.d("MainActivity/MQTT", "Connected Wifi");
             countDownTimer.cancel();
             isHasWifi = true;
             //connectMQTT(this.getString(R.string.message__mqtt__connecting));
             Connectivity.identifyConnection(getApplicationContext());
             showBusyDialog(getString(R.string.message__mqtt__connecting));
             connectMQTT(getString(R.string.message__mqtt__connecting));
+        } else {
+            Log.d("MainActivity/MQTT", "Disconnected Wifi");
+            countDownTimer.start();
+            timerIsStarted = false;
+            isHasWifi = false;
         }
     }
 

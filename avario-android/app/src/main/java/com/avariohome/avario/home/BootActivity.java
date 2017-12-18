@@ -605,6 +605,8 @@ public class BootActivity extends BaseActivity {
             countDownTimer.cancel();
             isHasWifi = true;
             loadBootstrap();
+        } else {
+            isHasWifi = false;
         }
 
     }

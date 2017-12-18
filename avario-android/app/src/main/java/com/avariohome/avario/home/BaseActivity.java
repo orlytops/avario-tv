@@ -81,7 +81,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         this.settingsOpened = true;
     }
 
-    protected void connectMQTTNaive(MqttConnection.Listener listener, boolean refresh) throws JSONException, MqttException {
+    protected void connectMQTTNaive(MqttConnection.Listener listener, boolean refresh, boolean firstConnect) throws JSONException, MqttException {
         MqttManager.getInstance();
         MqttManager manager = MqttManager.getInstance();
         MqttConnection connection;
@@ -126,15 +126,19 @@ public abstract class BaseActivity extends AppCompatActivity {
                 return;
             } else {
                 Log.d(TAG, "reset");
-                MqttManager.updateConnection(connection, mqttJSON);
-                connection.reset();
-                /*connection = MqttManager.createConnection(
-                        this.getApplicationContext(),
-                        mqttJSON
-                );
+                if (firstConnect) {
+                    MqttManager.updateConnection(connection, mqttJSON);
+                    connection.reset();
+                } else {
+                    connection = MqttManager.createConnection(
+                            this.getApplicationContext(),
+                            mqttJSON
+                    );
 
-                manager.setConnection(connection);
-                connection.reset();*/
+                    manager.setConnection(connection);
+                    connection.reset();
+
+                }
             }
         }
 
@@ -144,7 +148,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void connectMQTT(MqttConnection.Listener listener, boolean refresh) {
         try {
-            this.connectMQTTNaive(listener, refresh);
+            this.connectMQTTNaive(listener, refresh, false);
         } catch (JSONException | MqttException exception) {
             int code = exception instanceof MqttException
                     ? Constants.ERROR_MQTT_CONNECTION
@@ -174,7 +178,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         @Override
         public void attemptMQTT(MqttConnection.Listener listener) throws JSONException, MqttException {
-            BaseActivity.this.connectMQTTNaive(listener, true);
+            BaseActivity.this.connectMQTTNaive(listener, true, true);
         }
     }
 }

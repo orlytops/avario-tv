@@ -136,6 +136,7 @@ public abstract class MyCountDownTimer {
 
                 if (millisLeft <= 0) {
                     onFinish();
+                    hasStarted = false;
                 } else if (millisLeft < mCountdownInterval) {
                     // no tick, just delay until done
                     sendMessageDelayed(obtainMessage(MSG), millisLeft);
@@ -149,7 +150,7 @@ public abstract class MyCountDownTimer {
                     // special case: user's onTick took more than interval to
                     // complete, skip to next interval
                     while (delay < 0) delay += mCountdownInterval;
-
+                    hasStarted = true;
                     sendMessageDelayed(obtainMessage(MSG), delay);
                 }
             }

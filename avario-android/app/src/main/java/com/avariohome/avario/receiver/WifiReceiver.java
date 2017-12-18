@@ -53,6 +53,7 @@ public class WifiReceiver extends BroadcastReceiver {
                     break;
                 case DISCONNECTED:
                     Log.i("SupplicantState", "Disconnected");
+                    EventBus.getDefault().post(new WifiConnected(false));
                     break;
                 case DORMANT:
                     Log.i("SupplicantState", "DORMANT");
