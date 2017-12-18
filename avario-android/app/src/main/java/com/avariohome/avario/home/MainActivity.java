@@ -227,6 +227,9 @@ public class MainActivity extends BaseActivity {
     private AlertDialog.Builder builder;
     private AlertDialog alert11;
 
+    private AlertDialog.Builder builderAuth;
+    private AlertDialog alertAuth;
+
     //Alert Dialog for update
     private AlertDialog.Builder builderUpdate;
     private AlertDialog alertUpdate;
@@ -292,10 +295,10 @@ public class MainActivity extends BaseActivity {
         }
 
         builder = new AlertDialog.Builder(MainActivity.this);
-
         builderUpdate = new AlertDialog.Builder(this);
         builderError = new AlertDialog.Builder(this);
         builderShowUpdated = new AlertDialog.Builder(this);
+        builderAuth = new AlertDialog.Builder(this);
 
         this.handler = Application.mainHandler;
 
@@ -369,10 +372,38 @@ public class MainActivity extends BaseActivity {
 
         final StateArray states = StateArray.getInstance(this.getApplicationContext());
 
-        try {
-            states.load();
-        } catch (AvarioException exception) {
-        }
+        Observable.create(new Observable.OnSubscribe<Object>() {
+            @Override
+            public void call(Subscriber<? super Object> subscriber) {
+
+                try {
+                    states.load();
+                } catch (AvarioException exception) {
+
+                }
+
+                subscriber.onNext(new Object());
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Object>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+
+                    }
+                });
+
         MqttManager manager = MqttManager.getInstance();
 
         if (manager.isConnected()) {
@@ -380,8 +411,32 @@ public class MainActivity extends BaseActivity {
                     .getConnection()
                     .setListener(this.mqttListener);
 
-            loadFromStateArray();
-            fetchCurrentStates();
+            Observable.create(new Observable.OnSubscribe<Object>() {
+                @Override
+                public void call(Subscriber<? super Object> subscriber) {
+                    loadFromStateArray();
+                    fetchCurrentStates();
+                    subscriber.onNext(new Object());
+                    subscriber.onCompleted();
+                }
+            }).subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<Object>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(Object o) {
+
+                        }
+                    });
 
             android.util.Log.v("ProgressDialog", "OnResume");
             //this.showBusyDialog(null);
@@ -442,7 +497,7 @@ public class MainActivity extends BaseActivity {
                                         if (am.getLockTaskModeState() ==
                                                 ActivityManager.LOCK_TASK_MODE_NONE) {
 
-                                            //in case of emergency self destruct use adb reboot recovery
+                                            //in case of emergency self destruct use 'adb reboot recovery'
                                             startLockTask();
                                             Config config = Config.getInstance();
                                             config.setIsKiosk(true);
@@ -2015,7 +2070,7 @@ public class MainActivity extends BaseActivity {
 
         final StateArray states = StateArray.getInstance(this.getApplicationContext());
         Log.d("MainActivity/MQTT", timerIsStarted + "");
-        if (!countDownTimer.hasRunStarted()) {
+        if (!timerIsStarted) {
             final Handler mHandler = new Handler();
 
             new Thread(new Runnable() {
@@ -2032,7 +2087,7 @@ public class MainActivity extends BaseActivity {
                                 e.printStackTrace();
                             }
                             countDownTimer.setMillisInFuture(timerTimeOut);
-                            if (!countDownTimer.hasRunStarted()) {
+                            if (!timerIsStarted) {
                                 countDownTimer.start();
                                 timerIsStarted = true;
                             }
@@ -2107,7 +2162,7 @@ public class MainActivity extends BaseActivity {
                                                         e.printStackTrace();
                                                     }
                                                     countDownTimer.setMillisInFuture(timerTimeOut);
-                                                    if (!hasRunStarted()) {
+                                                    if (!timerIsStarted) {
                                                         timerIsStarted = true;
                                                         countDownTimer.start();
                                                     }
@@ -2148,11 +2203,11 @@ public class MainActivity extends BaseActivity {
                         e.printStackTrace();
                     }
 
-                    builder.setTitle(title);
-                    builder.setMessage(message);
-                    builder.setCancelable(false);
+                    builderAuth.setTitle(title);
+                    builderAuth.setMessage(message);
+                    builderAuth.setCancelable(false);
 
-                    builder.setPositiveButton(
+                    builderAuth.setPositiveButton(
                             "Ok",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
@@ -2161,16 +2216,17 @@ public class MainActivity extends BaseActivity {
                                     countDownTimer.cancel();
                                 }
                             });
-
-                    alert11 = builder.create();
+                    if (alertAuth == null) {
+                        alertAuth = builderAuth.create();
+                    }
                     try {
                         unregisterReceiver(wifiReceiver);
                     } catch (Exception e) {
 
                     }
                     try {
-                        if (!alert11.isShowing()) {
-                            alert11.show();
+                        if (!alertAuth.isShowing()) {
+                            alertAuth.show();
                         }
                     } catch (Exception exception) {
 
