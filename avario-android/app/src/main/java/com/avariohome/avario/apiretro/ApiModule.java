@@ -1,9 +1,12 @@
 package com.avariohome.avario.apiretro;
 
 import com.avariohome.avario.apiretro.models.ProgressResponseBody;
+import com.avariohome.avario.apiretro.services.StateService;
 import com.avariohome.avario.apiretro.services.UpdateService;
 import com.avariohome.avario.apiretro.services.VersionService;
 import com.avariohome.avario.core.Config;
+import com.avariohome.avario.core.StateArray;
+import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.Log;
 
 import org.eclipse.paho.client.mqttv3.internal.websocket.Base64;
@@ -34,6 +37,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiModule {
 
     private Config config;
+    private StateArray stateArray;
 
     public ApiModule() {
     }
@@ -42,14 +46,25 @@ public class ApiModule {
     @Singleton
     Retrofit providesRetrofit() {
 
+        stateArray = StateArray.getInstance();
         config = Config.getInstance();
 
         String domain = "https://192.168.0.18:22443/";
-        if (config.getHttpHost() != null) {
-            Log.d("Domain", config.getHttpDomain());
-            domain = config.getHttpDomain();
+        Log.d("Domain", config.getHttpDomain());
+        try {
+            domain = stateArray.getHTTPHost("ip1");
+        } catch (AvarioException e) {
+            if (config.getHttpHost() != null) {
+                domain = config.getHttpDomain();
+            }
+            e.printStackTrace();
         }
 
+        if (domain == null) {
+            domain = "https://192.168.0.18:22443/";
+        }
+
+        Log.d("Domain API module", domain);
         //use BuildConfig.BASEURL for freelancer API
         //use BuildConfig.MOCKURL for freelancer API
         return new Retrofit.Builder()
@@ -86,8 +101,29 @@ public class ApiModule {
      * @return the OkHttpclient here you set all the interceptors for the client
      */
     private OkHttpClient getClient() {
+        stateArray = StateArray.getInstance();
         config = Config.getInstance();
+
+        String username = "avario";
+        String password = "avario";
+        try {
+            username = stateArray.getHTTPUsername("ip1");
+            password = stateArray.getHTTPPassword("ip1");
+        } catch (AvarioException e) {
+            if (config.getHttpHost() != null) {
+                username = config.getUsername();
+                password = config.getPassword();
+            }
+            e.printStackTrace();
+        }
+
+        if (username == null) {
+            username = "avario";
+            password = "avario";
+        }
         OkHttpClient.Builder client = new OkHttpClient.Builder();
+        final String finalUsername = username;
+        final String finalPassword = password;
         client.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
@@ -97,8 +133,8 @@ public class ApiModule {
                         .header("Content-Type", "application/json")
                         .header("Authorization", String.format("Basic %s", Base64.encode(String.format(
                                 "%s:%s",
-                                config.getUsername(),
-                                config.getPassword()
+                                finalUsername,
+                                finalPassword
                         ))))
                         .method(original.method(), original.body())
                         .build();
@@ -175,6 +211,12 @@ public class ApiModule {
     @Singleton
     public UpdateService providesUserService(Retrofit retrofit) {
         return retrofit.create(UpdateService.class);
+    }
+
+    @Provides
+    @Singleton
+    public StateService providesStateService(Retrofit retrofit) {
+        return retrofit.create(StateService.class);
     }
 
     @Provides

@@ -109,9 +109,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
             manager.setConnection(connection);
         }
-
-        connection.setListener(listener);
-
         String newHost = mqttJSON.getString("host");
 
         Log.d(TAG, "Host: " + newHost + " " + connection.getHost() + " " + manager.isConnected() + " " + connection.getStatus());
@@ -126,6 +123,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                 return;
             } else {
                 Log.d(TAG, "reset");
+               /* MqttManager.updateConnection(connection, mqttJSON);
+                connection.reset();*/
                 if (firstConnect) {
                     MqttManager.updateConnection(connection, mqttJSON);
                     connection.reset();
@@ -142,12 +141,15 @@ public abstract class BaseActivity extends AppCompatActivity {
             }
         }
 
+
+        connection.setListener(listener);
         connection.connect();
 
     }
 
     protected void connectMQTT(MqttConnection.Listener listener, boolean refresh) {
         try {
+            Log.d(TAG, "listener is null: " + (listener == null));
             this.connectMQTTNaive(listener, refresh, false);
         } catch (JSONException | MqttException exception) {
             int code = exception instanceof MqttException

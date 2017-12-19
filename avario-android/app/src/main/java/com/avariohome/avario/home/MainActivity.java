@@ -72,6 +72,7 @@ import com.avariohome.avario.api.component.DaggerUserComponent;
 import com.avariohome.avario.api.component.UserComponent;
 import com.avariohome.avario.api.models.DeleteNotification;
 import com.avariohome.avario.apiretro.models.Version;
+import com.avariohome.avario.apiretro.services.StateService;
 import com.avariohome.avario.apiretro.services.UpdateService;
 import com.avariohome.avario.bus.ShowNotification;
 import com.avariohome.avario.bus.TriggerUpdate;
@@ -91,6 +92,7 @@ import com.avariohome.avario.fragment.NotificationDialogFragment;
 import com.avariohome.avario.fragment.NotificationListDialogFragment;
 import com.avariohome.avario.mqtt.MqttConnection;
 import com.avariohome.avario.mqtt.MqttManager;
+import com.avariohome.avario.presenters.StatesPresenter;
 import com.avariohome.avario.presenters.UpdatePresenter;
 import com.avariohome.avario.receiver.AlarmReceiver;
 import com.avariohome.avario.receiver.WifiReceiver;
@@ -116,6 +118,7 @@ import com.avariohome.avario.widget.adapter.EventAdapter;
 import com.avariohome.avario.widget.adapter.MediaAdapter;
 import com.avariohome.avario.widget.adapter.RoomEntity;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.JsonArray;
 import com.mikepenz.crossfader.Crossfader;
 import com.mikepenz.crossfader.util.UIUtils;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -159,9 +162,13 @@ public class MainActivity extends BaseActivity {
 
     @Inject
     UpdateService userService;
+
+    @Inject
+    StateService stateService;
+
     private UserComponent userComponent;
     private UpdatePresenter updatePresenter;
-
+    private StatesPresenter statesPresenter;
 
     public static final String TAG = "Avario/MainActivity";
 
@@ -275,6 +282,7 @@ public class MainActivity extends BaseActivity {
         userComponent = DaggerUserComponent.builder().build();
         userComponent.inject(this);
         updatePresenter = new UpdatePresenter(userService);
+        statesPresenter = new StatesPresenter(stateService);
 
         progressDownload = new ProgressDialog(this);
 
@@ -407,6 +415,10 @@ public class MainActivity extends BaseActivity {
         MqttManager manager = MqttManager.getInstance();
 
         if (manager.isConnected()) {
+
+            if (this.mqttListener == null) {
+                this.mqttListener = new MqttConnectionListener();
+            }
             manager
                     .getConnection()
                     .setListener(this.mqttListener);
@@ -1561,11 +1573,18 @@ public class MainActivity extends BaseActivity {
                     .getErrorToast(this, exception)
                     .show();
         }
+
+        // statesPresenter.getUpdate(stateObserver);
     }
 
     private void connectMQTT(String message) {
         Connectivity.identifyConnection(getApplicationContext());
-        this.showBusyDialog(message);
+        MqttManager manager = MqttManager.getInstance();
+        if (!manager.isConnected()) {
+            this.showBusyDialog(message);
+        } else {
+            this.showBusyDialog(null);
+        }
         Log.d("Connect Mqtt", "Main Activity");
         super.connectMQTT(new MqttConnectionListener(), false);
 
@@ -1906,6 +1925,9 @@ public class MainActivity extends BaseActivity {
             Log.d("On Detach", "detach");
             if (manager.isConnected()) {
                 isHasWifi = true;
+                if (self.mqttListener == null) {
+                    self.mqttListener = new MqttConnectionListener();
+                }
                 manager
                         .getConnection()
                         .setListener(self.mqttListener);
@@ -1989,7 +2011,9 @@ public class MainActivity extends BaseActivity {
                 //self.connectMQTT(message);
 
                 MqttManager manager = MqttManager.getInstance();
-
+                if (self.mqttListener == null) {
+                    self.mqttListener = new MqttConnectionListener();
+                }
                 if (manager.isConnected()) {
                     manager
                             .getConnection()
@@ -2016,7 +2040,9 @@ public class MainActivity extends BaseActivity {
             self.fetchCurrentStates();
 
             MqttManager manager = MqttManager.getInstance();
-
+            if (mqttListener == null) {
+                mqttListener = new MqttConnectionListener();
+            }
             if (manager.isConnected()) {
                 manager
                         .getConnection()
@@ -2188,6 +2214,10 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onFinish() {
 
+            final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+
             isHasWifi = false;
             final Handler mHandler = new Handler();
             mHandler.post(new Runnable() {
@@ -2225,7 +2255,7 @@ public class MainActivity extends BaseActivity {
 
                     }
                     try {
-                        if (!alertAuth.isShowing()) {
+                        if (!alertAuth.isShowing() && !mWifi.isConnected()) {
                             alertAuth.show();
                         }
                     } catch (Exception exception) {
@@ -2233,6 +2263,74 @@ public class MainActivity extends BaseActivity {
                     }
                 }
             });
+        }
+    };
+
+
+    private Observer<JsonArray> stateObserver = new Observer<JsonArray>() {
+        @Override
+        public void onCompleted() {
+
+        }
+
+        @Override
+        public void onError(final Throwable error) {
+
+            Log.i(TAG, "Request failed..", error);
+
+            Application.mainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    MainActivity activity = MainActivity.this;
+                    int code;
+
+                    Log.d(TAG, "Request failed", error);
+
+                    if (error instanceof TimeoutError)
+                        code = Constants.ERROR_CURRENTSTATE_TIMEOUT;
+                    else if (error instanceof ParseError)
+                        code = Constants.ERROR_CURRENTSTATE_PARSE;
+                    else if (error instanceof NetworkError)
+                        code = Constants.ERROR_CURRENTSTATE_NETWORK;
+                    else
+                        code = Constants.ERROR_CURRENTSTATE_HTTP_SERVER;
+
+                    /*if (code != Constants.ERROR_CURRENTSTATE_NETWORK && self.retries >= self.retriesMax) {
+                        self.retries = 0;
+                        self.reportError(new AvarioException(code, error));
+                    } else if (code != Constants.ERROR_CURRENTSTATE_NETWORK)
+                        self.reportError(new AvarioException(code, error));
+                    self.retries++;
+                    activity.fetchCurrentStates();*/
+                }
+            }, 2000);
+
+        }
+
+        @Override
+        public void onNext(final JsonArray jsonArray) {
+            Handler handler = Application.workHandler;
+            if (handler != null) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            try {
+                                StateArray.getInstance()
+                                        .updateFromHTTP(new JSONArray(jsonArray.toString()))
+                                        .broadcastChanges(null, StateArray.FROM_HTTP);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (AvarioException exception) {
+
+                        }
+
+                    }
+                });
+
+                MainActivity.this.hideBusyDialog();
+            }
         }
     };
 

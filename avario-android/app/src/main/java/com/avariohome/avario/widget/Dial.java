@@ -654,7 +654,7 @@ public class Dial extends FrameLayout {
         Log.d("Dialtypechane", "changeDialType");
         JSONObject entityJSON = this.entities.get(0);
         String dialId = "";
-        String brightnessId;
+        String brightnessId = "";
         String colourId;
         String saturationId;
         String tempratureId;
@@ -662,10 +662,12 @@ public class Dial extends FrameLayout {
         switch (id) {
             case R.id.dialbtn__brightness:
                 try {
-                    brightnessId = entityJSON
-                            .getJSONObject("dials")
-                            .getJSONObject("brightness")
-                            .getString("dial_type");
+                    if (entityJSON.has("dials")) {
+                        brightnessId = entityJSON
+                                .getJSONObject("dials")
+                                .getJSONObject("brightness")
+                                .getString("dial_type");
+                    }
                 } catch (JSONException exception) {
                     String[] msgArgs = new String[]{String.format(
                             "%s.dials.brightness.dial_type",

@@ -233,13 +233,30 @@ public class APIClient {
         final Config config = Config.getInstance();
         JsonObjectRequest request;
 
+        StateArray stateArray = StateArray.getInstance();
+
+        String domain = "https://192.168.0.18:22443/";
+        Log.d("Domain", config.getHttpDomain());
+        try {
+            domain = stateArray.getHTTPHost("ip1");
+        } catch (AvarioException e) {
+            if (config.getHttpHost() != null) {
+                domain = config.getHttpDomain();
+            }
+            e.printStackTrace();
+        }
+
+        if (domain == null) {
+            domain = "https://192.168.0.18:22443/";
+        }
+
         // Path can be null. If null or empty then
         // get default bootstrap path.
         if (path == null || path.isEmpty()) {
             path = config.getBootstrapURL();
         } else {
             path = String.format("%s%s",
-                    config.getHttpDomain(),
+                    domain,
                     path);
         }
 

@@ -55,6 +55,27 @@ public class AssetUtil {
 
     public static String getAssetRoot(Context context) {
         Config conf = Config.getInstance(context);
+
+        //TODO: for changing WAN/LAN
+        /*StateArray stateArray = StateArray.getInstance();
+        if (!stateArray.hasData()) {
+            try {
+                stateArray.load();
+            } catch (AvarioException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String host;
+
+        try {
+            host = stateArray.getHTTPHost("ip1");
+        } catch (AvarioException e) {
+            host = conf.getHttpHost();
+            e.printStackTrace();
+        }*/
+
+
         String url;
 
         url = String.format("%s%s", conf.getHttpDomain(), conf.getAssetRoot());

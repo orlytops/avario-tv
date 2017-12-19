@@ -251,6 +251,9 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
     }
 
     private void dispatchOnSubscription() {
+
+        Log.d(TAG, "listener is null: " + (listener == null));
+
         if (this.listener == null)
             return;
 
