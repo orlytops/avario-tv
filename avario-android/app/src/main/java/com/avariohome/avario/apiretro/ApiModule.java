@@ -7,11 +7,13 @@ import com.avariohome.avario.apiretro.services.VersionService;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
+import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.Log;
 
 import org.eclipse.paho.client.mqttv3.internal.websocket.Base64;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -39,6 +41,9 @@ public class ApiModule {
     private Config config;
     private StateArray stateArray;
 
+    private String username = "";
+    private String password = "";
+
     public ApiModule() {
     }
 
@@ -51,6 +56,8 @@ public class ApiModule {
 
         String domain = "https://192.168.0.18:22443/";
         Log.d("Domain", config.getHttpDomain());
+
+
         try {
             domain = stateArray.getHTTPHost("ip1");
         } catch (AvarioException e) {
@@ -64,7 +71,7 @@ public class ApiModule {
             domain = "https://192.168.0.18:22443/";
         }
 
-        Log.d("Domain API module", domain);
+        Log.d("Domain/API/module", domain + " " + Connectivity.isConnectedToLan());
         //use BuildConfig.BASEURL for freelancer API
         //use BuildConfig.MOCKURL for freelancer API
         return new Retrofit.Builder()
@@ -103,9 +110,6 @@ public class ApiModule {
     private OkHttpClient getClient() {
         stateArray = StateArray.getInstance();
         config = Config.getInstance();
-
-        String username = "avario";
-        String password = "avario";
         try {
             username = stateArray.getHTTPUsername("ip1");
             password = stateArray.getHTTPPassword("ip1");
@@ -121,9 +125,10 @@ public class ApiModule {
             username = "avario";
             password = "avario";
         }
+
+        Log.d("Username", username);
+        Log.d("Password", password);
         OkHttpClient.Builder client = new OkHttpClient.Builder();
-        final String finalUsername = username;
-        final String finalPassword = password;
         client.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
@@ -133,8 +138,8 @@ public class ApiModule {
                         .header("Content-Type", "application/json")
                         .header("Authorization", String.format("Basic %s", Base64.encode(String.format(
                                 "%s:%s",
-                                finalUsername,
-                                finalPassword
+                                username,
+                                password
                         ))))
                         .method(original.method(), original.body())
                         .build();
@@ -161,6 +166,9 @@ public class ApiModule {
                 return true;
             }
         });
+
+        client.connectTimeout(100, TimeUnit.SECONDS)
+                .readTimeout(100, TimeUnit.SECONDS);
         return client.build();
     }
 

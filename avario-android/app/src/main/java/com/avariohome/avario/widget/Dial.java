@@ -319,83 +319,71 @@ public class Dial extends FrameLayout {
         );
 
         // Switch Dial
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__power,
-                new AssetUtil.ImageViewCallback(this.switchPowerIB),
-                switchPowerIB
+                new AssetUtil.ImageViewCallback(this.switchPowerIB)
         );
 
         // Light Dial
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__power,
-                new AssetUtil.ImageViewCallback(this.lightPowerIB),
-                lightPowerIB
+                new AssetUtil.ImageViewCallback(this.lightPowerIB)
         );
 
         // Colour Dial
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__power,
-                new AssetUtil.ImageViewCallback(this.colourPowerIB),
-                colourPowerIB
+                new AssetUtil.ImageViewCallback(this.colourPowerIB)
         );
 
         // Saturation Dial
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__power,
-                new AssetUtil.ImageViewCallback(this.saturationPowerIB),
-                saturationPowerIB
+                new AssetUtil.ImageViewCallback(this.saturationPowerIB)
         );
 
         // Temprature Dial
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__power,
-                new AssetUtil.ImageViewCallback(this.tempraturePowerIB),
-                tempraturePowerIB
+                new AssetUtil.ImageViewCallback(this.tempraturePowerIB)
         );
 
         // Volume Dial
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__power,
-                new AssetUtil.ImageViewCallback(this.volumePowerIB),
-                volumePowerIB
+                new AssetUtil.ImageViewCallback(this.volumePowerIB)
         );
 
         // Thermo Dial
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__power,
-                new AssetUtil.ImageViewCallback(this.thermoPowerIB),
-                thermoPowerIB
+                new AssetUtil.ImageViewCallback(this.thermoPowerIB)
         );
 
         // MediaDpad Dial
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__dpad__center,
-                new AssetUtil.ImageViewCallback(this.mediadpadCenterIB),
-                mediadpadCenterIB
+                new AssetUtil.ImageViewCallback(this.mediadpadCenterIB)
         );
 
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__dpad__up,
-                new AssetUtil.ImageViewCallback(this.mediadpadUpIB),
-                mediadpadUpIB
+                new AssetUtil.ImageViewCallback(this.mediadpadUpIB)
         );
 
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__dpad__down,
-                new AssetUtil.ImageViewCallback(this.mediadpadDownIB),
-                mediadpadDownIB
+                new AssetUtil.ImageViewCallback(this.mediadpadDownIB)
         );
 
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__dpad__left,
-                new AssetUtil.ImageViewCallback(this.mediadpadLeftIB),
-                mediadpadLeftIB
+                new AssetUtil.ImageViewCallback(this.mediadpadLeftIB)
         );
 
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 context, R.array.ic__dial__dpad__right,
-                new AssetUtil.ImageViewCallback(this.mediadpadRightIB),
-                mediadpadRightIB
+                new AssetUtil.ImageViewCallback(this.mediadpadRightIB)
         );
     }
 

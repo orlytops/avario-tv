@@ -17,20 +17,20 @@ import java.util.Map;
 /**
  * Loads assets and Maps them into specific Android view states (activated, selected, pressed,
  * default).
- *
+ * <p>
  * This is not the class you want to use for warming up the cache
- *
+ * <p>
  * Created by aeroheart-c6 on 02/03/2017.
  */
 public class DrawableLoader extends AssetLoaderTask<Map<int[], Bitmap>> {
     public static final String TAG = "Avario/DrawableLoader";
 
-    private static int[] stateDefault = new int[] {};
-    private static int[][] states = new int[][] {
-        new int[] {android.R.attr.state_activated},
-        new int[] {android.R.attr.state_selected},
-        new int[] {android.R.attr.state_pressed},
-        stateDefault,
+    private static int[] stateDefault = new int[]{};
+    private static int[][] states = new int[][]{
+            new int[]{android.R.attr.state_activated},
+            new int[]{android.R.attr.state_selected},
+            new int[]{android.R.attr.state_pressed},
+            stateDefault,
     };
 
     private Callback callback;
@@ -85,17 +85,16 @@ public class DrawableLoader extends AssetLoaderTask<Map<int[], Bitmap>> {
 
             // return a BitmapDrawable
             return bitmap == null
-                 ? AssetUtil.getPlaceholderDrawable(this.context)
-                 : new BitmapDrawable(context.getResources(), bitmap);
-        }
-        else {
+                    ? AssetUtil.getPlaceholderDrawable(this.context)
+                    : new BitmapDrawable(context.getResources(), bitmap);
+        } else {
             // Return a StateListDrawable
             StateListDrawable states = new StateListDrawable();
 
             for (Map.Entry<int[], Bitmap> entry : assets.entrySet())
                 states.addState(
-                    entry.getKey(),
-                    new BitmapDrawable(context.getResources(), entry.getValue())
+                        entry.getKey(),
+                        new BitmapDrawable(context.getResources(), entry.getValue())
                 );
 
             return states;
@@ -109,7 +108,9 @@ public class DrawableLoader extends AssetLoaderTask<Map<int[], Bitmap>> {
      */
     public interface Callback {
         void onSuccess(Drawable drawable);
+
         void onFailure(AvarioException exception);
+
         void onCancel();
     }
 }

@@ -25,6 +25,8 @@ import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -97,9 +99,12 @@ import com.avariohome.avario.presenters.UpdatePresenter;
 import com.avariohome.avario.receiver.AlarmReceiver;
 import com.avariohome.avario.receiver.WifiReceiver;
 import com.avariohome.avario.service.AvarioReceiver;
+import com.avariohome.avario.service.DownloadImageService;
+import com.avariohome.avario.util.AssetLoaderTask;
 import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.CrossfadeWrapper;
+import com.avariohome.avario.util.DrawableLoader;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.MyCountDownTimer;
@@ -139,9 +144,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -258,10 +268,14 @@ public class MainActivity extends BaseActivity {
     private WifiReceiver wifiReceiver = new WifiReceiver();
     private static Thread.UncaughtExceptionHandler mDefaultUncaughtExceptionHandler;
 
-
     private ProgressDialog progressDownload;
 
     private Notification notification = null;
+
+    private int requestStateCount = 0;
+    private int serviceStart = 0;
+
+    private BatchAssetLoaderTask task;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -620,6 +634,86 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private void downloadAssetInBackground() {
+        Observable.create(new Observable.OnSubscribe<Object>() {
+            @Override
+            public void call(Subscriber<? super Object> subscriber) {
+                if (config.isSet()) {
+                    deleteAssetCache(getCacheDir());
+                    AssetLoaderTask.setPicasso(null);
+                    loadAssets();
+                }
+                subscriber.onNext(new Object());
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Object>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+
+                    }
+                });
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private boolean deleteAssetCache(File dir) {
+        Log.i(TAG, "deleting asset cache...");
+
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+
+            Log.i(TAG, "Length " + children.length);
+
+            for (String child : children)
+                deleteAssetCache(new File(dir, child));
+
+            return dir.delete();
+        } else if (dir != null && dir.isFile()) {
+            return dir.delete();
+        }
+        return false;
+    }
+
+    private void loadAssets() {
+        Context context = getApplicationContext();
+        Resources res = context.getResources();
+        String pkg = context.getPackageName();
+
+        Pattern pattern = Pattern.compile("^(ic|bg)__.+");
+        Field[] fields = R.array.class.getDeclaredFields();
+
+        List<String> urls = new ArrayList<>();
+
+        Log.i(TAG, "Pre-fetching all assets...");
+        for (Field field : fields) {
+            if (!pattern.matcher(field.getName()).matches())
+                continue;
+
+            Log.d(TAG, String.format("Preparing: %s", field.getName()));
+
+            String[] paths;
+
+            paths = res.getStringArray(res.getIdentifier(field.getName(), "array", pkg));
+            paths = AssetUtil.toAbsoluteURLs(context, paths);
+
+            urls.addAll(Arrays.asList(paths));
+        }
+
+        task = new BatchAssetLoaderTask(this.getApplicationContext());
+        task.execute(urls);
+    }
+
     private void initFCM() {
 //        this.startService(
 //            new Intent(this, FCMIntentService.class)
@@ -866,10 +960,10 @@ public class MainActivity extends BaseActivity {
         };
 
         for (int index = 0; index < resourceIds[0].length; index++) {
-            AssetUtil.loadImage(
+            AssetUtil.toDrawable(
                     this,
                     resourceIds[1][index],
-                    new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index])), (ImageButton) this.findViewById(resourceIds[0][index])
+                    new AssetUtil.ImageViewCallback((ImageButton) this.findViewById(resourceIds[0][index]))
             );
         }
     }
@@ -1559,7 +1653,7 @@ public class MainActivity extends BaseActivity {
 
     // TODO remove obsolete code
     private void fetchCurrentStates() {
-        if (this.stateListener == null)
+        /*if (this.stateListener == null)
             this.stateListener = new CurrentStateListener();
 
         try {
@@ -1572,9 +1666,17 @@ public class MainActivity extends BaseActivity {
             PlatformUtil
                     .getErrorToast(this, exception)
                     .show();
-        }
+        }*/
+        userComponent = DaggerUserComponent.builder().build();
+        userComponent.inject(this);
+        statesPresenter = new StatesPresenter(stateService);
 
-        // statesPresenter.getUpdate(stateObserver);
+        if (requestStateCount != 0) {
+            return;
+        }
+        requestStateCount++;
+        serviceStart = serviceStart + 1;
+        statesPresenter.getUpdate(stateObserver);
     }
 
     private void connectMQTT(String message) {
@@ -1728,6 +1830,23 @@ public class MainActivity extends BaseActivity {
                 return;
 
             self.dialFragment.setVolumeEntity(media.id);
+        }
+    }
+
+    public class BatchAssetLoaderTask extends DrawableLoader {
+        BatchAssetLoaderTask(Context context) {
+            super(context, null);
+        }
+
+
+        @Override
+        protected void onCancelled(Map<int[], Bitmap> assets) {
+
+        }
+
+        @Override
+        protected void onPostExecute(Map<int[], Bitmap> assets) {
+
         }
     }
 
@@ -1988,7 +2107,6 @@ public class MainActivity extends BaseActivity {
                 android.util.Log.v("MainActivity/MQTT", "connectMQTT");
                 connectMQTT(getString(R.string.message__mqtt__connecting));
             }
-
         }
 
         @Override
@@ -2022,7 +2140,7 @@ public class MainActivity extends BaseActivity {
                     loadFromStateArray();
                     fetchCurrentStates();
 
-                    showBusyDialog(null);
+                    hideBusyDialog();
                 } else if (!settingsOpened) {
                     Connectivity.identifyConnection(getApplicationContext());
                     Log.d("MainActivity/MQTT", "Main Activity");
@@ -2090,8 +2208,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void handleNoWifi() {
-
-
         showBusyDialog("Connecting to WiFi...");
 
         final StateArray states = StateArray.getInstance(this.getApplicationContext());
@@ -2213,7 +2329,6 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onFinish() {
-
             final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
@@ -2270,12 +2385,12 @@ public class MainActivity extends BaseActivity {
     private Observer<JsonArray> stateObserver = new Observer<JsonArray>() {
         @Override
         public void onCompleted() {
-
+            requestStateCount = 0;
         }
 
         @Override
         public void onError(final Throwable error) {
-
+            requestStateCount = 0;
             Log.i(TAG, "Request failed..", error);
 
             Application.mainHandler.postDelayed(new Runnable() {
@@ -2309,8 +2424,9 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onNext(final JsonArray jsonArray) {
+            requestStateCount = 0;
             Handler handler = Application.workHandler;
-            if (handler != null) {
+            /*if (handler != null) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -2330,9 +2446,67 @@ public class MainActivity extends BaseActivity {
                 });
 
                 MainActivity.this.hideBusyDialog();
-            }
+            }*/
+
+            Observable.create(new Observable.OnSubscribe<Object>() {
+                @Override
+                public void call(Subscriber<? super Object> subscriber) {
+                    try {
+                        try {
+                            StateArray.getInstance()
+                                    .updateFromHTTP(new JSONArray(jsonArray.toString()))
+                                    .broadcastChanges(null, StateArray.FROM_HTTP);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (AvarioException exception) {
+                    }
+
+                    subscriber.onNext(new Object());
+                    subscriber.onCompleted();
+                }
+            }).subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .delay(10000, TimeUnit.MILLISECONDS)
+                    .subscribe(new Observer<Object>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(Object o) {
+
+                            Log.d(TAG, "Service Start: " + serviceStart);
+                            if (Connectivity.isConnectedToLan()) {
+                                if (!isMyServiceRunning(DownloadImageService.class)) {
+                                    Intent intent = new Intent(MainActivity.this, DownloadImageService.class);
+                                    stopService(intent);
+                                    startService(intent);
+                                }
+                            }
+
+                        }
+                    });
+
+            MainActivity.this.hideBusyDialog();
         }
     };
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private class CurrentStateListener extends APIRequestListener<JSONArray> {
         private int retries;
@@ -2353,7 +2527,7 @@ public class MainActivity extends BaseActivity {
         public void onResponse(final JSONArray response) {
             super.onResponse(response);
 
-            Handler handler = Application.workHandler;
+            /*Handler handler = Application.workHandler;
             if (handler != null) {
                 handler.post(new Runnable() {
                     @Override
@@ -2370,7 +2544,42 @@ public class MainActivity extends BaseActivity {
                 });
 
                 MainActivity.this.hideBusyDialog();
-            }
+            }*/
+
+
+            Observable.create(new Observable.OnSubscribe<Object>() {
+                @Override
+                public void call(Subscriber<? super Object> subscriber) {
+                    try {
+                        StateArray.getInstance()
+                                .updateFromHTTP(response)
+                                .broadcastChanges(null, StateArray.FROM_HTTP);
+                    } catch (AvarioException exception) {
+                        CurrentStateListener.this.reportError(exception);
+                    }
+
+                    subscriber.onNext(new Object());
+                    subscriber.onCompleted();
+                }
+            }).subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<Object>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(Object o) {
+
+                        }
+                    });
+            MainActivity.this.hideBusyDialog();
         }
 
         // TODO call super.onErrorResponse() and then override super.forceTimerExpire()
@@ -2885,6 +3094,9 @@ public class MainActivity extends BaseActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
+                        userComponent = DaggerUserComponent.builder().build();
+                        userComponent.inject(MainActivity.this);
+                        updatePresenter = new UpdatePresenter(userService);
                         updatePresenter.getUpdate(observerUpdate);
                     }
                 });
@@ -2904,6 +3116,9 @@ public class MainActivity extends BaseActivity {
         alertUpdate.setButton(AlertDialog.BUTTON_NEUTRAL, "Don't show again", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                userComponent = DaggerUserComponent.builder().build();
+                userComponent.inject(MainActivity.this);
+                updatePresenter = new UpdatePresenter(userService);
                 updatePresenter.getVersion(observerVersion);
                 dialog.cancel();
             }

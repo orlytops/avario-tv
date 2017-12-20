@@ -91,11 +91,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         }
 
         try {
-            AssetUtil.loadImage(
+            AssetUtil.toDrawable(
                     holder.itemView.getContext(),
                     imageUrls,
-                    new AssetUtil.ImageViewCallback(holder.iconIV),
-                    holder.iconIV
+                    new AssetUtil.ImageViewCallback(holder.iconIV)
             );
         } catch (ArrayIndexOutOfBoundsException ignored) {
         }

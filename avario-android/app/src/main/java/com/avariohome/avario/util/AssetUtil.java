@@ -209,7 +209,7 @@ public class AssetUtil {
     public static DrawableLoader toDrawable(Context context, int assetId, DrawableLoader.Callback callback) {
 
         return AssetUtil.toDrawable(
-                context,
+                context.getApplicationContext(),
                 AssetUtil.toAbsoluteURLs(context, context.getResources().getStringArray(assetId)),
                 callback
         );
@@ -224,7 +224,7 @@ public class AssetUtil {
     public static DrawableLoader toDrawable(Context context, String[] urls, DrawableLoader.Callback callback) {
         DrawableLoader task;
 
-        task = new DrawableLoader(context, callback);
+        task = new DrawableLoader(context.getApplicationContext(), callback);
         task.execute(Arrays.asList(urls));
 
         return task;
@@ -246,7 +246,7 @@ public class AssetUtil {
     public static Drawable toDrawable(Context context, String[] urls) {
         DrawableLoader task;
 
-        task = new DrawableLoader(context, null);
+        task = new DrawableLoader(context.getApplicationContext(), null);
         task.execute(Arrays.asList(urls));
 
         try {
@@ -264,7 +264,7 @@ public class AssetUtil {
      */
     public static String[] toAbsoluteURLs(Context context, String[] urls) {
         String[] output = new String[urls.length];
-        String root = AssetUtil.getAssetRoot(context);
+        String root = AssetUtil.getAssetRoot(context.getApplicationContext());
 
         for (int index = 0; index < urls.length; index++)
             output[index] = String.format("%s%s", root, urls[index]);
@@ -293,7 +293,7 @@ public class AssetUtil {
 
         @Override
         public void onFailure(AvarioException exception) {
-            this.view.setImageDrawable(AssetUtil.getPlaceholderDrawable(this.view.getContext()));
+            //this.view.setImageDrawable(AssetUtil.getPlaceholderDrawable(this.view.getContext()));
         }
 
         @Override

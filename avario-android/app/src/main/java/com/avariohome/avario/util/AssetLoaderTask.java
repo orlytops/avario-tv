@@ -11,6 +11,8 @@ import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.exception.AvarioException;
 import com.jakewharton.picasso.OkHttp3Downloader;
+import com.squareup.picasso.Cache;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -40,7 +42,7 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
             OkHttpClient client;
 
             builder = builder
-                    .cache(OkHttp3Downloader.createDefaultCache(context))
+                    .cache(OkHttp3Downloader.createDefaultCache(context.getApplicationContext()))
                     .addNetworkInterceptor(new Interceptor() {
                         @Override
                         public Response intercept(@NonNull Interceptor.Chain chain) throws IOException {
@@ -49,10 +51,10 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
                                     config.getUsername(),
                                     config.getPassword()
                             );
-
                             return chain.proceed(
                                     chain.request().newBuilder()
                                             .addHeader("Authorization", credential)
+                                            .addHeader("Cache-Control", "max-age=" + (60 * 60 * 24 * 365))
                                             .build()
                             );
                         }
@@ -72,16 +74,51 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
 //                    }
 //                })
 
+
             if (verifier != null)
                 builder.hostnameVerifier(verifier);
 
             client = builder.build();
+            AssetLoaderTask.picasso = new Picasso.Builder(context.getApplicationContext())
+                    .memoryCache(new Cache() {
+                        @Override
+                        public Bitmap get(String key) {
+                            return null;
+                        }
 
-            AssetLoaderTask.picasso = new Picasso.Builder(context)
+                        @Override
+                        public void set(String key, Bitmap bitmap) {
+
+                        }
+
+                        @Override
+                        public int size() {
+                            return 0;
+                        }
+
+                        @Override
+                        public int maxSize() {
+                            return Integer.MAX_VALUE;
+                        }
+
+                        @Override
+                        public void clear() {
+
+                        }
+
+                        @Override
+                        public void clearKeyUri(String keyPrefix) {
+
+                        }
+                    })
                     .downloader(new OkHttp3Downloader(client))
                     .build();
 
-            //Picasso.setSingletonInstance(AssetLoaderTask.picasso);
+            try {
+                Picasso.setSingletonInstance(AssetLoaderTask.picasso);
+            } catch (Exception e) {
+
+            }
         }
         return AssetLoaderTask.picasso;
     }
@@ -115,6 +152,10 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
         }
     }
 
+    public static void setPicasso(Picasso picasso) {
+        AssetLoaderTask.picasso = picasso;
+    }
+
     @Override
     protected void onCancelled(Result result) {
         Log.d(TAG, "Task has been cancelled");
@@ -139,11 +180,20 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
 
             try {
                 android.util.Log.v(TAG, "Downloading " + url);
-                bitmap = AssetLoaderTask
-                        .picasso(this.context.getApplicationContext())
-                        .load(url)
-                        .get();
 
+                if (Connectivity.isConnectedToLan()) {
+                    bitmap = AssetLoaderTask
+                            .picasso(this.context.getApplicationContext())
+                            .load(url)
+                            .get();
+                } else {
+                    bitmap = AssetLoaderTask
+                            .picasso(this.context.getApplicationContext())
+                            .load(url)
+                            .networkPolicy(NetworkPolicy.OFFLINE)
+                            .get();
+
+                }
                 bitmaps.add(bitmap);
             } catch (IllegalArgumentException exception) {
                 bitmaps.add(null);

@@ -21,6 +21,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -66,9 +67,10 @@ import com.avariohome.avario.mqtt.MqttManager;
 import com.avariohome.avario.presenters.UpdatePresenter;
 import com.avariohome.avario.presenters.VersionPresenter;
 import com.avariohome.avario.service.AvarioReceiver;
+import com.avariohome.avario.util.AssetLoaderTask;
 import com.avariohome.avario.util.AssetUtil;
-import com.avariohome.avario.util.BlindAssetLoader;
 import com.avariohome.avario.util.Connectivity;
+import com.avariohome.avario.util.DrawableLoader;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.SystemUtil;
 import com.avariohome.avario.util.Validator;
@@ -88,6 +90,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -907,7 +910,7 @@ public class SettingsDialogFragment extends DialogFragment {
     }
 
     private void loadAssets() {
-        Context context = this.getActivity();
+        Context context = this.getActivity().getApplicationContext();
         Resources res = context.getResources();
         String pkg = context.getPackageName();
 
@@ -1057,6 +1060,7 @@ public class SettingsDialogFragment extends DialogFragment {
                     self.toggleError(false, "");
                     self.toggleWorking(true);
                     self.deleteAssetCache(self.getActivity().getCacheDir());
+                    AssetLoaderTask.setPicasso(null);
                     self.loadAssets();
                 }
             } else if (view.getId() == R.id.btnDownloadBootstrap) {
@@ -1198,12 +1202,12 @@ public class SettingsDialogFragment extends DialogFragment {
      * Inner Classes - Subtypes
      ***********************************************************************************************
      */
-    private class BatchAssetLoaderTask extends BlindAssetLoader {
+    public class BatchAssetLoaderTask extends DrawableLoader {
         BatchAssetLoaderTask(Context context) {
             super(context, null);
         }
 
-        @Override
+        /*@Override
         protected void onCancelled(Void result) {
             SettingsDialogFragment self = SettingsDialogFragment.this;
 
@@ -1219,6 +1223,32 @@ public class SettingsDialogFragment extends DialogFragment {
         protected void onPostExecute(Void result) {
             SettingsDialogFragment self = SettingsDialogFragment.this;
 
+            if (this.exception != null) {
+                self.toggleWorking(false);
+                self.toggleError(true, this.exception);
+                self.setEnabled(true);
+            } else {
+                self.toggleWorking(false);
+                self.setEnabled(true);
+                Toast.makeText(getContext(), "Assets downloaded", Toast.LENGTH_SHORT).show();
+            }
+        }*/
+
+        @Override
+        protected void onCancelled(Map<int[], Bitmap> assets) {
+            SettingsDialogFragment self = SettingsDialogFragment.this;
+
+            try {
+                self.toggleWorking(false);
+                self.setEnabled(true);
+            } catch (NullPointerException exception) {
+                Log.d(TAG, "Cancelling the task....", exception);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Map<int[], Bitmap> assets) {
+            SettingsDialogFragment self = SettingsDialogFragment.this;
             if (this.exception != null) {
                 self.toggleWorking(false);
                 self.toggleError(true, this.exception);

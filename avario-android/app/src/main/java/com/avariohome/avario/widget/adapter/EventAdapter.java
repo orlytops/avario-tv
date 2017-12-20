@@ -54,7 +54,7 @@ public class EventAdapter extends BaseAdapter {
 
         int image = listImageUrl.get(position);
 
-        AssetUtil.loadImage(convertView.getContext(), image, null, eventImage);
+        AssetUtil.toDrawable(convertView.getContext(), image, null);
 
         return convertView;
     }

@@ -224,18 +224,16 @@ public class RoomSelector extends RelativeLayout {
     }
 
     private void initializeAssets() {
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 this.getContext(),
                 R.array.ic__roomselect__more,
-                new AssetUtil.ImageViewCallback((ImageView) this.handleRL.findViewById(R.id.indicator)),
-                this.handleRL.findViewById(R.id.indicator)
+                new AssetUtil.ImageViewCallback((ImageView) this.handleRL.findViewById(R.id.indicator))
         );
 
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 this.getContext(),
                 R.array.ic__roomselect__locator,
-                new AssetUtil.ImageViewCallback((ImageView) this.handleRL.findViewById(R.id.location)),
-                this.handleRL.findViewById(R.id.location)
+                new AssetUtil.ImageViewCallback((ImageView) this.handleRL.findViewById(R.id.location))
         );
     }
 

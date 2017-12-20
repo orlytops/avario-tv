@@ -130,11 +130,10 @@ public class DevicesList extends RelativeLayout {
         this.cancelTV = (TextView) this.cancelRL.findViewById(R.id.text);
 
 
-        AssetUtil.loadImage(
+        AssetUtil.toDrawable(
                 this.getContext(),
                 R.array.ic__deviceslist__back,
-                new AssetUtil.ImageViewCallback((ImageView) this.headerRL.findViewById(R.id.icon)),
-                this.headerRL.findViewById(R.id.icon)
+                new AssetUtil.ImageViewCallback((ImageView) this.headerRL.findViewById(R.id.icon))
         );
         this.addView(this.headerRL);
     }

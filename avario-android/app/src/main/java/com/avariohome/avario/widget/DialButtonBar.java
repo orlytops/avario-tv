@@ -216,11 +216,10 @@ public class DialButtonBar extends LinearLayout {
             button = this.generateButton();
             button.setId(R.id.dialbtn__swap);
 
-            AssetUtil.loadImage(
+            AssetUtil.toDrawable(
                     this.getContext(),
                     R.array.ic__dialbtn__dpad,
-                    new AssetUtil.ImageViewCallback(button),
-                    button
+                    new AssetUtil.ImageViewCallback(button)
             );
 
             if (this.findViewById(R.id.dialbtn__switch) == null) {
@@ -575,11 +574,10 @@ public class DialButtonBar extends LinearLayout {
             } else
                 iconURL = buttonJSON.getString("icon_off");
 
-            AssetUtil.loadImage(
+            AssetUtil.toDrawable(
                     this.getContext(),
                     AssetUtil.toAbsoluteURLs(this.getContext(), new String[]{iconURL}),
-                    new AssetUtil.ImageViewCallback(button),
-                    button
+                    new AssetUtil.ImageViewCallback(button)
             );
         } catch (JSONException exception) {
             throw new AvarioException(
