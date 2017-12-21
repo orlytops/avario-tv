@@ -498,7 +498,7 @@ public class NotificationDialogFragment extends DialogFragment {
 
             closeB.setEnabled(false);
             closeB.setTextColor(getResources().getColor(R.color.gray1));
-
+            EventBus.getDefault().post(new DeleteNotification());
 
         }
     }
