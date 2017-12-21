@@ -440,7 +440,7 @@ public class DialButtonBar extends LinearLayout {
                 id = R.id.dialbtn__brightness;
                 break;
             case "temperature":
-                id = R.id.dialbtn__temprature;
+                id = R.id.dialbtn__temperature;
                 break;
             case "lightalgo1":
                 id = R.id.dialbtn__algo1;
@@ -837,7 +837,7 @@ public class DialButtonBar extends LinearLayout {
                 case R.id.dialbtn__brightness:
                     this.swapDial(source.getId());
                     return true;
-                case R.id.dialbtn__temprature:
+                case R.id.dialbtn__temperature:
                     this.swapDial(source.getId());
                     return true;
                 case R.id.dialbtn__home:
@@ -947,7 +947,7 @@ public class DialButtonBar extends LinearLayout {
                         swapDial(R.id.dialbtn__saturation);
                         break;
                     case TEMPERATURE:
-                        swapDial(R.id.dialbtn__temprature);
+                        swapDial(R.id.dialbtn__temperature);
                         break;
                 }
             }
@@ -984,7 +984,7 @@ public class DialButtonBar extends LinearLayout {
                 if (item.getKey().getId() == R.id.dialbtn__colour ||
                         item.getKey().getId() == R.id.dialbtn__brightness ||
                         item.getKey().getId() == R.id.dialbtn__saturation ||
-                        item.getKey().getId() == R.id.dialbtn__temprature) {
+                        item.getKey().getId() == R.id.dialbtn__temperature) {
                     return false;
                 }
 

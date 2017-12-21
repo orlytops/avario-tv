@@ -2465,7 +2465,7 @@ public class MainActivity extends BaseActivity {
                     subscriber.onNext(new Object());
                     subscriber.onCompleted();
                 }
-            }).subscribeOn(Schedulers.newThread())
+            }).subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
                     .delay(10000, TimeUnit.MILLISECONDS)
                     .subscribe(new Observer<Object>() {

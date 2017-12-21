@@ -8,7 +8,7 @@
     <item name="dialbtn__colour" type="id" />
     <item name="dialbtn__brightness" type="id" />
     <item name="dialbtn__saturation" type="id" />
-    <item name="dialbtn__temprature" type="id" />
+    <item name="dialbtn__temperature" type="id" />
     <item name="dialbtn__algo1" type="id" />
     <item name="dialbtn__algo2" type="id" />
     <item name="dialbtn__algo3" type="id" />

@@ -258,9 +258,9 @@ public class Dial extends FrameLayout {
 
         this.saturationPowerIB.setOnClickListener(clickListener);
 
-        holder = this.tempratureHolder = (FrameLayout) this.findViewById(R.id.acc__temprature__holder);
-        this.tempraturePercentTV = (TextView) this.findViewById(R.id.tempreature__percent);
-        this.tempraturePowerIB = (ImageButton) holder.findViewById(R.id.temprature__btn);
+        holder = this.tempratureHolder = (FrameLayout) this.findViewById(R.id.acc__temperature__holder);
+        this.tempraturePercentTV = (TextView) this.findViewById(R.id.temperature__percent);
+        this.tempraturePowerIB = (ImageButton) holder.findViewById(R.id.temperature__btn);
 
         this.tempraturePowerIB.setOnClickListener(clickListener);
 
@@ -713,7 +713,7 @@ public class Dial extends FrameLayout {
 
                 dialId = saturationId;
                 break;
-            case R.id.dialbtn__temprature:
+            case R.id.dialbtn__temperature:
                 try {
                     tempratureId = entityJSON
                             .getJSONObject("dials")

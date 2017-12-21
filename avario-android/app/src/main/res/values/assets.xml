@@ -258,6 +258,46 @@
         <item>/dial-under/ic__refresh__default.png</item>
     </string-array>
 
+    <string-array name="ic__bright">
+        <item>/dial-under/ic__bright__activated.png</item>
+        <item>/dial-under/ic__bright__default.png</item>
+    </string-array>
+
+    <string-array name="ic__colour">
+        <item>/dial-under/ic__colour__activated.png</item>
+        <item>/dial-under/ic__colour__default.png</item>
+    </string-array>
+
+    <string-array name="ic__temperature">
+        <item>/dial-under/ic__temperature__activated.png</item>
+        <item>/dial-under/ic__temperature__default.png</item>
+    </string-array>
+
+    <string-array name="ic__saturation">
+        <item>/dial-under/ic__saturation__activated.png</item>
+        <item>/dial-under/ic__saturation__default.png</item>
+    </string-array>
+
+    <string-array name="ic__equalizerbalanced">
+        <item>/dial-under/ic__equalizerbalanced__activated.png</item>
+        <item>/dial-under/ic__equalizerbalanced__default.png</item>
+        <item>/dial-under/ic__equalizerbalanced__pressed.png</item>
+        <item>/dial-under/ic__equalizerbalanced__selected.png</item>
+    </string-array>
+
+    <string-array name="ic__equalizergradual">
+        <item>/dial-under/ic__equalizergradual__activated.png</item>
+        <item>/dial-under/ic__equalizergradual__default.png</item>
+        <item>/dial-under/ic__equalizergradual__pressed.png</item>
+        <item>/dial-under/ic__equalizergradual__selected.png</item>
+    </string-array>
+
+    <string-array name="ic__equalizermiddle">
+        <item>/dial-under/ic__equalizermiddle__activated.png</item>
+        <item>/dial-under/ic__equalizermiddle__default.png</item>
+        <item>/dial-under/ic__equalizermiddle__pressed.png</item>
+        <item>/dial-under/ic__equalizermiddle__selected.png</item>
+    </string-array>
 
     <!-- DevicesList -->
     <string-array name="ic__deviceslist__check">

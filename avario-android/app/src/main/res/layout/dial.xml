@@ -118,13 +118,13 @@
 
     <!-- Temperature Dial -->
     <FrameLayout
-        android:id="@+id/acc__temprature__holder"
+        android:id="@+id/acc__temperature__holder"
         style="@style/DialAccessory.Holder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/tempreature__percent"
+            android:id="@+id/temperature__percent"
             style="@style/DialAccessory.Light"
             android:layout_width="100dp"
             android:layout_height="100dp"
@@ -135,7 +135,7 @@
             android:textStyle="normal" />
 
         <ImageButton
-            android:id="@+id/temprature__btn"
+            android:id="@+id/temperature__btn"
             style="@style/DialAccessory.Light"
             android:layout_width="115dp"
             android:layout_height="115dp"
