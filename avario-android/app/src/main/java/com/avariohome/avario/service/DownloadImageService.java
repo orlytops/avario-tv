@@ -86,6 +86,7 @@ public class DownloadImageService extends Service {
 
                     @Override
                     public void onNext(Object o) {
+                        config.setIsImageDownloaded(true);
                         stopSelf();
                     }
                 });

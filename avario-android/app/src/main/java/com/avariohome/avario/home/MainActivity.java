@@ -2483,7 +2483,7 @@ public class MainActivity extends BaseActivity {
                         public void onNext(Object o) {
 
                             Log.d(TAG, "Service Start: " + serviceStart);
-                            if (Connectivity.isConnectedToLan()) {
+                            if (Connectivity.isConnectedToLan() && !config.isImageDownloaded()) {
                                 if (!isMyServiceRunning(DownloadImageService.class)) {
                                     Intent intent = new Intent(MainActivity.this, DownloadImageService.class);
                                     stopService(intent);
