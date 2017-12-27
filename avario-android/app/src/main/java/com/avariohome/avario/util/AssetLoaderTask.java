@@ -179,7 +179,7 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
             Bitmap bitmap;
 
             try {
-                android.util.Log.v(TAG, "Downloading " + url);
+                android.util.Log.v(TAG, "Checking " + url);
 
                 if (Connectivity.isConnectedToLan()) {
                     bitmap = AssetLoaderTask

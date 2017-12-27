@@ -114,7 +114,7 @@ public class WifiReceiver extends BroadcastReceiver {
 
                 AlertDialog alert11 = builder.create();
                 alert11.show();
-                context.unregisterReceiver(WifiReceiver.this);
+                //context.unregisterReceiver(WifiReceiver.this);
             }
 
         }

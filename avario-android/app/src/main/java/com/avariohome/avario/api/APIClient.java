@@ -234,6 +234,11 @@ public class APIClient {
         JsonObjectRequest request;
 
         StateArray stateArray = StateArray.getInstance();
+        try {
+            stateArray.load();
+        } catch (AvarioException e) {
+            e.printStackTrace();
+        }
 
         String domain = "https://192.168.0.18:22443/";
         Log.d("Domain", config.getHttpDomain());
@@ -253,7 +258,9 @@ public class APIClient {
         // Path can be null. If null or empty then
         // get default bootstrap path.
         if (path == null || path.isEmpty()) {
-            path = config.getBootstrapURL();
+            path = String.format("%s%s",
+                    domain,
+                    "/local/bootstrap.json");
         } else {
             path = String.format("%s%s",
                     domain,

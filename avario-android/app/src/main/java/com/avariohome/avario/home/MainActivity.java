@@ -469,6 +469,7 @@ public class MainActivity extends BaseActivity {
         } else if (!this.settingsOpened) {
             ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
             if (!mWifi.isConnected()) {
                 Log.d("MainActivity", "handle no wifi");
                 handleNoWifi();
@@ -476,6 +477,7 @@ public class MainActivity extends BaseActivity {
                 Log.d("MainActivity", "connectMQTT");
                 this.connectMQTT(this.getString(R.string.message__mqtt__connecting));
             }
+
         }
 
        /* if (BluetoothScanner.getInstance().isEnabled())
@@ -571,6 +573,14 @@ public class MainActivity extends BaseActivity {
 
         // Store algo to be use later when app restarts.
         Config.getInstance().setLightAlgo(Light.getInstance().algos);
+
+        if (alert11 != null && alert11.isShowing()) {
+            alert11.cancel();
+        }
+
+        if (alertAuth != null && alertAuth.isShowing()) {
+            alertAuth.cancel();
+        }
     }
 
 
@@ -585,6 +595,14 @@ public class MainActivity extends BaseActivity {
 
         unregisterReceiver(this.bluetoothReceiver);
         config.setRoomSelected("");
+
+        if (alert11 != null && alert11.isShowing()) {
+            alert11.cancel();
+        }
+
+        if (alertAuth != null && alertAuth.isShowing()) {
+            alertAuth.cancel();
+        }
     }
 
     @Override
@@ -2292,6 +2310,7 @@ public class MainActivity extends BaseActivity {
                                                 public void onClick(DialogInterface dialog, int id) {
                                                     wifi.setWifiEnabled(true);
                                                     timerIsStarted = true;
+                                                    showBusyDialog("Connecting to WiFi...");
                                                     countDownTimer.start();
                                                     if (alert11.isShowing()) {
                                                         alert11.cancel();
@@ -2315,6 +2334,7 @@ public class MainActivity extends BaseActivity {
                                         alert11 = builder.create();
                                     }
 
+                                    hideBusyDialog();
                                     if (!alert11.isShowing()) {
                                         alert11.show();
                                     }
@@ -2365,11 +2385,12 @@ public class MainActivity extends BaseActivity {
                         alertAuth = builderAuth.create();
                     }
                     try {
-                        unregisterReceiver(wifiReceiver);
+                        //unregisterReceiver(wifiReceiver);
                     } catch (Exception e) {
 
                     }
                     try {
+                        hideBusyDialog();
                         if (!alertAuth.isShowing() && !mWifi.isConnected()) {
                             alertAuth.show();
                         }
@@ -3059,9 +3080,30 @@ public class MainActivity extends BaseActivity {
             countDownTimer.cancel();
             isHasWifi = true;
             //connectMQTT(this.getString(R.string.message__mqtt__connecting));
+
+            if (alert11 != null && alert11.isShowing()) {
+                alert11.cancel();
+            }
+
+            if (alertAuth != null && alertAuth.isShowing()) {
+                alertAuth.cancel();
+            }
+
             Connectivity.identifyConnection(getApplicationContext());
-            showBusyDialog(getString(R.string.message__mqtt__connecting));
-            connectMQTT(getString(R.string.message__mqtt__connecting));
+            MqttManager manager = MqttManager.getInstance();
+
+            if (manager.isConnected()) {
+
+                if (this.mqttListener == null) {
+                    this.mqttListener = new MqttConnectionListener();
+                }
+                manager
+                        .getConnection()
+                        .setListener(this.mqttListener);
+
+            } else {
+                connectMQTT(getString(R.string.message__mqtt__connecting));
+            }
         } else {
             Log.d("MainActivity/MQTT", "Disconnected Wifi");
             countDownTimer.start();
