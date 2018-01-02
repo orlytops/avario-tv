@@ -11,6 +11,7 @@ import android.widget.ImageView;
 
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.core.Config;
+import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
@@ -56,8 +57,8 @@ public class AssetUtil {
     public static String getAssetRoot(Context context) {
         Config conf = Config.getInstance(context);
 
-        //TODO: for changing WAN/LAN
-        /*StateArray stateArray = StateArray.getInstance();
+        //TODO: for changing WAN/LAN, handle first load during WAN mode
+        StateArray stateArray = StateArray.getInstance();
         if (!stateArray.hasData()) {
             try {
                 stateArray.load();
@@ -73,8 +74,7 @@ public class AssetUtil {
         } catch (AvarioException e) {
             host = conf.getHttpHost();
             e.printStackTrace();
-        }*/
-
+        }
 
         String url;
 

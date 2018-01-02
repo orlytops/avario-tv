@@ -64,9 +64,7 @@ public class DownloadImageService extends Service {
             public void call(Subscriber<? super Object> subscriber) {
                 if (config.isSet() && !isRunning) {
                     isRunning = true;
-                    deleteAssetCache(getCacheDir());
-                    AssetLoaderTask.setPicasso(null);
-                    loadAssets();
+                    handleDownloadImage();
                 }
                 subscriber.onNext(new Object());
                 subscriber.onCompleted();
@@ -76,7 +74,6 @@ public class DownloadImageService extends Service {
                 .subscribe(new Observer<Object>() {
                     @Override
                     public void onCompleted() {
-
                     }
 
                     @Override
@@ -86,12 +83,17 @@ public class DownloadImageService extends Service {
 
                     @Override
                     public void onNext(Object o) {
-                        config.setIsImageDownloaded(true);
                         stopSelf();
                     }
                 });
         return super.onStartCommand(intent, flags, startId);
 
+    }
+
+    private void handleDownloadImage() {
+        deleteAssetCache(getCacheDir());
+        AssetLoaderTask.setPicasso(null);
+        loadAssets();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -151,7 +153,10 @@ public class DownloadImageService extends Service {
 
         @Override
         protected void onPostExecute(Map<int[], Bitmap> assets) {
+            Config config = Config.getInstance();
+            config.setIsImageDownloaded(true);
 
+            Log.d(TAG, "-----------------------------Asset download finished!-----------------------------");
         }
     }
 

@@ -388,9 +388,13 @@ public class MainActivity extends BaseActivity {
         }
         this.visible = true;
 
-        /*if (alert11.isShowing()) {
+        if (alert11 != null && alert11.isShowing()) {
             alert11.cancel();
-        }*/
+        }
+
+        if (alertAuth != null && alertAuth.isShowing()) {
+            alertAuth.cancel();
+        }
 
         final StateArray states = StateArray.getInstance(this.getApplicationContext());
 
@@ -1685,6 +1689,11 @@ public class MainActivity extends BaseActivity {
                     .getErrorToast(this, exception)
                     .show();
         }*/
+
+        /**
+         *
+         *For Retrofit call of states
+         */
         userComponent = DaggerUserComponent.builder().build();
         userComponent.inject(this);
         statesPresenter = new StatesPresenter(stateService);

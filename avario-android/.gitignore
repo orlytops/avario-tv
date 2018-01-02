@@ -13,3 +13,4 @@
 instapk.log*
 instapk.properties
 library/
+*.properties

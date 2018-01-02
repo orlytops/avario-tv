@@ -1129,7 +1129,11 @@ public class SettingsDialogFragment extends DialogFragment {
                 SystemUtil.rebootApp(self.getActivity());
             } else {
                 self.sendFCMToken();
-                self.connectMQTT();
+                if (!Connectivity.isConnectedToLan() && !config.isImageDownloaded()) {
+                    self.loadAssets();
+                } else {
+                    self.connectMQTT();
+                }
             }
         }
 
@@ -1257,6 +1261,10 @@ public class SettingsDialogFragment extends DialogFragment {
                 self.toggleWorking(false);
                 self.setEnabled(true);
                 Toast.makeText(getContext(), "Assets downloaded", Toast.LENGTH_SHORT).show();
+                if (!Connectivity.isConnectedToLan() && !config.isImageDownloaded()) {
+                    self.connectMQTT();
+                    config.setIsImageDownloaded(true);
+                }
             }
         }
     }

@@ -18,6 +18,7 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 
@@ -38,7 +39,9 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
     public static Picasso picasso(Context context) {
         if (AssetLoaderTask.picasso == null) {
             HostnameVerifier verifier = APIClient.getDevHostnameVerifier();
-            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                    .connectTimeout(180, TimeUnit.SECONDS)
+                    .readTimeout(180, TimeUnit.SECONDS);
             OkHttpClient client;
 
             builder = builder
@@ -171,6 +174,7 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
      */
     protected List<Bitmap> fetch(List<String> urls) throws AvarioException {
         List<Bitmap> bitmaps = new ArrayList<>();
+        Config config = Config.getInstance();
 
         if (urls == null)
             return null;
@@ -179,9 +183,9 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
             Bitmap bitmap;
 
             try {
-                //android.util.Log.v(TAG, "Checking " + url);
+                android.util.Log.v(TAG, "Checking " + url);
 
-                if (Connectivity.isConnectedToLan()) {
+                if (Connectivity.isConnectedToLan() || !config.isImageDownloaded()) {
                     bitmap = AssetLoaderTask
                             .picasso(this.context.getApplicationContext())
                             .load(url)
