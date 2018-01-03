@@ -873,6 +873,13 @@ public class StateArray {
         }
     }
 
+    /**
+     * Consolidates the protocol, host, and port settings into one string
+     *
+     * @param configId
+     * @return
+     * @throws AvarioException
+     */
     public String getHTTPHost(String configId, boolean isLan) throws AvarioException {
         if (!this.hasData())
             return null;

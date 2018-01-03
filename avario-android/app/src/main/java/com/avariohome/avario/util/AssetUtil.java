@@ -57,7 +57,6 @@ public class AssetUtil {
     public static String getAssetRoot(Context context) {
         Config conf = Config.getInstance(context);
 
-        //TODO: for changing WAN/LAN, handle first load during WAN mode
         StateArray stateArray = StateArray.getInstance();
         if (!stateArray.hasData()) {
             try {
@@ -67,6 +66,7 @@ public class AssetUtil {
             }
         }
 
+        //Identifying whether which host should be use either WAN/LAN HTTP host.
         String host;
         try {
             if (conf.isImageDownloaded()) {
@@ -88,10 +88,10 @@ public class AssetUtil {
         return url;
     }
 
+    //Used during settings asset download
     public static String getAssetRoot(Context context, boolean isLan) {
         Config conf = Config.getInstance(context);
 
-        //TODO: for changing WAN/LAN, handle first load during WAN mode
         StateArray stateArray = StateArray.getInstance();
         if (!stateArray.hasData()) {
             try {
