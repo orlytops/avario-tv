@@ -180,33 +180,68 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
             return null;
 
         for (String url : urls) {
-            Bitmap bitmap;
+            Bitmap bitmap = null;
 
             try {
-                android.util.Log.v(TAG, "Checking " + url);
-
-                if (Connectivity.isConnectedToLan() || !config.isImageDownloaded()) {
+                //android.util.Log.v(TAG, "Checking " + url);
+                /*if (Connectivity.isConnectedToLan() || !config.isImageDownloaded()) {
                     bitmap = AssetLoaderTask
-                            .picasso(this.context.getApplicationContext())
+                            .picasso(this.context)
                             .load(url)
                             .get();
                 } else {
                     bitmap = AssetLoaderTask
-                            .picasso(this.context.getApplicationContext())
+                            .picasso(this.context)
                             .load(url)
                             .networkPolicy(NetworkPolicy.OFFLINE)
                             .get();
 
+                }*/
+
+                bitmap = AssetLoaderTask
+                        .picasso(this.context)
+                        .load(url)
+                        .networkPolicy(NetworkPolicy.OFFLINE)
+                        .get();
+
+                if (bitmap == null) {
+                    Log.d(TAG, "Image not stored downloading: " + url);
+                    bitmap = AssetLoaderTask
+                            .picasso(this.context)
+                            .load(url)
+                            .get();
+                } else {
+                    Log.d(TAG, "Image stored: " + url);
                 }
+
+
                 bitmaps.add(bitmap);
             } catch (IllegalArgumentException exception) {
-                bitmaps.add(null);
+                try {
+                    Log.d(TAG, "Image not stored downloading: " + url);
+                    bitmap = AssetLoaderTask
+                            .picasso(this.context)
+                            .load(url)
+                            .get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                bitmaps.add(bitmap);
             } catch (IOException exception) {
-                throw new AvarioException(
-                        Constants.ERROR_ASSET_UNREACHABLE,
-                        exception,
-                        new Object[]{url}
-                );
+                try {
+                    Log.d(TAG, "Image not stored downloading: " + url);
+                    bitmap = AssetLoaderTask
+                            .picasso(this.context)
+                            .load(url)
+                            .get();
+                } catch (IOException e) {
+                    throw new AvarioException(
+                            Constants.ERROR_ASSET_UNREACHABLE,
+                            exception,
+                            new Object[]{url}
+                    );
+                }
+                bitmaps.add(bitmap);
             }
 
             if (this.isCancelled())

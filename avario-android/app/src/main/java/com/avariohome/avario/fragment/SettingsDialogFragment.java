@@ -931,7 +931,7 @@ public class SettingsDialogFragment extends DialogFragment {
             String[] paths;
 
             paths = res.getStringArray(res.getIdentifier(field.getName(), "array", pkg));
-            paths = AssetUtil.toAbsoluteURLs(context, paths);
+            paths = AssetUtil.toAbsoluteURLs(context, paths, Connectivity.isConnectedToLan());
 
             urls.addAll(Arrays.asList(paths));
         }
@@ -1265,6 +1265,12 @@ public class SettingsDialogFragment extends DialogFragment {
                     self.connectMQTT();
                     config.setIsImageDownloaded(true);
                 }
+                if (Connectivity.isConnectedToLan()) {
+                    config.setIsImageLan(true);
+                } else {
+                    config.setIsImageLan(false);
+                }
+
             }
         }
     }

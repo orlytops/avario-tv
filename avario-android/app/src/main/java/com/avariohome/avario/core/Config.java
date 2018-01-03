@@ -35,6 +35,7 @@ public class Config {
     private static final String PREFKEY_FCM_TOKEN = "fcm_token";
     private static final String PREFKEY_TO_IGNORE = "to_ignore";
     private static final String PREFKEY_IS_IMAGE_DOWNLOADED = "is_image_downloaded";
+    private static final String PREFKEY_IS_IMAGE_LAN = "is_image_lan";
 
     private static Config instance = null;
 
@@ -54,6 +55,7 @@ public class Config {
     private String roomSelected;
     private String toIgnore;
     private boolean isImageDownloaded;
+    private boolean isImageLan;
 
     public static Config getInstance() {
         return Config.instance;
@@ -92,6 +94,7 @@ public class Config {
         toIgnore = fetchString(PREFKEY_TO_IGNORE);
         roomSelected = fetchString(PREFKEY_ROOM_SELECTED);
         isImageDownloaded = fetchBoolean(PREFKEY_IS_IMAGE_DOWNLOADED);
+        isImageLan = fetchBoolean(PREFKEY_IS_IMAGE_LAN);
     }
 
     public boolean isSet() {
@@ -144,6 +147,10 @@ public class Config {
 
     public boolean isImageDownloaded() {
         return this.fetchBoolean(PREFKEY_IS_IMAGE_DOWNLOADED);
+    }
+
+    public boolean isImageLan() {
+        return this.fetchBoolean(PREFKEY_IS_IMAGE_LAN);
     }
 
     public String getRoomSelected() {
@@ -287,6 +294,10 @@ public class Config {
         this.prefs.edit().putBoolean(PREFKEY_IS_IMAGE_DOWNLOADED, isImageDownloaded).apply();
     }
 
+    public void setIsImageLan(boolean isImageLan) {
+        this.prefs.edit().putBoolean(PREFKEY_IS_IMAGE_LAN, isImageLan).apply();
+    }
+
     public void setIsTablet(boolean isTablet) {
         this.prefs.edit().putBoolean(PREFKEY_IS_TABLET, isTablet).apply();
     }
@@ -323,6 +334,7 @@ public class Config {
         this.prefs.edit().putString(PREFKEY_ROOM_SELECTED, roomSelected).apply();
         this.prefs.edit().putString(PREFKEY_TO_IGNORE, toIgnore).apply();
         this.prefs.edit().putBoolean(PREFKEY_IS_IMAGE_DOWNLOADED, isImageDownloaded).apply();
+        this.prefs.edit().putBoolean(PREFKEY_IS_IMAGE_LAN, isImageLan).apply();
     }
 
     public void clear() {
@@ -347,6 +359,7 @@ public class Config {
         roomSelected = fetchString(PREFKEY_ROOM_SELECTED);
         toIgnore = fetchString(PREFKEY_TO_IGNORE);
         isImageDownloaded = fetchBoolean(PREFKEY_IS_IMAGE_DOWNLOADED);
+        isImageLan = fetchBoolean(PREFKEY_IS_IMAGE_LAN);
     }
 
     private boolean fetchBoolean(String key) {

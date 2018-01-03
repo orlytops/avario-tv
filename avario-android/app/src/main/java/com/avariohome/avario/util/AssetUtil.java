@@ -68,9 +68,13 @@ public class AssetUtil {
         }
 
         String host;
-
         try {
-            host = stateArray.getHTTPHost("ip1");
+            if (conf.isImageDownloaded()) {
+                host = stateArray.getHTTPHost("ip1", conf.isImageLan());
+            } else {
+                host = stateArray.getHTTPHost("ip1");
+            }
+
         } catch (AvarioException e) {
             host = conf.getHttpHost();
             e.printStackTrace();
@@ -78,7 +82,41 @@ public class AssetUtil {
 
         String url;
 
-        url = String.format("%s%s", conf.getHttpDomain(), conf.getAssetRoot());
+        url = String.format("%s%s", host, conf.getAssetRoot());
+        url = String.format(url, context.getResources().getDisplayMetrics().density);
+
+        return url;
+    }
+
+    public static String getAssetRoot(Context context, boolean isLan) {
+        Config conf = Config.getInstance(context);
+
+        //TODO: for changing WAN/LAN, handle first load during WAN mode
+        StateArray stateArray = StateArray.getInstance();
+        if (!stateArray.hasData()) {
+            try {
+                stateArray.load();
+            } catch (AvarioException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String host;
+        try {
+            if (conf.isImageDownloaded()) {
+                host = stateArray.getHTTPHost("ip1", isLan);
+            } else {
+                host = stateArray.getHTTPHost("ip1");
+            }
+
+        } catch (AvarioException e) {
+            host = conf.getHttpHost();
+            e.printStackTrace();
+        }
+
+        String url;
+
+        url = String.format("%s%s", host, conf.getAssetRoot());
         url = String.format(url, context.getResources().getDisplayMetrics().density);
 
         return url;
@@ -265,6 +303,23 @@ public class AssetUtil {
     public static String[] toAbsoluteURLs(Context context, String[] urls) {
         String[] output = new String[urls.length];
         String root = AssetUtil.getAssetRoot(context.getApplicationContext());
+
+        for (int index = 0; index < urls.length; index++)
+            output[index] = String.format("%s%s", root, urls[index]);
+
+        /*for (int index = 0; index < urls.length; index++)
+            Log.d("Output", output[index]);*/
+        return output;
+    }
+
+    /**
+     * @param context
+     * @param urls    that should be handled
+     * @return string urls
+     */
+    public static String[] toAbsoluteURLs(Context context, String[] urls, boolean isLan) {
+        String[] output = new String[urls.length];
+        String root = AssetUtil.getAssetRoot(context.getApplicationContext(), isLan);
 
         for (int index = 0; index < urls.length; index++)
             output[index] = String.format("%s%s", root, urls[index]);

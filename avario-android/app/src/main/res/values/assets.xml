@@ -10,8 +10,17 @@
  -->
 <resources>
     <!-- Application Backgrounds -->
+
+    <string-array name="bg__bedroom">
+        <item>/bg/bg__bedroom.jpg</item>
+    </string-array>
+
     <string-array name="bg__app__light">
         <item>/bg/bg__app__light.jpg</item>
+    </string-array>
+
+    <string-array name="bg__kitchen">
+        <item>/bg/bg__kitchen.jpg</item>
     </string-array>
 
 

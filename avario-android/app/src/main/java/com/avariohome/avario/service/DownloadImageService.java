@@ -10,8 +10,8 @@ import android.support.annotation.Nullable;
 
 import com.avariohome.avario.R;
 import com.avariohome.avario.core.Config;
-import com.avariohome.avario.util.AssetLoaderTask;
 import com.avariohome.avario.util.AssetUtil;
+import com.avariohome.avario.util.Connectivity;
 import com.avariohome.avario.util.DrawableLoader;
 import com.avariohome.avario.util.Log;
 
@@ -91,8 +91,8 @@ public class DownloadImageService extends Service {
     }
 
     private void handleDownloadImage() {
-        deleteAssetCache(getCacheDir());
-        AssetLoaderTask.setPicasso(null);
+        //deleteAssetCache(getCacheDir());
+        //AssetLoaderTask.setPicasso(null);
         loadAssets();
     }
 
@@ -155,6 +155,12 @@ public class DownloadImageService extends Service {
         protected void onPostExecute(Map<int[], Bitmap> assets) {
             Config config = Config.getInstance();
             config.setIsImageDownloaded(true);
+
+            if (Connectivity.isConnectedToLan()) {
+                config.setIsImageLan(true);
+            } else {
+                config.setIsImageLan(false);
+            }
 
             Log.d(TAG, "-----------------------------Asset download finished!-----------------------------");
         }

@@ -873,6 +873,41 @@ public class StateArray {
         }
     }
 
+    public String getHTTPHost(String configId, boolean isLan) throws AvarioException {
+        if (!this.hasData())
+            return null;
+
+        try {
+            JSONObject confJSON = isLan ?
+                    this.data
+                            .getJSONObject("settings")
+                            .getJSONObject("connectivity")
+                            .getJSONObject("lan")
+                            .getJSONObject("http")
+                            .getJSONObject(configId) :
+                    this.data
+                            .getJSONObject("settings")
+                            .getJSONObject("connectivity")
+                            .getJSONObject("wan")
+                            .getJSONObject("http")
+                            .getJSONObject(configId);
+
+            return String.format("http%s://%s:%s",
+                    confJSON.getBoolean("ssl") ? "s" : "",
+                    confJSON.getString("host"),
+                    confJSON.getString("port")
+            );
+        } catch (JSONException exception) {
+            throw new AvarioException(
+                    Constants.ERROR_STATE_MISSINGKEY,
+                    exception,
+                    new Object[]{
+                            String.format("settings.http.%s.(host|port|ssl)", configId)
+                    }
+            );
+        }
+    }
+
 
     /**
      * @return currnet state for request
