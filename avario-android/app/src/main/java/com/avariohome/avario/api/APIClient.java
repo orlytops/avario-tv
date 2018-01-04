@@ -252,7 +252,7 @@ public class APIClient {
         }
 
         if (domain == null) {
-            domain = "https://192.168.0.18:22443/";
+            domain = config.getHttpDomain();
         }
 
         // Path can be null. If null or empty then

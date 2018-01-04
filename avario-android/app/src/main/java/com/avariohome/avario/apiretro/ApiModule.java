@@ -68,7 +68,7 @@ public class ApiModule {
         }
 
         if (domain == null) {
-            domain = "https://192.168.0.18:22443/";
+            domain = "https://192.168.0.9:23443/";
         }
 
         Log.d("Domain/API/module", domain + " " + Connectivity.isConnectedToLan());
