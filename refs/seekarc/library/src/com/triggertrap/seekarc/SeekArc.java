@@ -786,6 +786,7 @@ public class SeekArc extends View {
 
         DisplayMetrics metrics = new DisplayMetrics();
 
+        mThumb.setAlpha(255);
         WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(metrics);
 
@@ -801,6 +802,15 @@ public class SeekArc extends View {
         }
 
         mThumb.setBounds(-thumbHalfWidth, -thumbHalfHeight, thumbHalfWidth, thumbHalfHeight);
+        invalidate();
+    }
+
+    public void setThumbDrawableEmpty() {
+        int thumbHalfHeight;
+        int thumbHalfWidth;
+        mThumb.setAlpha(0);
+        invalidate();
+        Log.d(TAG, "Set empty");
     }
 
     public boolean isRoundedEdges() {

@@ -859,6 +859,8 @@ public class Dial extends FrameLayout {
             if (isFromMQTT)
                 return;
 
+            Log.d(TAG, "Dial Id: " + dialId);
+
         } catch (NullPointerException ignored) {
         }
 
@@ -1267,7 +1269,18 @@ public class Dial extends FrameLayout {
         );
 
         this.arc.setMax(360);
+        Log.d(TAG, "LIGHT STATE: " + getStateLight());
+        if (getStateLight().equals("off")) {
 
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    arc.setThumbDrawableEmpty();
+                }
+            }, 200);
+
+        }
         arc.setSeekColor(getResources().getColor(R.color.trasnparent));
         arc.setStartAngle(0);
         arc.setSweepAngle(360);
@@ -1275,6 +1288,7 @@ public class Dial extends FrameLayout {
         arc.setHue();
         arc.setProgress(360);
         colourHolder.setVisibility(View.VISIBLE);
+
     }
 
 
@@ -1794,10 +1808,21 @@ public class Dial extends FrameLayout {
     }
 
     private void refreshColour(int value, boolean fromUser, String units) {
+        Log.d(TAG, "STATE/LIGHT: " + getStateLight() + " " + value);
+
+        if (value == 360) {
+            arc.setThumbDrawableEmpty();
+        } else {
+            AssetUtil.toDrawable(
+                    getContext(),
+                    R.array.ic__dial__dimple,
+                    new ArcThumbCallback(this.arc)
+            );
+        }
         if (fromUser)
             this.progressPrev = value;
 
-        this.colourPowerIB.setActivated(true);
+        this.colourPowerIB.setActivated(value != 360);
         this.colourPercentTV.setText(this.getResources().getString(
                 R.string.dial__powervalue,
                 value,
@@ -1933,6 +1958,7 @@ public class Dial extends FrameLayout {
 
     // region Value Computation
     private void computeValue(int source) {
+        Log.d(TAG, type.toString());
         switch (this.type) {
             case SWITCH:
                 this.computeValueSwitch(source);
@@ -2538,10 +2564,6 @@ public class Dial extends FrameLayout {
         rgbint[1] = green;
         rgbint[2] = blue;
 
-        if (getStateLight().equals("on")) {
-            arc.setThumbDrawable(null);
-        }
-
         if (this.arc == source) {
             this.processRequestSpec(specJSON, rgbint);
         } else {
@@ -2605,9 +2627,6 @@ public class Dial extends FrameLayout {
 
         progress = this.arc.getValue();
         //int value = (255 * progress) / 100;
-        if (getStateLight().equals("on")) {
-            arc.setThumbDrawable(null);
-        }
 
 
         if (this.arc == source) {
@@ -3138,7 +3157,7 @@ public class Dial extends FrameLayout {
         }
     }
 
-    public static class ArcThumbCallback implements DrawableLoader.Callback {
+    public class ArcThumbCallback implements DrawableLoader.Callback {
         public SeekArc view;
 
         public ArcThumbCallback(SeekArc view) {
