@@ -234,6 +234,7 @@ public class APIClient {
         JsonObjectRequest request;
 
         StateArray stateArray = StateArray.getInstance();
+
         try {
             stateArray.load();
         } catch (AvarioException e) {

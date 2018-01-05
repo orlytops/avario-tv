@@ -1214,7 +1214,7 @@ public class Dial extends FrameLayout {
                 new ArcThumbCallback(this.arc)
         );
 
-        this.arc.setMax(100); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
+        this.arc.setMax(100);
         arc.setStartAngle(30);
         arc.setSweepAngle(300);
         String arcColourStart = "";
@@ -1368,7 +1368,7 @@ public class Dial extends FrameLayout {
                 new ArcThumbCallback(this.arc)
         );
 
-        this.arc.setMax(100); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
+        this.arc.setMax(100);
         try {
             rgbArray = this.entities.get(0)
                     .getJSONObject("new_state")
@@ -1404,7 +1404,7 @@ public class Dial extends FrameLayout {
                 new ArcThumbCallback(this.arc)
         );
 
-        this.arc.setMax(100); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
+        this.arc.setMax(100);
        /* this.arc.setProgressColor(
                 context.getResources().getColor(R.color.dial__color1),
                 context.getResources().getColor(R.color.dial__color2),
@@ -1448,7 +1448,7 @@ public class Dial extends FrameLayout {
                 new ArcThumbCallback(this.arc)
         );
 
-        this.arc.setMax(100); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
+        this.arc.setMax(100);
         /*this.arc.setProgressColor(
                 context.getResources().getColor(R.color.dial__temperature1),
                 context.getResources().getColor(R.color.dial__temperature2),
@@ -1494,7 +1494,7 @@ public class Dial extends FrameLayout {
                 new ArcThumbCallback(this.arc)
         );
 
-        this.arc.setMax(100); // TODO confirm with Richard. previous code: this.dialJSON.optInt("dial_max", 100));
+        this.arc.setMax(100);
         /*this.arc.setProgressColor(
                 context.getResources().getColor(R.color.dial__color1),
                 context.getResources().getColor(R.color.dial__color2),
@@ -2513,8 +2513,6 @@ public class Dial extends FrameLayout {
             directive = "off";
         }
 
-        Log.d("Directive/Light", directive + " " + getStateLight() + " " + progress + " " + progressPrev);
-
         if (!directive.equals("set") && directive.equals(this.getStateLight()))
             return null;
 
@@ -2616,7 +2614,6 @@ public class Dial extends FrameLayout {
             }
 
             float[] hsvColor = new float[3];
-
 
             Color.RGBToHSV(rgb[0], rgb[1], rgb[2], hsvColor);
         } else {

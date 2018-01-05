@@ -20,29 +20,29 @@ import java.util.Map;
 
 /**
  * Base class for API requests over to the server
- *
+ * <p>
  * Created by aeroheart-c6 on 08/02/2017.
  */
 abstract class APIRequest<T> extends JsonRequest<T> {
     private String username;
     private String password;
 
-    APIRequest (RequestSpec spec, APIRequestListener listener) {
+    APIRequest(RequestSpec spec, APIRequestListener listener) {
         super(
-            spec.method,
-            spec.url,
-            spec.payload,
-            listener,
-            listener
+                spec.method,
+                spec.url,
+                spec.payload,
+                listener,
+                listener
         );
 
         this.username = spec.username;
         this.password = spec.password;
 
         this.setRetryPolicy(new DefaultRetryPolicy(
-            5000,
-            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+                5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
     }
 
@@ -52,8 +52,8 @@ abstract class APIRequest<T> extends JsonRequest<T> {
 
         headers = new HashMap<>();
         headers.put("Authorization", "Basic " + Base64.encodeToString(
-            (this.username + ":" + this.password).getBytes(),
-            Base64.DEFAULT
+                (this.username + ":" + this.password).getBytes(),
+                Base64.DEFAULT
         ));
 
         return headers;
@@ -66,25 +66,25 @@ abstract class APIRequest<T> extends JsonRequest<T> {
      */
     static class RequestSpec {
         static RequestSpec fromJSONSpec(JSONObject specJSON) throws AvarioException,
-                                                                    JSONException {
+                JSONException {
             StateArray states = StateArray.getInstance();
 
             Map<String, String> result = RefStringUtil.processUrl(specJSON.getString("url"));
 
             String method = specJSON.getString("method").toUpperCase(),
-                   confId = result.get("confId");
+                    confId = result.get("confId");
 
             RequestSpec spec;
 
             spec = new RequestSpec();
             spec.url = result.get("url");
             spec.method = method.equals("POST") ? Request.Method.POST
-                : method.equals("PUT") ? Request.Method.PUT
-                : method.equals("DELETE") ? Request.Method.DELETE
-                : method.equals("OPTIONS") ? Request.Method.OPTIONS
-                : method.equals("HEAD") ? Request.Method.HEAD
-                : method.equals("TRACE") ? Request.Method.TRACE
-                : Request.Method.GET;
+                    : method.equals("PUT") ? Request.Method.PUT
+                    : method.equals("DELETE") ? Request.Method.DELETE
+                    : method.equals("OPTIONS") ? Request.Method.OPTIONS
+                    : method.equals("HEAD") ? Request.Method.HEAD
+                    : method.equals("TRACE") ? Request.Method.TRACE
+                    : Request.Method.GET;
 
             spec.payload = specJSON.optString("payload");
             spec.username = states.getHTTPUsername(confId);
@@ -99,6 +99,7 @@ abstract class APIRequest<T> extends JsonRequest<T> {
         String username;
         String password;
 
-        private RequestSpec() {}
+        private RequestSpec() {
+        }
     }
 }

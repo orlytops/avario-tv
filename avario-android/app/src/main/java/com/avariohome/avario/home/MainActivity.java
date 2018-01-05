@@ -254,6 +254,9 @@ public class MainActivity extends BaseActivity {
     private AlertDialog.Builder builderError;
     private AlertDialog alertError;
 
+    private AlertDialog.Builder builderErrorDownload;
+    private AlertDialog alertErrorDownload;
+
     private AlertDialog.Builder builderShowUpdated;
     private AlertDialog alertShowUpdated;
 
@@ -321,6 +324,7 @@ public class MainActivity extends BaseActivity {
         builderError = new AlertDialog.Builder(this);
         builderShowUpdated = new AlertDialog.Builder(this);
         builderAuth = new AlertDialog.Builder(this);
+        builderErrorDownload = new AlertDialog.Builder(this);
 
         this.handler = Application.mainHandler;
 
@@ -2944,6 +2948,38 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onError(Throwable e) {
+            Log.d(TAG, "Download Error: " + e.getMessage());
+
+            if (progressDownload != null && progressDownload.isShowing()) {
+                progressDownload.cancel();
+            }
+
+            builderErrorDownload.setTitle("Update Failed!");
+            builderErrorDownload.setMessage("Download has been interrupted.");
+            builderErrorDownload.setCancelable(false);
+
+            builderErrorDownload.setNegativeButton(
+                    "Cancel",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+
+            builderErrorDownload.setPositiveButton(
+                    "Retry",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            userComponent = DaggerUserComponent.builder().build();
+                            userComponent.inject(MainActivity.this);
+                            updatePresenter = new UpdatePresenter(userService);
+                            updatePresenter.getUpdate(observerUpdate);
+                        }
+                    });
+            if (alertErrorDownload == null) {
+                alertErrorDownload = builderErrorDownload.create();
+            }
+            alertErrorDownload.show();
 
         }
 
