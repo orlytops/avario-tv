@@ -280,6 +280,8 @@ public class MainActivity extends BaseActivity {
 
     private BatchAssetLoaderTask task;
 
+    private String selectedRoom = "";
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1264,7 +1266,10 @@ public class MainActivity extends BaseActivity {
             return;
 
         try {
-            this.updateElements(state, room.data.getJSONArray("elements"));
+            if (!selectedRoom.equals(room.name)) {
+                this.updateElements(state, room.data.getJSONArray("elements"));
+                selectedRoom = room.name;
+            }
             this.updateDevices(state, room.data.getJSONArray("list_devices"));
             this.updateDefaultsForEntity(room);
         } catch (JSONException exception) {
