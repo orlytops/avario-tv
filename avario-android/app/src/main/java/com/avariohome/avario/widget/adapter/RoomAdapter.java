@@ -55,7 +55,10 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
         if (type == TYPE_HEADER) {
             view = inflater.inflate(this.headerLayoutId, parent, false);
 
-            AssetUtil.toDrawable(
+            view.findViewById(R.id.text_device).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.text_media).setVisibility(View.VISIBLE);
+
+         /*   AssetUtil.toDrawable(
                     parent.getContext(),
                     R.array.ic__roomselect__device,
                     new AssetUtil.ImageViewCallback((ImageView) view.findViewById(R.id.device))
@@ -65,10 +68,9 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
                     parent.getContext(),
                     R.array.ic__roomselect__media,
                     new AssetUtil.ImageViewCallback((ImageView) view.findViewById(R.id.media))
-            );
+            );*/
         } else {
             view = inflater.inflate(this.itemLayoutId, parent, false);
-
             AssetUtil.toDrawable(
                     parent.getContext(),
                     R.array.ic__roomselect__indicator,
