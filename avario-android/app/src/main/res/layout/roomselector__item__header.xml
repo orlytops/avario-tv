@@ -15,7 +15,7 @@
         android:padding="7dp"
         android:text="ZONES"
         android:textColor="@color/blue"
-        android:visibility="gone" /> <!-- android:src="@drawable/ic__roomselect__device" -->
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/text_media"
@@ -27,7 +27,7 @@
         android:padding="7dp"
         android:text="MEDIA"
         android:textColor="@color/blue"
-        android:visibility="gone" /> <!-- android:src="@drawable/ic__roomselect__media" -->
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/device"
