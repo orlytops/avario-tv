@@ -1993,7 +1993,8 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onMediaState(String state) {
             Log.d("States Media: ", state);
-            if (state.equals(Constants.ENTITY_MEDIA_STATE_STOPPED) || state.equals(Constants.ENTITY_MEDIA_STATE_CLOSED)) {
+            if (state.equals(Constants.ENTITY_MEDIA_STATE_STOPPED)
+                    || state.equals(Constants.ENTITY_MEDIA_STATE_CLOSED)) {
                 disableMediaPlay();
                 Log.d("State", "Idle");
             } else {
