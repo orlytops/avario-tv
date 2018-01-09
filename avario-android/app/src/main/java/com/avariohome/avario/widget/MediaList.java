@@ -148,6 +148,7 @@ public class MediaList extends RecyclerView {
             media.selected = true;
 
             this.adapter.setSelected(media);
+            this.fireMediaSelected(media);
         }
 
         this.adapter.clear();
@@ -157,7 +158,7 @@ public class MediaList extends RecyclerView {
 
         this.fireMediaListUpdated();
 
-        if (entities.size() > 0) {
+       /* if (entities.size() > 0) {
             Entity media;
 
             media = entities.get(0);
@@ -165,7 +166,7 @@ public class MediaList extends RecyclerView {
 
             this.adapter.setSelected(media);
             this.fireMediaSelected(media);
-        }
+        }*/
 
         Log.d("ENTITIES SIZE", entities.size() + "");
 

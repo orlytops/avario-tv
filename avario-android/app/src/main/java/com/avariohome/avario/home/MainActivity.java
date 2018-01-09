@@ -2024,7 +2024,7 @@ public class MainActivity extends BaseActivity {
                     Config config = Config.getInstance();
                     config.setIsKiosk(false);
                 }
-
+                drawer.closeDrawers();
                 self.startActivity(intent);
             } else if (URLUtil.isValidUrl(appId)) {
                 loadWebView(appId);
@@ -2053,10 +2053,6 @@ public class MainActivity extends BaseActivity {
                 .getAdapter()
                 .getMediaSelections();
 
-        for (RoomEntity roomEntity : rooms) {
-            Log.d(TAG, roomEntity.name + " " + roomEntity.selectedMedia);
-        }
-
         mediaList.setup(rooms);
         sourcesList.setup(rooms);
     }
@@ -2081,7 +2077,6 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onDialogDetached() {
             MainActivity self = MainActivity.this;
-
             super.onDialogDetached();
 
             MqttManager manager = MqttManager.getInstance();

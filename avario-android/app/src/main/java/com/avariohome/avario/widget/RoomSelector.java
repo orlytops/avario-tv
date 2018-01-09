@@ -175,7 +175,7 @@ public class RoomSelector extends RelativeLayout {
 
         this.addView(this.dummyView);
 
-        layout = new LayoutParams(600, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layout = new LayoutParams(550, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         this.handleRL = (RelativeLayout) inflater.inflate(layoutResId, null);
         this.handleRL.setLayoutParams(layout);
@@ -200,7 +200,7 @@ public class RoomSelector extends RelativeLayout {
         LayoutParams layout;
         DividerItemDecoration decoration;
 
-        layout = new LayoutParams(600, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layout = new LayoutParams(550, ViewGroup.LayoutParams.WRAP_CONTENT);
         layout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         layout.addRule(RelativeLayout.BELOW, this.handleId);
 

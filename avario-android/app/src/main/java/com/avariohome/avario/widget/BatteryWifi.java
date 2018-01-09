@@ -85,35 +85,35 @@ public class BatteryWifi extends FrameLayout {
         switch (level) {
             case 1:
                 if (isLan) {
-                    assetId = R.array.ic__wifi__green__1;
+                    assetId = R.array.ic__wifi__blue__1;
                 } else {
                     assetId = R.array.ic__wifi__red__1;
                 }
                 break;
             case 2:
                 if (isLan) {
-                    assetId = R.array.ic__wifi__green__2;
+                    assetId = R.array.ic__wifi__blue__2;
                 } else {
                     assetId = R.array.ic__wifi__red__2;
                 }
                 break;
             case 3:
                 if (isLan) {
-                    assetId = R.array.ic__wifi__green__3;
+                    assetId = R.array.ic__wifi__blue__3;
                 } else {
                     assetId = R.array.ic__wifi__red__3;
                 }
                 break;
             case 4:
                 if (isLan) {
-                    assetId = R.array.ic__wifi__green__4;
+                    assetId = R.array.ic__wifi__blue__4;
                 } else {
                     assetId = R.array.ic__wifi__red__4;
                 }
                 break;
             case 5:
                 if (isLan) {
-                    assetId = R.array.ic__wifi__green__4;
+                    assetId = R.array.ic__wifi__blue__4;
                 } else {
                     assetId = R.array.ic__wifi__red__4;
                 }

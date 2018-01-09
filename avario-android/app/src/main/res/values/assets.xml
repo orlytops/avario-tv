@@ -46,20 +46,20 @@
         <item>/topbar/ic__mode__home__default.png</item>
     </string-array>
 
-    <string-array name="ic__wifi__green__1">
-        <item>/topbar/ic__wifi__green__1.png</item>
+    <string-array name="ic__wifi__blue__1">
+        <item>/topbar/ic__wifi__blue__1.png</item>
     </string-array>
 
-    <string-array name="ic__wifi__green__2">
+    <string-array name="ic__wifi__blue__2">
         <item>/topbar/ic__wifi__green__2.png</item>
     </string-array>
 
-    <string-array name="ic__wifi__green__3">
-        <item>/topbar/ic__wifi__green__3.png</item>
+    <string-array name="ic__wifi__blue__3">
+        <item>/topbar/ic__wifi__blue__3.png</item>
     </string-array>
 
-    <string-array name="ic__wifi__green__4">
-        <item>/topbar/ic__wifi__green__4.png</item>
+    <string-array name="ic__wifi__blue__4">
+        <item>/topbar/ic__wifi__blue__4.png</item>
     </string-array>
 
     <string-array name="ic__wifi__red__1">

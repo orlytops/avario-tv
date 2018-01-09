@@ -1,6 +1,9 @@
 package com.avariohome.avario.widget.adapter;
 
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +19,9 @@ import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.AssetLoaderTask;
 import com.avariohome.avario.util.EntityUtil;
 import com.avariohome.avario.util.PlatformUtil;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,10 +40,12 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
     private StateArray states;
     private List<Entity> mediaEntities;
     private Entity selectedEntity;
+    private List<String> imageList;
 
     public MediaAdapter() {
         super();
         this.mediaEntities = new ArrayList<>();
+        this.imageList = new ArrayList<>();
         this.states = StateArray.getInstance();
     }
 
@@ -69,7 +77,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         Entity entity = this.mediaEntities.get(position);
         JSONObject entityJSON = entity.data;
 
@@ -92,16 +100,40 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
 
         // Thumbnail
         try {
-            String url = this.states.getHTTPHost("ip1") + entityJSON
+            final String url = this.states.getHTTPHost("ip1") + entityJSON
                     .getJSONObject("new_state")
                     .getJSONObject("attributes")
                     .getString("entity_picture");
 
             AssetLoaderTask.picasso(holder.itemView.getContext())
                     .load(url)
-                    .fit()
+                    .resize(210, 210)
                     .centerCrop()
-                    .into(holder.thumbnailIV);
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .placeholder(entity.holder)
+                    .into(new Target() {
+                        @Override
+                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                            holder.thumbnailIV.setImageBitmap(bitmap);
+                            mediaEntities.get(position).holder = new BitmapDrawable(bitmap);
+                        }
+
+                        @Override
+                        public void onBitmapFailed(Drawable errorDrawable) {
+                            AssetLoaderTask.picasso(holder.itemView.getContext())
+                                    .load(url)
+                                    .fit()
+                                    .centerCrop()
+                                    .into(holder.thumbnailIV);
+                        }
+
+                        @Override
+                        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                        }
+                    });
+            imageList.add(url);
+
         } catch (AvarioException | JSONException exception) {
             holder.thumbnailIV.setImageDrawable(null);
         }
@@ -145,6 +177,20 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
             );*/
         }
         this.bindSeek(holder, entity);
+    }
+
+
+    private boolean isAlreadyLoaded(String url) {
+        boolean isLoaded = false;
+
+        for (String image : imageList) {
+            if (url.equals(image)) {
+                isLoaded = true;
+                break;
+            }
+        }
+
+        return isLoaded;
     }
 
     private void bindSelection(ViewHolder holder, Entity entity) {

@@ -83,7 +83,6 @@ public class DownloadImageService extends Service {
 
                     @Override
                     public void onNext(Object o) {
-                        stopSelf();
                     }
                 });
         return super.onStartCommand(intent, flags, startId);
@@ -161,7 +160,7 @@ public class DownloadImageService extends Service {
             } else {
                 config.setIsImageLan(false);
             }
-
+            stopSelf();
             Log.d(TAG, "-----------------------------Asset download finished!-----------------------------");
         }
     }
