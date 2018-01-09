@@ -27,6 +27,7 @@ public interface Constants {
     String ENTITY_MEDIA_STATE_PLAYING = "playing";
     String ENTITY_MEDIA_STATE_PAUSED = "paused";
     String ENTITY_MEDIA_STATE_STOPPED = "idle";
+    String ENTITY_MEDIA_STATE_CLOSED = "off";
 
     // Mqtt Event Types
     String MQTT_EVENT_TYPE_STATE_CHANGED = "state_changed";

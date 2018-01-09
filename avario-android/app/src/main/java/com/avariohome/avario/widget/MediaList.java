@@ -157,6 +157,18 @@ public class MediaList extends RecyclerView {
 
         this.fireMediaListUpdated();
 
+        if (entities.size() > 0) {
+            Entity media;
+
+            media = entities.get(0);
+            media.selected = true;
+
+            this.adapter.setSelected(media);
+            this.fireMediaSelected(media);
+        }
+
+        Log.d("ENTITIES SIZE", entities.size() + "");
+
     }
 
     @Override
