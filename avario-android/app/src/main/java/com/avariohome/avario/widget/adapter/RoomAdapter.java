@@ -114,18 +114,21 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
 
     private void bindSelectionMedia(ViewHolder holder, RoomEntity room) {
         Config config = Config.getInstance();
-        String name = config.getRoomSelected();
+        List<String> roomSelected = config.getRoomSelected();
 
-        /*if (name == null) {
+        if (roomSelected == null || roomSelected.isEmpty()) {
             holder.mediaIV.setSelected(room.selectedMedia);
-        } else if (name.equals(room.name)) {
-            holder.mediaIV.setSelected(true);
-            room.selectedMedia = true;
         } else {
             holder.mediaIV.setSelected(false);
             room.selectedMedia = false;
-        }*/
-        holder.mediaIV.setSelected(room.selectedMedia);
+            for (String roomName : roomSelected) {
+                if (roomName.equals(room.name)) {
+                    holder.mediaIV.setSelected(true);
+                    room.selectedMedia = true;
+                }
+            }
+        }
+        // holder.mediaIV.setSelected(room.selectedMedia);
     }
 
     public List<RoomEntity> getMediaSelections() {

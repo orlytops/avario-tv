@@ -10,7 +10,9 @@ import com.avariohome.avario.util.PlatformUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -153,8 +155,14 @@ public class Config {
         return this.fetchBoolean(PREFKEY_IS_IMAGE_LAN);
     }
 
-    public String getRoomSelected() {
-        return this.fetchString(PREFKEY_ROOM_SELECTED);
+    public List<String> getRoomSelected() {
+        Type listType = new TypeToken<List<String>>() {
+        }.getType();
+
+        Gson gson = new Gson();
+        List<String> roomsSelected = gson.fromJson(this.fetchString(PREFKEY_ROOM_SELECTED), listType);
+
+        return roomsSelected;
     }
 
     public String getFCM() {

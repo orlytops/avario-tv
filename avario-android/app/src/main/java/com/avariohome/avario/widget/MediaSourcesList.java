@@ -49,13 +49,13 @@ public class MediaSourcesList extends RecyclerView {
         this.setAdapter(new MediaSourceAdapter());
         this.setHasFixedSize(true);
         this.setLayoutManager(new LinearLayoutManager(
-            this.getContext(),
-            LinearLayoutManager.VERTICAL,
-            false
+                this.getContext(),
+                LinearLayoutManager.VERTICAL,
+                false
         ));
         this.addItemDecoration(new DividerItemDecoration(
-            this.getContext(),
-            LinearLayoutManager.VERTICAL
+                this.getContext(),
+                LinearLayoutManager.VERTICAL
         ));
         this.addOnItemTouchListener(new ItemListener());
     }
@@ -89,11 +89,10 @@ public class MediaSourcesList extends RecyclerView {
                 media.id = media.data.optString("entity_id");
 
                 entities.add(media);
-            }
-            catch (AvarioException exception) {
+            } catch (AvarioException exception) {
                 PlatformUtil
-                    .getErrorToast(this.getContext(), exception)
-                    .show();
+                        .getErrorToast(this.getContext(), exception)
+                        .show();
             }
 
         // sort them entities
@@ -113,8 +112,8 @@ public class MediaSourcesList extends RecyclerView {
 
                     entityIds.add(sourcesJSON.getString(index));
                 }
+            } catch (JSONException exception) {
             }
-            catch (JSONException exception) {}
         }
 
         this.adapter.clear();
@@ -142,15 +141,14 @@ public class MediaSourcesList extends RecyclerView {
 
         try {
             String appId = StateArray
-                .getInstance()
-                .getMediaSourceAppId(name);
+                    .getInstance()
+                    .getMediaSourceAppId(name);
 
             this.listener.onMediaSourceSelected(name, appId);
-        }
-        catch (AvarioException exception) {
+        } catch (AvarioException exception) {
             PlatformUtil
-                .getErrorToast(this.getContext(), exception)
-                .show();
+                    .getErrorToast(this.getContext(), exception)
+                    .show();
         }
 
 
@@ -162,7 +160,7 @@ public class MediaSourcesList extends RecyclerView {
      ***********************************************************************************************
      */
     private class ItemListener extends GestureDetector.SimpleOnGestureListener
-                               implements RecyclerView.OnItemTouchListener {
+            implements RecyclerView.OnItemTouchListener {
         private GestureDetector detector;
 
         private ItemListener() {
@@ -180,8 +178,8 @@ public class MediaSourcesList extends RecyclerView {
             MediaSourcesList self = MediaSourcesList.this;
 
             int position = self.getChildAdapterPosition(self.findChildViewUnder(
-                event.getX(),
-                event.getY()
+                    event.getX(),
+                    event.getY()
             ));
 
             self.fireMediaSourceSelected(self.adapter.get(position));
@@ -193,23 +191,25 @@ public class MediaSourcesList extends RecyclerView {
         @Override
         public boolean onInterceptTouchEvent(RecyclerView source, MotionEvent event) {
             return source.findChildViewUnder(event.getX(), event.getY()) != null
-                && this.detector.onTouchEvent(event);
+                    && this.detector.onTouchEvent(event);
         }
 
         @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {}
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        }
 
         @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        }
     }
 
     private class MediaPlayerComparator implements Comparator<Entity> {
         @Override
         public int compare(Entity objectA, Entity objectB) {
             JSONObject jsonA = objectA.data,
-                jsonB = objectB.data;
+                    jsonB = objectB.data;
             int priorityA = jsonA.optInt("priority", -1),
-                priorityB = jsonB.optInt("priority", -1);
+                    priorityB = jsonB.optInt("priority", -1);
 
             if (priorityA > priorityB)
                 return -1;

@@ -569,7 +569,6 @@ public class MainActivity extends BaseActivity {
         kl = km.newKeyguardLock("name");
         kl.disableKeyguard();
         Log.d("MainActivity", "onResume");
-
     }
 
     @Override
@@ -2049,6 +2048,11 @@ public class MainActivity extends BaseActivity {
         List<RoomEntity> rooms = MainActivity.this.roomSelector
                 .getAdapter()
                 .getMediaSelections();
+
+        for (RoomEntity roomEntity : rooms) {
+            Log.d(TAG, roomEntity.name + " " + roomEntity.selectedMedia);
+        }
+
         mediaList.setup(rooms);
         sourcesList.setup(rooms);
     }

@@ -32,10 +32,14 @@ import com.avariohome.avario.util.AssetUtil;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.widget.adapter.RoomAdapter;
 import com.avariohome.avario.widget.adapter.RoomEntity;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -437,8 +441,20 @@ public class RoomSelector extends RelativeLayout {
                 room.selectedMedia = !room.selectedMedia;
                 self.dispatchMediaSelected();
                 Config config = Config.getInstance();
+                Gson gson = new Gson();
                 if (room.selectedMedia) {
-                    config.setRoomSelected(room.name);
+                    List<String> roomsSelected = new ArrayList<>();
+                    if (config.getRoomSelected() != null) {
+                        roomsSelected.addAll(config.getRoomSelected());
+                    }
+                    roomsSelected.add(room.name);
+                    String selectedRoomJson = gson.toJson(roomsSelected);
+                    config.setRoomSelected(selectedRoomJson);
+                } else {
+                    List<String> roomsSelected = config.getRoomSelected();
+                    roomsSelected.remove(room.name);
+                    String selectedRoomJson = gson.toJson(roomsSelected);
+                    config.setRoomSelected(selectedRoomJson);
                 }
             } else {
                 payload = RoomAdapter.BIND_SELECTION_ROOM;
