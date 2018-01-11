@@ -3197,7 +3197,7 @@ public class MainActivity extends BaseActivity {
                 });
 
         builderUpdate.setNegativeButton(
-                "Cancel",
+                "Ask Me Tomorrow",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
@@ -3208,7 +3208,7 @@ public class MainActivity extends BaseActivity {
             alertUpdate = builderUpdate.create();
         }
 
-        alertUpdate.setButton(AlertDialog.BUTTON_NEUTRAL, "Don't show again", new DialogInterface.OnClickListener() {
+        alertUpdate.setButton(AlertDialog.BUTTON_NEUTRAL, "Skip this version", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 userComponent = DaggerUserComponent.builder().build();
