@@ -185,7 +185,7 @@ public class BatteryWifi extends FrameLayout {
         } else {
             wifiImage.setVisibility(VISIBLE);
             percentText.setVisibility(GONE);
-            arc.setProgressColor(getResources().getColor(R.color.green));
+            arc.setProgressColor(getResources().getColor(R.color.blue));
         }
     }
 
