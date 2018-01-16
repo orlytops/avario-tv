@@ -11,7 +11,7 @@ import com.google.firebase.iid.FirebaseInstanceIdService;
 /**
  * Created by aeroheart-c6 on 07/07/2017.
  */
-public class FCMInstanceService extends FirebaseInstanceIdService{
+public class FCMInstanceService extends FirebaseInstanceIdService {
     private static final String TAG = "Avario/FCMInstanceService";
     public static final String TIMER_ID = "fcm-instance";
 
@@ -26,7 +26,7 @@ public class FCMInstanceService extends FirebaseInstanceIdService{
         }
 
         APIClient
-            .getInstance()
-            .postFCMToken(token);
+                .getInstance()
+                .postFCMToken(token);
     }
 }

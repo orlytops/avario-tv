@@ -29,6 +29,7 @@ import rx.Observer;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
+    private static final String TAG = "AlarmReceiver";
     @Inject
     UpdateService userService;
 
@@ -44,6 +45,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
+        Log.d(TAG, "Received Alarm");
         final Config config = Config.getInstance();
 
         UpdatePresenter updatePresenter = new UpdatePresenter(userService);

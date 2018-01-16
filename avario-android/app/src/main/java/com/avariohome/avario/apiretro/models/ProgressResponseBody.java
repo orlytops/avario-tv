@@ -58,7 +58,7 @@ public class ProgressResponseBody extends ResponseBody {
                 Log.d("Bytes", totalBytesRead + " " + responseBody.contentLength() + " ");
 
                 int percent = (int) ((totalBytesRead * 100) / responseBody.contentLength());
-                Log.d("SUB TYPE", responseBody.contentType().subtype());
+                Log.d("SUB TYPE", responseBody.contentType().subtype() + " " + responseBody.contentType().type());
                 if (responseBody.contentType().subtype().equals("octet-stream")) {
                     EventBus.getDefault().post(new UpdateDownload(percent));
                 }

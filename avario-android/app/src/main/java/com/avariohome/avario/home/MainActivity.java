@@ -313,7 +313,7 @@ public class MainActivity extends BaseActivity {
         double diagonalInches = Math.sqrt(xInches * xInches + yInches * yInches);
         if (diagonalInches >= 6.5) {
             // 6.5inch device or bigger
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
             config.setIsTablet(true);
         } else {
             // smaller device
@@ -3200,6 +3200,12 @@ public class MainActivity extends BaseActivity {
                 "Ask Me Tomorrow",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                        Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+                        PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, 123, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        alarmManager.cancel(pi);
+                        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10 * 60 * 60 * 1000, 10 * 60 * 60 * 1000, pi);
+
                         dialog.cancel();
                     }
                 });

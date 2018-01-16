@@ -7,6 +7,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,13 +26,18 @@ import android.widget.TextView;
 import com.avariohome.avario.R;
 import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.api.APIRequestListener;
+import com.avariohome.avario.api.component.DaggerUserComponent;
+import com.avariohome.avario.api.component.UserComponent;
 import com.avariohome.avario.api.models.DeleteNotification;
+import com.avariohome.avario.apiretro.models.Version;
+import com.avariohome.avario.apiretro.services.UpdateService;
 import com.avariohome.avario.bus.TriggerUpdate;
 import com.avariohome.avario.core.Config;
 import com.avariohome.avario.core.Notification;
 import com.avariohome.avario.core.NotificationArray;
 import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
+import com.avariohome.avario.presenters.UpdatePresenter;
 import com.avariohome.avario.util.Log;
 import com.avariohome.avario.util.RefStringUtil;
 
@@ -44,6 +51,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.inject.Inject;
+
+import rx.Observer;
 
 
 /**
@@ -73,6 +84,9 @@ public class NotificationDialogFragment extends DialogFragment {
     {buttons="{\"ha!\":\"{\\\"hello\\\":\\\"world\\\"}\"}"}
      */
 
+    @Inject
+    UpdateService userService;
+
     private LinearLayout buttonsLL;
     private ScrollView messageHolderSV;
     private TextView messageTV;
@@ -87,10 +101,13 @@ public class NotificationDialogFragment extends DialogFragment {
 
     private JSONObject buttonJSON;
 
+    private UserComponent userComponent;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        userComponent = DaggerUserComponent.builder().build();
+        userComponent.inject(this);
         this.clickListener = new ClickListener();
     }
 
@@ -310,7 +327,7 @@ public class NotificationDialogFragment extends DialogFragment {
         try {
             boolean isUpdate = buttonsJSON.getBoolean("apk_pending");
             Log.d("isUpdate ", isUpdate + " ");
-            isUpdateApp = isUpdate;
+            checkUpdate(isUpdate);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -542,6 +559,78 @@ public class NotificationDialogFragment extends DialogFragment {
             });
         }
     };
+
+    private void checkUpdate(final boolean hasUpdate) {
+        UpdatePresenter updatePresenter = new UpdatePresenter(userService);
+        updatePresenter.getVersion(new Observer<Version>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(Version version) {
+                isUpdateApp = hasUpdate && needsUpdate(getActivity(), version.getVersion());
+            }
+        });
+
+    }
+
+    private boolean needsUpdate(Context context, String version) {
+        try {
+
+            //get current Version Code
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            String currentVersionName = info.versionName;
+
+            if (!version.equals(currentVersionName)) {
+                //version string not the same, version is NOT up to date
+
+                Boolean updateNeeded = false;
+                String[] currentVersionCodeArray = currentVersionName.split("\\.");
+                String[] storeVersionCodeArray = version.split("\\.");
+
+                int maxLength = currentVersionCodeArray.length;
+                if (storeVersionCodeArray.length > maxLength) {
+                    maxLength = storeVersionCodeArray.length;
+                }
+
+                for (int i = 0; i < maxLength; i++) {
+
+                    try {
+                        if (Integer.parseInt(storeVersionCodeArray[i]) > Integer.parseInt(currentVersionCodeArray[i])) {
+                            updateNeeded = true;
+                            continue;
+                        }
+                    } catch (IndexOutOfBoundsException e) {
+                        //store version code length > current version length = version needs to be updated
+                        //if store version length is shorter, the if-statement already did the job
+                        if (storeVersionCodeArray.length > currentVersionCodeArray.length) {
+                            updateNeeded = true;
+                        }
+                    }
+                }
+
+                if (updateNeeded) {
+                    return true;
+                }
+
+            } else {
+                return false;
+            }
+
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 
     /*
      ***********************************************************************************************
