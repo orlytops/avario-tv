@@ -6,6 +6,7 @@ import android.os.Handler;
 
 import com.avariohome.avario.Application;
 import com.avariohome.avario.Constants;
+import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.util.Log;
 
@@ -85,6 +86,7 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
         this.options.setConnectionTimeout(10);
         this.options.setCleanSession(true);
         this.options.setAutomaticReconnect(false);
+        this.options.setSocketFactory(APIClient.getSSLContext().getSocketFactory());
 
         this.reset();
     }
@@ -121,6 +123,7 @@ public class MqttConnection implements MqttCallbackExtended, IMqttActionListener
     MqttConnection setAuthentication(String username, String password) {
         this.options.setUserName(username);
         this.options.setPassword(password.toCharArray());
+        this.options.setSocketFactory(APIClient.getSSLContext().getSocketFactory());
         return this;
     }
 

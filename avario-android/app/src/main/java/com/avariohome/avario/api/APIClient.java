@@ -18,6 +18,7 @@ import com.avariohome.avario.core.StateArray;
 import com.avariohome.avario.exception.AvarioException;
 import com.avariohome.avario.service.FCMInstanceService;
 import com.avariohome.avario.util.Log;
+import com.avariohome.avario.util.NaiveSSLContext;
 import com.avariohome.avario.util.PlatformUtil;
 import com.avariohome.avario.util.RefStringUtil;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -30,13 +31,20 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 
 /**
@@ -79,6 +87,34 @@ public class APIClient {
         };
     }
 
+    public static SSLContext getSSLContext() {
+        SSLContext context = null;
+        try {
+            context = NaiveSSLContext.getInstance("TLS");
+            context.init(null, trustAllCerts, null);
+            return context;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
+        return context;
+    }
+
+    private static TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+            return new java.security.cert.X509Certificate[]{};
+        }
+
+        public void checkClientTrusted(X509Certificate[] chain,
+                                       String authType) throws CertificateException {
+        }
+
+        public void checkServerTrusted(X509Certificate[] chain,
+                                       String authType) throws CertificateException {
+        }
+    }};
+
 
     private RequestQueue queue;
 
@@ -97,6 +133,7 @@ public class APIClient {
 
                         httpsConn = (HttpsURLConnection) connection;
                         httpsConn.setHostnameVerifier(APIClient.getDevHostnameVerifier());
+                        httpsConn.setSSLSocketFactory(getSSLContext().getSocketFactory());
                     }
 
                     return connection;

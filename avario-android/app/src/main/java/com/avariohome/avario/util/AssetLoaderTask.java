@@ -41,7 +41,8 @@ public abstract class AssetLoaderTask<Result> extends AsyncTask<List<String>, Vo
             HostnameVerifier verifier = APIClient.getDevHostnameVerifier();
             OkHttpClient.Builder builder = new OkHttpClient.Builder()
                     .connectTimeout(180, TimeUnit.SECONDS)
-                    .readTimeout(180, TimeUnit.SECONDS);
+                    .readTimeout(180, TimeUnit.SECONDS)
+                    .sslSocketFactory(APIClient.getSSLContext().getSocketFactory());
             OkHttpClient client;
 
             builder = builder

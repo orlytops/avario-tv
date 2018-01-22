@@ -1151,6 +1151,7 @@ public class SettingsDialogFragment extends DialogFragment {
             self.toggleWorking(false);
             self.toggleError(true, exception);
             self.setEnabled(true);
+            error.printStackTrace();
         }
     }
 

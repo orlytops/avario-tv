@@ -327,7 +327,8 @@ public class NotificationDialogFragment extends DialogFragment {
         try {
             boolean isUpdate = buttonsJSON.getBoolean("apk_pending");
             Log.d("isUpdate ", isUpdate + " ");
-            checkUpdate(isUpdate);
+            isUpdateApp = isUpdate;
+            // checkUpdate(isUpdate);
         } catch (JSONException e) {
             e.printStackTrace();
         }

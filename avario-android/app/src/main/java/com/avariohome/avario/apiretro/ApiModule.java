@@ -1,5 +1,6 @@
 package com.avariohome.avario.apiretro;
 
+import com.avariohome.avario.api.APIClient;
 import com.avariohome.avario.apiretro.models.ProgressResponseBody;
 import com.avariohome.avario.apiretro.services.StateService;
 import com.avariohome.avario.apiretro.services.UpdateService;
@@ -167,6 +168,9 @@ public class ApiModule {
             }
         });
 
+
+        client.sslSocketFactory(APIClient.getSSLContext().getSocketFactory());
+
         client.connectTimeout(100, TimeUnit.SECONDS)
                 .readTimeout(100, TimeUnit.SECONDS);
         return client.build();
@@ -212,6 +216,9 @@ public class ApiModule {
                 return true;
             }
         });
+
+        client.sslSocketFactory(APIClient.getSSLContext().getSocketFactory());
+
         return client.build();
     }
 
