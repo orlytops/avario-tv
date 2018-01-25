@@ -8,12 +8,17 @@ import android.content.IntentFilter;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.Handler;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,6 +48,10 @@ public class BatteryWifi extends FrameLayout {
 
     private AlertDialog.Builder builder;
     private AlertDialog alert11;
+
+
+    private boolean animationStart = false;
+    private boolean isAnimate = false;
 
     public BatteryWifi(@NonNull Context context) {
         super(context);
@@ -174,20 +183,103 @@ public class BatteryWifi extends FrameLayout {
     private void setBatteryLevel(int level) {
         arc.setProgress(level);
         if (level >= 0 && level <= 5) {
+            isAnimate = true;
             wifiImage.setVisibility(GONE);
             percentText.setText(level + "%");
             percentText.setVisibility(VISIBLE);
+            if (!animationStart) {
+                fadeIn(percentText);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        wifiImage.setVisibility(VISIBLE);
+                        fadeIn(wifiImage);
+                    }
+                }, 4500);
+            }
             arc.setProgressColor(getResources().getColor(R.color.red));
         } else if (level >= 6 && level <= 10) {
+            isAnimate = false;
+            animationStart = false;
             wifiImage.setVisibility(VISIBLE);
             percentText.setVisibility(GONE);
             arc.setProgressColor(getResources().getColor(R.color.orange));
         } else {
+            isAnimate = false;
+            animationStart = false;
             wifiImage.setVisibility(VISIBLE);
             percentText.setVisibility(GONE);
             arc.setProgressColor(getResources().getColor(R.color.blue));
         }
     }
+
+    public void fadeIn(final View view) {
+        final Animation fadeIn = new AlphaAnimation(0, 1);
+        fadeIn.setInterpolator(new AccelerateInterpolator());
+        fadeIn.setDuration(500);
+        fadeIn.setFillAfter(true);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        fadeOut(view);
+                    }
+                }, 3500);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        if (isAnimate) {
+            view.startAnimation(fadeIn);
+            animationStart = true;
+        } else {
+            animationStart = false;
+        }
+    }
+
+    public void fadeOut(final View view) {
+        Animation fadeOut = new AlphaAnimation(1, 0);
+        fadeOut.setInterpolator(new AccelerateInterpolator());
+        fadeOut.setDuration(500);
+        fadeOut.setFillAfter(true);
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        fadeIn(view);
+                    }
+                }, 3500);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        if (isAnimate) {
+            view.startAnimation(fadeOut);
+        } else {
+            animationStart = false;
+        }
+    }
+
 
     public int getWifiSignalStrength(Context context) {
         int MIN_RSSI = -100;
