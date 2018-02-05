@@ -2134,18 +2134,22 @@ public class MainActivity extends BaseActivity {
             final ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             final NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
+            Log.d(TAG, "=============Retry " + connection.getRetryCount() + " ===============");
             // max retries not reached: silently retry
-            if (connection.getRetryCount() < 10)
-                return;
-
-            if (!mWifi.isConnected()) {
-                android.util.Log.v("MainActivity/MQTT", "handleNoWifi");
-                handleNoWifi();
+            if (connection.getRetryCount() == 10) {
+                hideBusyDialog();
+                showSettingsDialog(false);
             } else {
-                Connectivity.identifyConnection(getApplicationContext());
-                android.util.Log.v("MainActivity/MQTT", "connectMQTT");
-                connectMQTT(getString(R.string.message__mqtt__connecting));
+                if (!mWifi.isConnected()) {
+                    android.util.Log.v("MainActivity/MQTT", "handleNoWifi");
+                    handleNoWifi();
+                } else {
+                    Connectivity.identifyConnection(getApplicationContext());
+                    android.util.Log.v("MainActivity/MQTT", "connectMQTT");
+                    connectMQTT(getString(R.string.message__mqtt__connecting));
+                }
             }
+
         }
 
         @Override
