@@ -2136,18 +2136,22 @@ public class MainActivity extends BaseActivity {
 
             Log.d(TAG, "=============Retry " + connection.getRetryCount() + " ===============");
             // max retries not reached: silently retry
-            if (connection.getRetryCount() == 10) {
-                hideBusyDialog();
-                showSettingsDialog(false);
+
+
+            if (!mWifi.isConnected()) {
+                android.util.Log.v("MainActivity/MQTT", "handleNoWifi");
+                handleNoWifi();
             } else {
-                if (!mWifi.isConnected()) {
-                    android.util.Log.v("MainActivity/MQTT", "handleNoWifi");
-                    handleNoWifi();
+                if (connection.getRetryCount() == 10) {
+                    hideBusyDialog();
+                    showSettingsDialog(false);
                 } else {
                     Connectivity.identifyConnection(getApplicationContext());
                     android.util.Log.v("MainActivity/MQTT", "connectMQTT");
                     connectMQTT(getString(R.string.message__mqtt__connecting));
+
                 }
+
             }
 
         }

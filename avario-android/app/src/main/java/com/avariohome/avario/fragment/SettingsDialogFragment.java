@@ -908,6 +908,9 @@ public class SettingsDialogFragment extends DialogFragment {
     }
 
     private void loadBootstrap(boolean isRestart) {
+
+        deleteAssetCache(getActivity().getCacheDir());
+        config.setIsImageDownloaded(false);
         Log.i(TAG, "Loading bootstrap JSON...");
         this.workingTV.setText(this.getString(R.string.setting__working, "(Bootstrap)"));
 
