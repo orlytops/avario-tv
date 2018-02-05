@@ -2739,7 +2739,7 @@ public class MainActivity extends BaseActivity {
                 StateArray.getInstance().tempReboot = intent.getBooleanExtra("reboot", false);
                 APIClient
                         .getInstance(getApplicationContext())
-                        .getBootstrapJSON(new BootstrapListener(), intent.getStringExtra("bs_name"));
+                        .getBootstrapJSON(new BootstrapListener(), intent.getStringExtra("bs_name"), false);
             } else {
                 Notification notification = intent.getParcelableExtra("notification");
                 self.notification = notification;

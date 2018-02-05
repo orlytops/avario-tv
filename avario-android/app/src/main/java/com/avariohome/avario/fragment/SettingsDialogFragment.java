@@ -804,7 +804,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private void reloadBootstrap() {
         if (this.config.isSet()) {
             this.toggleWorking(true);
-            this.loadBootstrap();
+            this.loadBootstrap(false);
         } else
             this.setEnabled(true);
     }
@@ -888,25 +888,32 @@ public class SettingsDialogFragment extends DialogFragment {
             this.config.setPassword(password);
 
             setScrollViewFocus(ScrollView.FOCUS_DOWN);
-            if (this.snapshot.initial) {
-                this.toggleWorking(true);
-                this.loadBootstrap();
-            } else
-                this.reloadBootstrap();
+            this.toggleWorking(true);
+            this.loadBootstrap(true);
+
         } else {
-            this.toggleWorking(false);
+            /*this.toggleWorking(false);
             this.setEnabled(true);
-            this.dismiss();
+            this.dismiss();*/
+            this.config.setHttpHost(host);
+            this.config.setHttpPort(port);
+            this.config.setHttpSSL(secure);
+            this.config.setUsername(username);
+            this.config.setPassword(password);
+
+            setScrollViewFocus(ScrollView.FOCUS_DOWN);
+            this.toggleWorking(true);
+            this.loadBootstrap(true);
         }
     }
 
-    private void loadBootstrap() {
+    private void loadBootstrap(boolean isRestart) {
         Log.i(TAG, "Loading bootstrap JSON...");
         this.workingTV.setText(this.getString(R.string.setting__working, "(Bootstrap)"));
 
         APIClient
                 .getInstance(this.getActivity().getApplicationContext())
-                .getBootstrapJSON(new BootstrapListener(), null);
+                .getBootstrapJSON(new BootstrapListener(), null, isRestart);
     }
 
     private void loadAssets() {
@@ -960,18 +967,34 @@ public class SettingsDialogFragment extends DialogFragment {
         try {
             if (this.listener == null)
                 throw new AvarioException(Constants.ERROR_APP_SETTINGS, null);
+            MqttManager manager = MqttManager.getInstance();
+            try {
+                manager.getConnection().disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-            this.listener.attemptMQTT(this.mqttListener);
-        } catch (JSONException | MqttException exception) {
-            int errorCode = exception instanceof MqttException
-                    ? Constants.ERROR_MQTT_CONNECTION
-                    : Constants.ERROR_MQTT_CONFIGURATION;
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
 
-            this.applySnapshot();
+                    try {
+                        listener.attemptMQTT(mqttListener);
+                    } catch (JSONException | MqttException exception) {
+                        int errorCode = exception instanceof MqttException
+                                ? Constants.ERROR_MQTT_CONNECTION
+                                : Constants.ERROR_MQTT_CONFIGURATION;
 
-            this.toggleWorking(false);
-            this.toggleError(true, new AvarioException(errorCode, exception));
-            this.setEnabled(true);
+                        applySnapshot();
+
+                        toggleWorking(false);
+                        toggleError(true, new AvarioException(errorCode, exception));
+                        setEnabled(true);
+                    }
+                }
+            }, 1000);
+
         } catch (AvarioException exception) {
             this.toggleError(true, exception);
         }
@@ -1284,8 +1307,8 @@ public class SettingsDialogFragment extends DialogFragment {
         @Override
         public void onConnectionFailed(MqttConnection connection, AvarioException exception) {
             SettingsDialogFragment self = SettingsDialogFragment.this;
-
-            if (connection.getRetryCount() < connection.getRetryMax())
+            Log.d(TAG, "onConnectionFailed failed");
+            if (connection.getRetryCount() < 1)
                 // max retries still not reached
                 self.workingTV.setText(self.getString(
                         R.string.setting__working,
@@ -1302,14 +1325,18 @@ public class SettingsDialogFragment extends DialogFragment {
 
         @Override
         public void onDisconnection(MqttConnection connection, AvarioException exception) {
-            if (exception != null)
+            Log.d(TAG, "onDisconnection failed");
+            if (exception != null) {
+                exception.printStackTrace();
                 return;
+            }
 
             SettingsDialogFragment.this.connectMQTT();
         }
 
         @Override
         public void onSubscription(MqttConnection connection) {
+            Log.d(TAG, "onSubscription failed");
             SettingsDialogFragment self = SettingsDialogFragment.this;
             StateArray states = StateArray.getInstance();
             Log.d(TAG, "Onsubscribe");
@@ -1336,10 +1363,12 @@ public class SettingsDialogFragment extends DialogFragment {
 
         @Override
         public void onSubscriptionError(MqttConnection connection, AvarioException exception) {
+            Log.d(TAG, "onSubscriptionError failed");
         }
 
         @Override
         public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous, MqttConnection.Status current) {
+            Log.d(TAG, "onStatusChanged failed");
         }
     }
 

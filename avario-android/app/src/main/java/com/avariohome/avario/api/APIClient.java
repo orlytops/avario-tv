@@ -266,7 +266,7 @@ public class APIClient {
         }
     }
 
-    public void getBootstrapJSON(BootstrapListener listener, String path) {
+    public void getBootstrapJSON(BootstrapListener listener, String path, boolean isRestart) {
         final Config config = Config.getInstance();
         JsonObjectRequest request;
 
@@ -287,6 +287,13 @@ public class APIClient {
                 domain = config.getHttpDomain();
             }
             e.printStackTrace();
+        }
+
+
+        if (isRestart) {
+            if (config.getHttpHost() != null) {
+                domain = config.getHttpDomain();
+            }
         }
 
         if (domain == null) {
