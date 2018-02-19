@@ -1,0 +1,16 @@
+*.swp
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+
+.idea/instapk.xml
+instapk.log*
+instapk.properties
+library/
+*.properties

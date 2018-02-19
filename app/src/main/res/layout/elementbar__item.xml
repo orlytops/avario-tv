@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_select_element"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+  <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp">
+
+      <ImageView
+          android:id="@+id/icon"
+          android:layout_width="51dp"
+          android:layout_height="51dp"
+          android:layout_centerHorizontal="true"
+          android:layout_gravity="center"
+          android:layout_marginTop="8dp"
+          android:duplicateParentState="false"
+          android:padding="0dp"
+          android:scaleType="fitXY"/>
+
+      <TextView
+          android:id="@+id/text"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@id/icon"
+          android:layout_centerHorizontal="true"
+          android:layout_marginBottom="4dp"
+          android:gravity="top|center_horizontal"
+          android:lines="2"
+          android:maxLines="2"
+          android:textColor="@color/text__stateful"/>
+    </RelativeLayout>
+  </RelativeLayout>
+</LinearLayout>

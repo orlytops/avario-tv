@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <integer name="app__setting__holdmsec">8000</integer>
+    <integer name="app__setting__portssl">443</integer>
+
+    <integer name="timer__apierror">2000</integer>
+    <integer name="timer__nagle">250</integer>
+    <integer name="timer__inactivity">120000</integer>
+    <integer name="timer_post_ble">5000</integer>
+</resources>

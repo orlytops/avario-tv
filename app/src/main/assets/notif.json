@@ -1,0 +1,29 @@
+{
+  "message_id": "0:1512723888541641%39a5f54239a5f542",
+  "title": "Updates Available",
+  "body": "Pending Avario Home System Updates Available",
+  "date_sent": 1512723888534,
+  "is_read": false,
+  "ttl": "82800",
+  "buttons": [
+    {
+      "txt": "Yes",
+      "delete_on_click": false,
+      "api": {
+        "url": "https:\/\/192.168.0.18:22443\/push\/buttonHandler.php?button=X",
+        "method": "POST"
+      },
+      "webview": {
+        "url": "{{ip4}}/push/webView.php?view=updatesAvailable"
+      }
+    },
+    {
+      "txt": "No",
+      "delete_on_click": false
+    }
+  ],
+  "additional_data": {
+    "finished_keyword": "*OK*",
+    "apk_pending": true
+  }
+}

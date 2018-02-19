@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- An XML resource that lists all the icons being used --><!--
+    The strings must be in the following order for states:
+
+    activated
+    selected
+    pressed
+    default
+ -->
+<resources>
+    <!-- Application Backgrounds -->
+
+    <string-array name="bg__bedroom">
+        <item>/bg/bg__bedroom.jpg</item>
+    </string-array>
+
+    <string-array name="bg__app__light">
+        <item>/bg/bg__app__light.jpg</item>
+    </string-array>
+
+    <string-array name="bg__kitchen">
+        <item>/bg/bg__kitchen.jpg</item>
+    </string-array>
+
+
+    <!-- Topbar -->
+    <string-array name="ic__mode__bolt">
+        <item>/topbar/ic__mode__bolt__activated.png</item>
+        <item>/topbar/ic__mode__bolt__selected.png</item>
+        <item>/topbar/ic__mode__bolt__pressed.png</item>
+        <item>/topbar/ic__mode__bolt__default.png</item>
+    </string-array>
+
+    <string-array name="ic__mode__cctv">
+        <item>/topbar/ic__mode__cctv__activated.png</item>
+        <item>/topbar/ic__mode__cctv__selected.png</item>
+        <item>/topbar/ic__mode__cctv__pressed.png</item>
+        <item>/topbar/ic__mode__cctv__default.png</item>
+    </string-array>
+
+    <string-array name="ic__mode__home">
+        <item>/topbar/ic__mode__home__activated.png</item>
+        <item>/topbar/ic__mode__home__selected.png</item>
+        <item>/topbar/ic__mode__home__pressed.png</item>
+        <item>/topbar/ic__mode__home__default.png</item>
+    </string-array>
+
+    <string-array name="ic__wifi__blue__1">
+        <item>/topbar/ic__wifi__blue__1.png</item>
+    </string-array>
+
+    <string-array name="ic__wifi__blue__2">
+        <item>/topbar/ic__wifi__green__2.png</item>
+    </string-array>
+
+    <string-array name="ic__wifi__blue__3">
+        <item>/topbar/ic__wifi__blue__3.png</item>
+    </string-array>
+
+    <string-array name="ic__wifi__blue__4">
+        <item>/topbar/ic__wifi__blue__4.png</item>
+    </string-array>
+
+    <string-array name="ic__wifi__red__1">
+        <item>/topbar/ic__wifi__red__1.png</item>
+    </string-array>
+
+    <string-array name="ic__wifi__red__2">
+        <item>/topbar/ic__wifi__red__2.png</item>
+    </string-array>
+
+    <string-array name="ic__wifi__red__3">
+        <item>/topbar/ic__wifi__red__3.png</item>
+    </string-array>
+
+    <string-array name="ic__wifi__red__4">
+        <item>/topbar/ic__wifi__red__4.png</item>
+    </string-array>
+
+    <string-array name="ic__mode__temp">
+        <item>/topbar/ic__mode__temp__activated.png</item>
+        <item>/topbar/ic__mode__temp__selected.png</item>
+        <item>/topbar/ic__mode__temp__pressed.png</item>
+        <item>/topbar/ic__mode__temp__default.png</item>
+    </string-array>
+
+    <string-array name="ic__topbar__mute">
+        <item>/topbar/ic__mute__activated.png</item>
+        <item>/topbar/ic__mute__selected.png</item>
+        <item>/topbar/ic__mute__pressed.png</item>
+        <item>/topbar/ic__mute__default.png</item>
+    </string-array>
+
+    <string-array name="ic__topbar__play">
+        <item>/topbar/ic__play__activated.png</item>
+        <item>/topbar/ic__play__selected.png</item>
+        <item>/topbar/ic__play__pressed.png</item>
+        <item>/topbar/ic__play__default.png</item>
+    </string-array>
+
+    <string-array name="ic__topbar__next">
+        <item>/topbar/ic__next__activated.png</item>
+        <item>/topbar/ic__next__selected.png</item>
+        <item>/topbar/ic__next__pressed.png</item>
+        <item>/topbar/ic__next__default.png</item>
+    </string-array>
+
+    <string-array name="ic__topbar__prev">
+        <item>/topbar/ic__prev__activated.png</item>
+        <item>/topbar/ic__prev__selected.png</item>
+        <item>/topbar/ic__prev__pressed.png</item>
+        <item>/topbar/ic__prev__default.png</item>
+    </string-array>
+
+    <string-array name="ic__topbar__dropdown">
+        <item>/topbar/ic__dropdown__activated.png</item>
+        <item>/topbar/ic__dropdown__selected.png</item>
+        <item>/topbar/ic__dropdown__pressed.png</item>
+        <item>/topbar/ic__dropdown__default.png</item>
+    </string-array>
+
+    <string-array name="ic__topbar__notiff">
+        <item>/topbar/ic__dropdown__activated.png</item>
+        <item>/topbar/ic__dropdown__selected.png</item>
+        <item>/topbar/ic__dropdown__pressed.png</item>
+        <item>/topbar/ic__dropdown__default.png</item>
+    </string-array>
+
+    <string-array name="ic__topbar__volume">
+        <item>/topbar/ic__volume__activated.png</item>
+        <item>/topbar/ic__volume__selected.png</item>
+        <item>/topbar/ic__volume__pressed.png</item>
+        <item>/topbar/ic__volume__default.png</item>
+    </string-array>
+
+
+    <!-- Dial -->
+    <string-array name="bg__dial__base">
+        <item>/dial/bg__base.png</item>
+    </string-array>
+
+    <string-array name="bg__dial__top__button">
+        <item>/dial/bg__top__button.png</item>
+    </string-array>
+
+    <string-array name="bg__dial__top__flat">
+        <item>/dial/bg__top__flat.png</item>
+    </string-array>
+
+    <string-array name="bg__dial__top__dpad">
+        <item>/dial/bg__top__dpad.png</item>
+    </string-array>
+
+    <string-array name="bg__dpad__bottom__selected">
+        <item>/dial/bg__dpad__bottom__selected.png</item>
+    </string-array>
+
+    <string-array name="bg__dpad__left__selected">
+        <item>/dial/bg__dpad__left__selected.png</item>
+    </string-array>
+
+    <string-array name="bg__dpad__middle__selected">
+        <item>/dial/bg__dpad__middle__selected.png</item>
+    </string-array>
+
+    <string-array name="bg__dpad__right__selected">
+        <item>/dial/bg__dpad__right__selected.png</item>
+    </string-array>
+
+    <string-array name="bg__dpad__top__selected">
+        <item>/dial/bg__dpad__top__selected.png</item>
+    </string-array>
+
+    <string-array name="bg__dial__mid__unselected">
+        <item>/dial/bg__mid__unselected.png</item>
+    </string-array>
+
+    <string-array name="bg__dial__mid__open">
+        <item>/dial/bg__mid__open.png</item>
+    </string-array>
+
+    <string-array name="bg__dial__mid__close">
+        <item>/dial/bg__mid__close.png</item>
+    </string-array>
+
+    <string-array name="ic__dial__dimple">
+        <item>/dial/ic__dimple.png</item>
+    </string-array>
+
+    <string-array name="ic__dial__power">
+        <item>/dial/ic__power__activated.png</item>
+        <item>/dial/ic__power__selected.png</item>
+        <item>/dial/ic__power__pressed.png</item>
+        <item>/dial/ic__power__default.png</item>
+    </string-array>
+
+    <string-array name="ic__dial__dpad__center">
+        <item>/dial/ic__dpad__center__activated.png</item>
+        <item>/dial/ic__dpad__center__selected.png</item>
+        <item>/dial/ic__dpad__center__pressed.png</item>
+        <item>/dial/ic__dpad__center__default.png</item>
+    </string-array>
+
+    <string-array name="ic__dial__dpad__up">
+        <item>/dial/ic__dpad__up__activated.png</item>
+        <item>/dial/ic__dpad__up__selected.png</item>
+        <item>/dial/ic__dpad__up__pressed.png</item>
+        <item>/dial/ic__dpad__up__default.png</item>
+    </string-array>
+
+    <string-array name="ic__dial__dpad__down">
+        <item>/dial/ic__dpad__down__activated.png</item>
+        <item>/dial/ic__dpad__down__selected.png</item>
+        <item>/dial/ic__dpad__down__pressed.png</item>
+        <item>/dial/ic__dpad__down__default.png</item>
+    </string-array>
+
+    <string-array name="ic__dial__dpad__left">
+        <item>/dial/ic__dpad__left__activated.png</item>
+        <item>/dial/ic__dpad__left__selected.png</item>
+        <item>/dial/ic__dpad__left__pressed.png</item>
+        <item>/dial/ic__dpad__left__default.png</item>
+    </string-array>
+
+    <string-array name="ic__dial__dpad__right">
+        <item>/dial/ic__dpad__right__activated.png</item>
+        <item>/dial/ic__dpad__right__selected.png</item>
+        <item>/dial/ic__dpad__right__pressed.png</item>
+        <item>/dial/ic__dpad__right__default.png</item>
+    </string-array>
+
+    <!-- Dial Button -->
+    <string-array name="bg__dialbtn">
+        <item>/dial-under/bg__circle__white.png</item>
+    </string-array>
+
+    <string-array name="ic__switch">
+        <item>/dial-under/ic__switch.png</item>
+    </string-array>
+
+    <string-array name="ic__dialbtn__bulb">
+        <item>/dial-under/ic__bulb__activated.png</item>
+        <item>/dial-under/ic__bulb__selected.png</item>
+        <item>/dial-under/ic__bulb__pressed.png</item>
+        <item>/dial-under/ic__bulb__default.png</item>
+    </string-array>
+
+    <string-array name="ic__dialbtn__dpad">
+        <item>/dial-under/ic__dpad__activated.png</item>
+        <item>/dial-under/ic__dpad__selected.png</item>
+        <item>/dial-under/ic__dpad__pressed.png</item>
+        <item>/dial-under/ic__dpad__default.png</item>
+    </string-array>
+
+    <string-array name="ic__dialbtn__menu">
+        <item>/dial-under/ic__menu__activated.png</item>
+        <item>/dial-under/ic__menu__selected.png</item>
+        <item>/dial-under/ic__menu__pressed.png</item>
+        <item>/dial-under/ic__menu__default.png</item>
+    </string-array>
+
+    <string-array name="ic__dialbtn__refresh">
+        <item>/dial-under/ic__refresh__activated.png</item>
+        <item>/dial-under/ic__refresh__selected.png</item>
+        <item>/dial-under/ic__refresh__pressed.png</item>
+        <item>/dial-under/ic__refresh__default.png</item>
+    </string-array>
+
+    <string-array name="ic__bright">
+        <item>/dial-under/ic__bright__activated.png</item>
+        <item>/dial-under/ic__bright__default.png</item>
+    </string-array>
+
+    <string-array name="ic__colour">
+        <item>/dial-under/ic__colour__activated.png</item>
+        <item>/dial-under/ic__colour__default.png</item>
+    </string-array>
+
+    <string-array name="ic__temperature">
+        <item>/dial-under/ic__temperature__activated.png</item>
+        <item>/dial-under/ic__temperature__default.png</item>
+    </string-array>
+
+    <string-array name="ic__saturation">
+        <item>/dial-under/ic__saturation__activated.png</item>
+        <item>/dial-under/ic__saturation__default.png</item>
+    </string-array>
+
+    <string-array name="ic__equalizerbalanced">
+        <item>/dial-under/ic__equalizerbalanced__activated.png</item>
+        <item>/dial-under/ic__equalizerbalanced__default.png</item>
+        <item>/dial-under/ic__equalizerbalanced__pressed.png</item>
+        <item>/dial-under/ic__equalizerbalanced__selected.png</item>
+    </string-array>
+
+    <string-array name="ic__equalizergradual">
+        <item>/dial-under/ic__equalizergradual__activated.png</item>
+        <item>/dial-under/ic__equalizergradual__default.png</item>
+        <item>/dial-under/ic__equalizergradual__pressed.png</item>
+        <item>/dial-under/ic__equalizergradual__selected.png</item>
+    </string-array>
+
+    <string-array name="ic__equalizermiddle">
+        <item>/dial-under/ic__equalizermiddle__activated.png</item>
+        <item>/dial-under/ic__equalizermiddle__default.png</item>
+        <item>/dial-under/ic__equalizermiddle__pressed.png</item>
+        <item>/dial-under/ic__equalizermiddle__selected.png</item>
+    </string-array>
+
+    <!-- DevicesList -->
+    <string-array name="ic__deviceslist__check">
+        <item>/controlsbar/ic__check.png</item>
+    </string-array>
+
+    <string-array name="ic__deviceslist__back">
+        <item>/controlsbar/ic__back.png</item>
+    </string-array>
+
+
+    <!-- RoomSelector -->
+    <string-array name="ic__roomselect__locator">
+        <item>/roomselect/ic__locator__activated.png</item>
+        <item>/roomselect/ic__locator__selected.png</item>
+        <item>/roomselect/ic__locator__pressed.png</item>
+        <item>/roomselect/ic__locator__default.png</item>
+    </string-array>
+
+    <string-array name="ic__roomselect__more">
+        <item>/roomselect/ic__more__activated.png</item>
+        <item>/roomselect/ic__more__selected.png</item>
+        <item>/roomselect/ic__more__pressed.png</item>
+        <item>/roomselect/ic__more__default.png</item>
+    </string-array>
+
+    <string-array name="ic__roomselect__device">
+        <item>/topbar/ic__dropdown__activated.png</item>
+    </string-array>
+
+    <string-array name="ic__roomselect__media">
+        <item>/roomselect/ic__media.png</item>
+    </string-array>
+
+    <string-array name="ic__roomselect__indicator">
+        <item>/roomselect/ic__indicator__activated.png</item>
+        <item>/roomselect/ic__indicator__selected.png</item>
+        <item>/roomselect/ic__indicator__pressed.png</item>
+        <item>/roomselect/ic__indicator__default.png</item>
+    </string-array>
+
+    <string-array name="ic__roomselect__indicator__playing">
+        <item>/roomselect/ic__indicator__play.png</item>
+    </string-array>
+
+    <!-- ElementBar -->
+    <string-array name="ic__set__element">
+        <item>/element/ic__airplane__off__queued.png</item>
+        <item>/element/ic__airplane__off.png</item>
+        <item>/element/ic__airplane__on__queued.png</item>
+        <item>/element/ic__airplane__on.png</item>
+        <item>/element/ic__bedtime__off__queued.png</item>
+        <item>/element/ic__bedtime__off.png</item>
+        <item>/element/ic__bedtime__on__queued.png</item>
+        <item>/element/ic__bedtime__on.png</item>
+        <item>/element/ic__blindsclose__off__queued.png</item>
+        <item>/element/ic__blindsclose__off.png</item>
+        <item>/element/ic__blindsclose__on__queued.png</item>
+        <item>/element/ic__blindsclose__on.png</item>
+        <item>/element/ic__blindsopen__off__queued.png</item>
+        <item>/element/ic__blindsopen__off.png</item>
+        <item>/element/ic__blindsopen__on__queued.png</item>
+        <item>/element/ic__blindsopen__on.png</item>
+        <item>/element/ic__blindspartial__off__queued.png</item>
+        <item>/element/ic__blindspartial__off.png</item>
+        <item>/element/ic__blindspartial__on__queued.png</item>
+        <item>/element/ic__blindspartial__on.png</item>
+        <item>/element/ic__bright__off__queued.png</item>
+        <item>/element/ic__bright__off.png</item>
+        <item>/element/ic__bright__on__queued.png</item>
+        <item>/element/ic__bright__on.png</item>
+        <item>/element/ic__bulb__off__queued.png</item>
+        <item>/element/ic__bulb__off.png</item>
+        <item>/element/ic__bulb__on__queued.png</item>
+        <item>/element/ic__bulb__on.png</item>
+        <item>/element/ic__comfy__off__queued.png</item>
+        <item>/element/ic__comfy__off.png</item>
+        <item>/element/ic__comfy__on__queued.png</item>
+        <item>/element/ic__comfy__on.png</item>
+        <item>/element/ic__dinner__off__queued.png</item>
+        <item>/element/ic__dinner__off.png</item>
+        <item>/element/ic__dinner__on__queued.png</item>
+        <item>/element/ic__dinner__on.png</item>
+        <item>/element/ic__home__off__queued.png</item>
+        <item>/element/ic__home__off.png</item>
+        <item>/element/ic__home__on__queued.png</item>
+        <item>/element/ic__home__on.png</item>
+        <item>/element/ic__interface__off__queued.png</item>
+        <item>/element/ic__interface__off.png</item>
+        <item>/element/ic__interface__on__queued.png</item>
+        <item>/element/ic__interface__on.png</item>
+        <item>/element/ic__leave__off__queued.png</item>
+        <item>/element/ic__leave__off.png</item>
+        <item>/element/ic__leave__on__queued.png</item>
+        <item>/element/ic__leave__on.png</item>
+        <item>/element/ic__lights__off__queued.png</item>
+        <item>/element/ic__lights__off.png</item>
+        <item>/element/ic__lights__on__queued.png</item>
+        <item>/element/ic__lights__on.png</item>
+        <item>/element/ic__lock__off__queued.png</item>
+        <item>/element/ic__lock__off.png</item>
+        <item>/element/ic__lock__on__queued.png</item>
+        <item>/element/ic__lock__on.png</item>
+        <item>/element/ic__mixed__off__queued.png</item>
+        <item>/element/ic__mixed__off.png</item>
+        <item>/element/ic__mixed__on__queued.png</item>
+        <item>/element/ic__mixed__on.png</item>
+        <item>/element/ic__mixedpartial__queued.png</item>
+        <item>/element/ic__mixedpartial.png</item>
+        <item>/element/ic__mixedswitchpartial__queued.png</item>
+        <item>/element/ic__mixedswitchpartial.png</item>
+        <item>/element/ic__morning__off__queued.png</item>
+        <item>/element/ic__morning__off.png</item>
+        <item>/element/ic__morning__on__queued.png</item>
+        <item>/element/ic__morning__on.png</item>
+        <item>/element/ic__movie__off__queued.png</item>
+        <item>/element/ic__movie__off.png</item>
+        <item>/element/ic__movie__on__queued.png</item>
+        <item>/element/ic__movie__on.png</item>
+        <item>/element/ic__multiblindsclose__off__queued.png</item>
+        <item>/element/ic__multiblindsclose__off.png</item>
+        <item>/element/ic__multiblindsclose__on__queued.png</item>
+        <item>/element/ic__multiblindsclose__on.png</item>
+        <item>/element/ic__multiblindsopen__off__queued.png</item>
+        <item>/element/ic__multiblindsopen__off.png</item>
+        <item>/element/ic__multiblindsopen__on__queued.png</item>
+        <item>/element/ic__multiblindsopen__on.png</item>
+        <item>/element/ic__multiblindspartial__off__queued.png</item>
+        <item>/element/ic__multiblindspartial__off.png</item>
+        <item>/element/ic__multiblindspartial__on__queued.png</item>
+        <item>/element/ic__multiblindspartial__on.png</item>
+        <item>/element/ic__multilight__off__queued.png</item>
+        <item>/element/ic__multilight__off.png</item>
+        <item>/element/ic__multilight__on__queued.png</item>
+        <item>/element/ic__multilight__on.png</item>
+        <item>/element/ic__multiswitch__off__queued.png</item>
+        <item>/element/ic__multiswitch__off.png</item>
+        <item>/element/ic__multiswitch__on__queued.png</item>
+        <item>/element/ic__multiswitch__on.png</item>
+        <item>/element/ic__party__off__queued.png</item>
+        <item>/element/ic__party__off.png</item>
+        <item>/element/ic__party__on__queued.png</item>
+        <item>/element/ic__party__on.png</item>
+        <item>/element/ic__projector__off__queued.png</item>
+        <item>/element/ic__projector__off.png</item>
+        <item>/element/ic__projector__on__queued.png</item>
+        <item>/element/ic__projector__on.png</item>
+        <item>/element/ic__relax__off__queued.png</item>
+        <item>/element/ic__relax__off.png</item>
+        <item>/element/ic__relax__on__queued.png</item>
+        <item>/element/ic__relax__on.png</item>
+        <item>/element/ic__siren__off__queued.png</item>
+        <item>/element/ic__siren__off.png</item>
+        <item>/element/ic__siren__on__queued.png</item>
+        <item>/element/ic__siren__on.png</item>
+        <item>/element/ic__study__off__queued.png</item>
+        <item>/element/ic__study__off.png</item>
+        <item>/element/ic__study__on__queued.png</item>
+        <item>/element/ic__study__on.png</item>
+        <item>/element/ic__switch__off__queued.png</item>
+        <item>/element/ic__switch__off.png</item>
+        <item>/element/ic__switch__on__queued.png</item>
+        <item>/element/ic__switch__on.png</item>
+        <item>/element/ic__timer__off__queued.png</item>
+        <item>/element/ic__timer__off.png</item>
+        <item>/element/ic__timer__on__queued.png</item>
+        <item>/element/ic__timer__on.png</item>
+        <item>/element/ic__tv__off__queued.png</item>
+        <item>/element/ic__tv__off.png</item>
+        <item>/element/ic__tv__on__queued.png</item>
+        <item>/element/ic__tv__on.png</item>
+        <item>/element/ic__tvdinner__off__queued.png</item>
+        <item>/element/ic__tvdinner__off.png</item>
+        <item>/element/ic__tvdinner__on__queued.png</item>
+        <item>/element/ic__tvdinner__on.png</item>
+        <item>/element/ic__video__off__queued.png</item>
+        <item>/element/ic__video__off.png</item>
+        <item>/element/ic__video__on__queued.png</item>
+        <item>/element/ic__video__on.png</item>
+    </string-array>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <item name="tag__cover__stop" type="id" />
+    <item name="tag__notifbtn__data" type="id" />
+    <item name="dialbtn__swap" type="id" />
+    <item name="dialbtn__switch" type="id" />
+    <item name="dialbtn__colour" type="id" />
+    <item name="dialbtn__brightness" type="id" />
+    <item name="dialbtn__saturation" type="id" />
+    <item name="dialbtn__temperature" type="id" />
+    <item name="dialbtn__algo1" type="id" />
+    <item name="dialbtn__algo2" type="id" />
+    <item name="dialbtn__algo3" type="id" />
+    <item name="dialbtn__home" type="id" />
+    <item name="dialbtn__back" type="id" />
+    <item name="dialbtn__menu" type="id" />
+</resources>

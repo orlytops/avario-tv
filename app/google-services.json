@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1092965284343",
+    "firebase_url": "https://avario-tv.firebaseio.com",
+    "project_id": "avario-tv",
+    "storage_bucket": "avario-tv.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1092965284343:android:ee27ef521d6e23b9",
+        "android_client_info": {
+          "package_name": "com.tv.avario"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1092965284343-6i5v8rttv88oktje67d32qal7n3l5ojk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFGNFUK-mqXmueyQ8f8TsrlWRDYLOsaAE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

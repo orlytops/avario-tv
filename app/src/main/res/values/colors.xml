@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <color name="white">#ffffffff</color>
+    <color name="white__95">#f3ffffff</color>
+    <color name="white__90">#e6ffffff</color>
+    <color name="white__85">#d8ffffff</color>
+    <color name="white__60">#99ffffff</color>
+    <color name="white__5">#0Dffffff</color>
+    <color name="light1">#fff6f7f9</color>
+    <color name="light2">#fff6f7f9</color>
+    <color name="light3">#fff7fbfd</color>
+    <color name="gray1">#cbcbcb</color>
+    <color name="gray2">#6c7b82</color>
+    <color name="black__60">#99000000</color>
+
+    <color name="blue">#219cd1</color>
+    <color name="red">#aa0000</color>
+    <color name="orange">#ffa500</color>
+    <color name="green">#00ff00</color>
+
+    <color name="selection">@color/blue</color>
+    <color name="devicelist__white">#f7f8f9</color>
+    <color name="devicelist__gray">#dae1e4</color>
+    <color name="devicelist__default__bg">#f7fbfd</color>
+
+    <color name="dial__temperature1">#478be0</color>
+    <color name="dial__temperature2">#07f1c8</color>
+    <color name="dial__temperature3">#03de8e</color>
+    <color name="dial__temperature4">#c7de03</color>
+    <color name="dial__temperature5">#de8e03</color>
+    <color name="dial__temperature6">#de1d03</color>
+
+    <color name="dial__color1">#a0ffe3</color>
+    <color name="dial__color2">#07f1c8</color>
+    <color name="dial__color3">#219cd1</color>
+</resources>

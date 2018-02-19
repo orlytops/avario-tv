@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/app.iml" filepath="$PROJECT_DIR$/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../avario-core/avario-core.iml" filepath="$PROJECT_DIR$/../avario-core/avario-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../avario-tv.iml" filepath="$PROJECT_DIR$/../avario-tv.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../library/material-drawer.iml" filepath="$PROJECT_DIR$/../library/material-drawer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../refs/seekarc/library/seekarc.iml" filepath="$PROJECT_DIR$/../../refs/seekarc/library/seekarc.iml" />
+    </modules>
+  </component>
+</project>
