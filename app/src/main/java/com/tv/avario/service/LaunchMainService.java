@@ -7,14 +7,9 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import java.util.concurrent.TimeUnit;
-
 public class LaunchMainService extends Service {
 
-  private static final long   INTERVAL        = TimeUnit.SECONDS.toMillis(2);
-  // periodic interval to check in seconds -> 2 seconds
-  private static final String TAG             = LaunchMainService.class.getSimpleName();
-  private static final String PREF_KIOSK_MODE = "pref_kiosk_mode";
+  private static final String TAG = LaunchMainService.class.getSimpleName();
 
   private Thread  t       = null;
   private Context ctx     = null;
