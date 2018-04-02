@@ -15,10 +15,10 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.avario.core.interfaces.ResponseListener;
-import com.avario.core.models.calls.ServiceData;
 import com.avario.core.models.calls.ServicePost;
 import com.avario.core.websockets.AvarioWebSocket;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tv.avario.Constants;
 import com.tv.avario.R;
 import com.tv.avario.core.APITimers;
@@ -34,7 +34,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import timber.log.Timber;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -123,22 +125,19 @@ public class ElementsBar extends RecyclerView {
       //for websocket
       AvarioWebSocket avarioWebSocket = AvarioWebSocket.getInstance();
 
-      ServicePost servicePost = new ServicePost();
-      servicePost.setType("call_service");
-      servicePost.setDomain("scene");
-      servicePost.setService("turn_on");
+      try {
+        JSONArray requests = entity.data.getJSONObject("controls").getJSONObject("api")
+            .getJSONArray("clk");
 
-      ServiceData serviceData = new ServiceData();
-      serviceData.setEntityId(entityId);
+        for (int i = 0; i < requests.length(); i++) {
+          JSONObject specJson = requests.getJSONObject(i);
+          JSONObject payload = new JSONObject(specJson.optString("payload"));
+          avarioWebSocket.postRequest(getWebSocketRequest(specJson), payload);
+        }
 
-
-      servicePost.setServiceData(serviceData);
-
-      ResponseListener responseListener = new ResponseListener();
-      responseListener.setId(entityId);
-      responseListener.setResponse(sceneResponse);
-
-      avarioWebSocket.postRequest(servicePost, responseListener);
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
 
       return true;
 
@@ -146,18 +145,31 @@ public class ElementsBar extends RecyclerView {
     return super.dispatchKeyEvent(event);
   }
 
+  private ServicePost getWebSocketRequest(JSONObject request) {
 
-  private ResponseListener.Response sceneResponse = new ResponseListener.Response() {
-    @Override
-    public void onResponse(JSONObject jsonObject) {
-      Timber.d("Response scene");
+    ServicePost servicePost = new ServicePost();
+    try {
+
+      JSONObject ws = request.getJSONObject("ws");
+      servicePost.setService(ws.getString("service"));
+      servicePost.setType(ws.getString("type"));
+      servicePost.setDomain(ws.getString("domain"));
+    } catch (JSONException e) {
+      e.printStackTrace();
     }
 
-    @Override
-    public void onError() {
-      Timber.e("Response scene error: ");
+    ObjectMapper mapper = new ObjectMapper();
+    HashMap<String, Object> retMap = new HashMap<String, Object>();
+    try {
+      retMap = mapper.readValue(request.optString("payload"),
+          new TypeReference<Map<String, Object>>() {});
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-  };
+    servicePost.setServiceData(retMap);
+    return servicePost;
+  }
+
 
   /*
     Don't delete until I can figure out a much.much. cleaner way to do item width adjustment.
@@ -227,7 +239,23 @@ public class ElementsBar extends RecyclerView {
       ElementAdapter adapter = self.getAdapter();
       Entity entity = adapter.get(position);
 
-      EntityUtil.runAPICommands(entity.data, "clk", self.getContext());
+      //EntityUtil.runAPICommands(entity.data, "clk", self.getContext());
+
+      AvarioWebSocket avarioWebSocket = AvarioWebSocket.getInstance();
+
+      try {
+        JSONArray requests = entity.data.getJSONObject("controls").getJSONObject("api")
+            .getJSONArray("clk");
+
+        for (int i = 0; i < requests.length(); i++) {
+          JSONObject specJson = requests.getJSONObject(i);
+          JSONObject payload = new JSONObject(specJson.optString("payload"));
+          avarioWebSocket.postRequest(getWebSocketRequest(specJson), payload);
+        }
+
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
     }
 
   };

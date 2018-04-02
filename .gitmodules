@@ -1,0 +1,3 @@
+[submodule "avario-websocket"]
+	path = avario-websocket
+	url = git@github.com:binarybean/avarioHome_androidWS.git

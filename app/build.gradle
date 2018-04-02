@@ -17,6 +17,10 @@ android {
       minifyEnabled true
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
+    debug {
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
   }
 
   packagingOptions {
@@ -52,7 +56,7 @@ dependencies {
 
   compile fileTree(include: ['*.jar'], dir: 'libs')
   compile project(':seekarc')
-  compile project(':avario-core')
+  compile project(':avario-websocket')
 
   compile "com.android.volley:volley:${versions['volley']}"
   compile "com.android.support:recyclerview-v7:${versions['supt']}"
@@ -80,11 +84,6 @@ dependencies {
   compile 'com.daimajia.androidanimations:library:2.3@aar'
   compile 'com.google.firebase:firebase-crash:11.0.2'
   testCompile 'junit:junit:4.12'
-
-  //required support lib modules
-  implementation "com.android.support:appcompat-v7:${versions.supportLib}"
-  implementation "com.android.support:recyclerview-v7:${versions.supportLib}"
-  implementation "com.android.support:support-annotations:${versions.supportLib}"
 
   compile 'com.google.code.gson:gson:2.7'
   compile 'com.squareup.retrofit2:retrofit:2.1.0'

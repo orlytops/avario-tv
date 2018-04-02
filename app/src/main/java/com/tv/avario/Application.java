@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.android.volley.VolleyLog;
+import com.avario.core.AvarioCoreConfig;
 import com.avario.core.Config;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.crash.FirebaseCrash;
@@ -102,6 +103,7 @@ public class Application extends android.app.Application {
     StateArray.getInstance(this);
     APIClient.getInstance(this);
     Config.getInstance(this);
+    AvarioCoreConfig.getInstance(this);
 
     NotificationArray
         .getInstance()

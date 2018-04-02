@@ -1,5 +1,5 @@
 include ':app',
-        ':seekarc', ':material-drawer', ':avario-core'
+        ':seekarc', ':material-drawer', 'avario-websocket'
 
 // Do not forget to change to the project location of the
 // clone of: https://github.com/jan-ingenuity/SeekArc

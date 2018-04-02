@@ -45,6 +45,7 @@ import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.ParseError;
 import com.android.volley.VolleyError;
+import com.avario.core.AvarioCoreConfig;
 import com.avario.core.Config;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -137,6 +138,7 @@ public class SettingsDialogFragment extends DialogFragment {
   private Listener                listener;
   private Snapshot                snapshot;
   private Config                  config;
+  private AvarioCoreConfig        avarioCoreConfig;
   private int                     positiveId;
   private int                     negativeId;
   private int                     neutralId;
@@ -235,6 +237,7 @@ public class SettingsDialogFragment extends DialogFragment {
     View view = inflater.inflate(R.layout.fragment__settings, container, false);
 
     this.config = Config.getInstance(view.getContext());
+    avarioCoreConfig = AvarioCoreConfig.getInstance(view.getContext());
     this.setupSnapshot();
 
     this.mainScrollView = (ScrollView) view.findViewById(R.id.svMain);
@@ -790,6 +793,12 @@ public class SettingsDialogFragment extends DialogFragment {
       this.config.setUsername(username);
       this.config.setPassword(password);
 
+      this.avarioCoreConfig.setHttpHost(host);
+      this.avarioCoreConfig.setHttpPort(port);
+      this.avarioCoreConfig.setHttpSSL(secure);
+      this.avarioCoreConfig.setUsername(username);
+      this.avarioCoreConfig.setPassword(password);
+
       setScrollViewFocus(ScrollView.FOCUS_DOWN);
       this.toggleWorking(true);
       this.loadBootstrap(true);
@@ -803,6 +812,12 @@ public class SettingsDialogFragment extends DialogFragment {
       this.config.setHttpSSL(secure);
       this.config.setUsername(username);
       this.config.setPassword(password);
+
+      this.avarioCoreConfig.setHttpHost(host);
+      this.avarioCoreConfig.setHttpPort(port);
+      this.avarioCoreConfig.setHttpSSL(secure);
+      this.avarioCoreConfig.setUsername(username);
+      this.avarioCoreConfig.setPassword(password);
 
       setScrollViewFocus(ScrollView.FOCUS_DOWN);
       this.toggleWorking(true);
