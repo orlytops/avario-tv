@@ -14,8 +14,6 @@ import com.tv.avario.api.APIClient;
 import com.tv.avario.core.StateArray;
 import com.tv.avario.exception.AvarioException;
 import com.tv.avario.fragment.SettingsDialogFragment;
-import com.tv.avario.mqtt.MqttConnection;
-import com.tv.avario.mqtt.MqttManager;
 import com.tv.avario.util.Log;
 import com.tv.avario.util.PlatformUtil;
 import com.tv.avario.widget.ElementsBar;
@@ -24,8 +22,6 @@ import com.tv.avario.widget.adapter.Entity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import timber.log.Timber;
 
 /**
  * Created by orly on 2/7/18.
@@ -52,15 +48,6 @@ public class MainDialogActivity extends BaseActivity {
   @Override
   protected void onResume() {
     super.onResume();
-
-    MqttManager mqttManager = MqttManager.getInstance();
-    Timber.d("Is mqtt is connected: %s", mqttManager.isConnected());
-
-    if (mqttManager.isConnected()) {
-      mqttManager.getConnection().setListener(mqttListener);
-    } else {
-      connectMQTT(mqttListener, false);
-    }
     if (avarioWebSocket == null) {
       avarioWebSocket = AvarioWebSocket.getInstance();
     }
@@ -71,39 +58,6 @@ public class MainDialogActivity extends BaseActivity {
     }
 
   }
-
-  private MqttConnection.Listener mqttListener = new MqttConnection.Listener() {
-    @Override
-    public void onConnection(MqttConnection connection, boolean reconnection) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(MqttConnection connection, AvarioException exception) {
-
-    }
-
-    @Override
-    public void onDisconnection(MqttConnection connection, AvarioException exception) {
-
-    }
-
-    @Override
-    public void onSubscription(MqttConnection connection) {
-      Timber.i("Connected Successfully");
-    }
-
-    @Override
-    public void onSubscriptionError(MqttConnection connection, AvarioException exception) {
-
-    }
-
-    @Override
-    public void onStatusChanged(MqttConnection connection, MqttConnection.Status previous,
-        MqttConnection.Status current) {
-
-    }
-  };
 
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
@@ -136,6 +90,9 @@ public class MainDialogActivity extends BaseActivity {
     _closeImage.setOnFocusChangeListener(onFocusChangeListener);
     _settingsImage.setOnFocusChangeListener(onFocusChangeListener);
 
+    _closeImage.setOnClickListener(onClickListener);
+    _settingsImage.setOnClickListener(onClickListener);
+
   }
 
   private View.OnFocusChangeListener onFocusChangeListener = new View.OnFocusChangeListener() {
@@ -143,6 +100,20 @@ public class MainDialogActivity extends BaseActivity {
     public void onFocusChange(View v, boolean hasFocus) {
       if (hasFocus) {
         _viewSelected = v;
+      }
+    }
+  };
+
+  private View.OnClickListener onClickListener = new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+      switch (view.getId()) {
+      case R.id.image_close:
+        finish();
+        break;
+      case R.id.image_settings:
+        showSettingsDialog(settingsListener);
+        break;
       }
     }
   };
