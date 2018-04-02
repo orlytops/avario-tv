@@ -121,7 +121,6 @@ public class MainDialogActivity extends BaseActivity {
   private void getData() {
     StateArray state = StateArray.getInstance();
     try {
-      JSONObject roomEntity = state.getRoom("group.bedroom");
       if (state.getTelevisionItems() == null) {
         loadBootstrap();
       } else {
